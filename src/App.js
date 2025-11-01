@@ -1,5 +1,4 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { useState } from "react";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
@@ -7,18 +6,30 @@ import Users from "./pages/User";
 import "./App.css";
 
 const App = () => {
+  const [activePage, setActivePage] = useState("users"); // default = admin page
+
+  const renderPage = () => {
+    switch (activePage) {
+      case "dashboard":
+        return <Dashboard />;
+      case "users":
+        return <Users />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
   return (
-    <Router>
+    <div className="app-container">
+      {/* ✅ Always show Header */}
       <Header />
-      <Sidebar />
-      <main className="main">
-        <Routes>
-          <Route path="/" element={<Navigate to="/admin" />} />   {/* 👈 Default route */}
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/admin" element={<Users />} />             {/* 👈 Admin page */}
-        </Routes>
-      </main>
-    </Router>
+
+      {/* ✅ Sidebar stays fixed on left */}
+      <Sidebar activePage={activePage} onSelect={setActivePage} />
+
+      {/* ✅ Main content area (below header, beside sidebar) */}
+      <main className="main">{renderPage()}</main>
+    </div>
   );
 };
 
