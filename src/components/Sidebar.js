@@ -25,6 +25,7 @@ const Sidebar = ({ activePage, onSelect }) => {
          src={logo}
           alt="SmartGaon Logo"
         />
+        SmartGaon Admin
      
       </div>
 

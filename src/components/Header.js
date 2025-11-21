@@ -7,7 +7,7 @@ const Header = () => {
       
       {/* LEFT SIDE */}
       <div className="header-left">
-        <span className="welcome">Welcome, SmartGaon AI Admin</span>
+        <span className="welcome">Welcome, Manish Anand</span>
       </div>
 
       {/* RIGHT SIDE */}
