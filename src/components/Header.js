@@ -1,10 +1,22 @@
 import React from "react";
+import "./header.css";
 
-const Header = () => (
-  <div className="top-header">
-    <h1>SmartGaon AI Admin Panel</h1>
-    <div className="user-info">Welcome, Admin | Logout</div>
-  </div>
-);
+const Header = () => {
+  return (
+    <div className="header">
+      
+      {/* LEFT SIDE */}
+      <div className="header-left">
+        <span className="welcome">Welcome, SmartGaon AI Admin</span>
+      </div>
+
+      {/* RIGHT SIDE */}
+      <div className="header-right">
+        <button className="logout-btn">Logout</button>
+      </div>
+
+    </div>
+  );
+};
 
 export default Header;

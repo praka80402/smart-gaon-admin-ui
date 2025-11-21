@@ -1,4 +1,7 @@
 import React from "react";
+import "./header.css";
+import logo from "../logo.svg";
+
 
 const menuItems = [
   { key: "dashboard", label: "Dashboard" },
@@ -17,13 +20,20 @@ const menuItems = [
 const Sidebar = ({ activePage, onSelect }) => {
   return (
     <div className="sidebar">
-      <h2>Admin Panel</h2>
-      <ul>
+      <div className="sidebar-logo">
+        <img 
+         src={logo}
+          alt="SmartGaon Logo"
+        />
+     
+      </div>
+
+      <ul className="menu-list">
         {menuItems.map((item) => (
           <li
             key={item.key}
-            className={activePage === item.key ? "active" : ""}
-            onClick={() => onSelect(item.key)}   
+            className={`menu-item ${activePage === item.key ? "active" : ""}`}
+            onClick={() => onSelect(item.key)}
           >
             {item.label}
           </li>
