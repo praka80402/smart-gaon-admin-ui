@@ -1,31 +1,99 @@
-import React from "react";
-import DashboardCard from "../components/DashboardCard";
+import React, { useState } from "react";
+import "./dashboard.css";
 
 const Dashboard = () => {
-  const stats = [
-    { title: "Total Users", value: "1,245", desc: "Active village users" },
-    { title: "Active Schemes", value: "12", desc: "Govt. schemes running" },
-    { title: "Jobs Posted", value: "87", desc: "In Seva Bazar this month" },
-    { title: "Products Listed", value: "234", desc: "In Gaon Bazar" },
-    { title: "Donations Raised", value: "₹8.5L", desc: "This quarter" },
-    { title: "Weather Alerts", value: "3", desc: "Active alerts sent" },
-  ];
+  const [storyTitle, setStoryTitle] = useState("");
+  const [village, setVillage] = useState("Rampur");
+  const [stateName, setStateName] = useState("Bihar");
+  const [description, setDescription] = useState("");
 
   return (
-    <div className="panel">
-      <h1 className="service-title">Dashboard Overview</h1>
-      <div className="dashboard-grid">
-        {stats.map((s, idx) => (
-          <DashboardCard key={idx} {...s} />
+    <div className="dash-container">
+
+      {/* Navigation Tiles */}
+      <div className="tile-row">
+        {[
+          { label: "Dashboard", emoji: "🏠", active: true },
+          { label: "User Mgmt", emoji: "👥" },
+          { label: "Shiksha Sahayak", emoji: "📚" },
+          { label: "Gaon Connect", emoji: "🚜" },
+          { label: "Seva Bazar", emoji: "🧑‍🌾" },
+          { label: "Weather", emoji: "☀️" },
+          { label: "Donation", emoji: "💰" },
+          { label: "Gaon Saathi", emoji: "🎙️" },
+        ].map((item, i) => (
+          <div
+            key={i}
+            className={`nav-tile ${item.active ? "active" : ""}`}
+          >
+            <span className="emoji">{item.emoji}</span> {item.label}
+          </div>
         ))}
       </div>
-      <h2>Recent Activities</h2>
-      <ul>
-        <li>New user registered: Ramesh Kumar (Village User)</li>
-        <li>Scheme updated: PM Kisan Samman Nidhi</li>
-        <li>Job posted: Plumber needed in Siswan</li>
-        <li>Product sold: 5kg Wheat from Gaon Bazar</li>
-      </ul>
+
+      {/* Top Cards */}
+      <div className="card-row">
+        <div className="card wide">
+          <p className="card-label">Total Users</p>
+          <h1 className="card-number">3,245</h1>
+          <p className="card-sub">Registered Users</p>
+        </div>
+
+        <div className="card">
+          <p className="card-label">Farmers</p>
+          <h1 className="card-number">687</h1>
+          <p className="card-sub">Registered farmers</p>
+        </div>
+      </div>
+
+      {/* Admin Info */}
+      <div className="card full">
+        <h3 className="section-title">Admin Dashboard</h3>
+        <p className="section-desc">
+          Monitor your panchayat’s activity and update success stories and impact numbers.
+        </p>
+      </div>
+
+      {/* Success Stories */}
+      <div className="card full">
+        <h3 className="section-title">Update Success Stories</h3>
+
+        <div className="form-row">
+          <div>
+            <label>Story Title</label>
+            <input
+              value={storyTitle}
+              onChange={(e) => setStoryTitle(e.target.value)}
+              placeholder="e.g. Smart Classroom in Rampur"
+            />
+          </div>
+
+          <div>
+            <label>Village</label>
+            <input
+              value={village}
+              onChange={(e) => setVillage(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label>State</label>
+            <input
+              value={stateName}
+              onChange={(e) => setStateName(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <label>Description</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Describe the initiative and impact."
+        ></textarea>
+
+        <button className="save-btn">Save Story</button>
+      </div>
     </div>
   );
 };

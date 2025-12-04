@@ -1,0 +1,113 @@
+.dash-container {
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.tile-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.nav-tile {
+  padding: 10px 18px;
+  background: #d2ebb9;
+  border-radius: 8px;
+  border: 1px solid #a9d28a;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.nav-tile.active {
+  background: #fff;
+  border: 2px solid #4c8cff;
+}
+
+.emoji {
+  font-size: 20px;
+}
+
+.card-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.card.wide {
+  grid-column: span 1;
+}
+
+.card.full {
+  margin-top: 20px;
+}
+
+.card-label {
+  font-size: 14px;
+  color: #666;
+}
+
+.card-number {
+  font-size: 38px;
+  font-weight: bold;
+  color: #1b7a32;
+  margin: 5px 0;
+}
+
+.card-sub {
+  font-size: 14px;
+  color: #777;
+}
+
+.section-title {
+  font-size: 20px;
+  color: #145927;
+  margin-bottom: 8px;
+}
+
+.section-desc {
+  color: #444;
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  margin-top: 6px;
+}
+
+textarea {
+  height: 100px;
+}
+
+.save-btn {
+  background: #1c7a38;
+  color: white;
+  padding: 10px 20px;
+  margin-top: 15px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}

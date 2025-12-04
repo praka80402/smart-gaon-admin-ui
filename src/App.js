@@ -1,34 +1,31 @@
 import React, { useState } from "react";
 import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/User";
 import "./App.css";
 
 const App = () => {
-  const [activePage, setActivePage] = useState("users"); // default = admin page
+  const [activePage, setActivePage] = useState("dashboard");
 
   const renderPage = () => {
     switch (activePage) {
       case "dashboard":
-        return <Dashboard />;
+        return <Dashboard setActivePage={setActivePage} />;
       case "users":
         return <Users />;
       default:
-        return <Dashboard />;
+        return <Dashboard setActivePage={setActivePage} />;
     }
   };
 
   return (
-    <div className="app-container">
-      {/* ✅ Always show Header */}
+    <div className="app-wrapper">
       <Header />
 
-      {/* ✅ Sidebar stays fixed on left */}
-      <Sidebar activePage={activePage} onSelect={setActivePage} />
-
-      {/* ✅ Main content area (below header, beside sidebar) */}
-      <main className="main">{renderPage()}</main>
+      {/* Main Content (below header) */}
+      <main className="content-area">
+        {renderPage()}
+      </main>
     </div>
   );
 };
