@@ -1,0 +1,74 @@
+.header-bar {
+  width: 100%;
+  height: 75px;
+  background: #0f6d35;
+  padding: 0 40px;          /* Important */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Left Section */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo-box {
+  width: 45px;
+  height: 45px;
+  background: white;
+  border-radius: 8px;
+}
+
+.header-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: -3px;
+}
+
+.header-subtitle {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+/* Right Section */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;               /* Important */
+  flex-shrink: 0;          /* Optional but recommended */
+}
+
+.user-tag {
+  background: #5b352d;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #e6e6e6;
+  white-space: nowrap;
+}
+
+/* Logout Button New Style */
+.logout-btn {
+  background: #ffffff;
+  color: #0f6d35;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+
+  margin-right: 65px;   /* 👈 shifts button left */
+}
+
+.logout-btn:hover {
+  background: #e6f3e6;
+}

@@ -1,33 +1,62 @@
 import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
 import Header from "./components/Header";
 import Dashboard from "./pages/Dashboard";
-import Users from "./pages/User";
+import Login from "./pages/auth/login";
 import "./App.css";
 
-const App = () => {
-  const [activePage, setActivePage] = useState("dashboard");
-
-  const renderPage = () => {
-    switch (activePage) {
-      case "dashboard":
-        return <Dashboard setActivePage={setActivePage} />;
-      case "users":
-        return <Users />;
-      default:
-        return <Dashboard setActivePage={setActivePage} />;
-    }
-  };
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
-    <div className="app-wrapper">
-      <Header />
+    <Router>
+      {/* If logged in, show header */}
+      {isLoggedIn && <Header onLogout={() => setIsLoggedIn(false)} />}
 
-      {/* Main Content (below header) */}
-      <main className="content-area">
-        {renderPage()}
+      <main className={isLoggedIn ? "content-area" : ""}>
+        <Routes>
+
+          {/* Default Route */}
+          <Route
+            path="/"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/dashboard" />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+
+          {/* Login Page */}
+          <Route
+            path="/login"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/dashboard" />
+              ) : (
+                <Login onLogin={() => setIsLoggedIn(true)} />
+              )
+            }
+          />
+
+          {/* Dashboard Page (Protected) */}
+          <Route
+            path="/dashboard"
+            element={
+              isLoggedIn ? (
+                <Dashboard />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+
+        </Routes>
       </main>
-    </div>
+    </Router>
   );
-};
+}
 
 export default App;
