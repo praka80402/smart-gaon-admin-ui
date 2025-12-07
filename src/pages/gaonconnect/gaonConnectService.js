@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const ADMIN_BASE = "http://localhost:9090/admin";
+const ADMIN_BASE = "https://smart-gaon-admin-api.onrender.com/admin";
 
 export const NEWS_URL = `${ADMIN_BASE}/news`;
 export const EVENTS_URL = `${ADMIN_BASE}/events`;
