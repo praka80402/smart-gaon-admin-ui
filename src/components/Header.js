@@ -9,8 +9,8 @@ const Header = ({ onLogout }) => {
       <div className="header-left">
         <div className="logo-box"></div>
         <div>
-          <div className="header-title">SmartGaon AI</div>
-          <div className="header-subtitle">Admin Portal</div>
+          <div className="header-title">SmartGaon AI-Admin Portal</div>
+          {/* <div className="header-subtitle">Admin Portal</div> */}
         </div>
       </div>
 
