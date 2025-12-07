@@ -1,0 +1,52 @@
+.um-filter-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.um-filter-row input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.search-btn {
+  padding: 10px 18px;
+  background: #1b5e20;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.um-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.um-table th {
+  background: #1b5e20;
+  color: white;
+  padding: 10px;
+  text-align: left;
+}
+
+.um-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.delete-btn {
+  background: #d32f2f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #b71c1c;
+}
