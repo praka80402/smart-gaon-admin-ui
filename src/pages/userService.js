@@ -1,7 +1,7 @@
 // src/services/userService.js
 import axios from "axios";
 
-const BASE = "http://localhost:9090/admin";
+const BASE = "https://smart-gaon-admin-api.onrender.com/admin";
 const LOGIN_URL = `${BASE}/login`;
 const USERS_URL = `${BASE}/users`;
 

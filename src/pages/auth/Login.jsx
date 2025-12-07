@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./login.css";
 import { loginAdmin } from "../userService";
 
-const Login = () => {
+const Login = ({ onLogin }) => {   // ✅ Accept prop
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -18,8 +18,16 @@ const Login = () => {
       const success = await loginAdmin(email, password);
 
       if (success) {
+        // Save login
         localStorage.setItem("isAdminLoggedIn", "true");
-        navigate("/dashboard");   // Redirect happens here
+
+        // Tell App.js to re-render
+        onLogin();   // 🔥 REQUIRED
+
+        // Redirect
+        navigate("/dashboard", { replace: true });
+      } else {
+        setError("Invalid email or password");
       }
 
     } catch (err) {
