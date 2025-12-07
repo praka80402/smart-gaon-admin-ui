@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import UserManagement from "./UserManagement";
 import "./dashboard.css"; // adjust path
 import ModuleButtons from "./components/ModuleButtons";
+import GaonConnect from "./gaonconnect/GaonConnect";
 
 const Dashboard = () => {
   const [selectedModule, setSelectedModule] = useState("Dashboard");
@@ -48,6 +49,9 @@ const Dashboard = () => {
       )}
 
       {selectedModule === "User Mgmt" && <UserManagement />}
+        {/* Gaon Connect Module */}
+      {selectedModule === "Gaon Connect" && <GaonConnect />}
+
     </div>
   );
 };

@@ -1,0 +1,64 @@
+/* src/pages/gaonconnect/gaonconnect.css */
+.gc-container { padding: 20px; font-family: Inter, Arial, sans-serif; }
+
+.gc-header {
+  background: linear-gradient(135deg,#1b6b1b,#3fa63f);
+  padding: 24px 20px;
+  color: #fff;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.gc-header h1 { margin: 0; font-size: 26px; }
+.gc-header p { margin: 6px 0 0; opacity: 0.95; }
+
+.gc-modules { display:flex; gap:14px; margin-top:18px; overflow-x:auto; padding-bottom:6px; }
+.gc-module-card {
+  background:#7abf58; color:#fff; padding:14px 22px;
+  border-radius:8px; min-width:150px; text-align:center; font-weight:700;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06); cursor:pointer; transition:transform .12s;
+}
+.gc-module-card:hover{ transform:translateY(-3px); background:#5fa343; }
+
+.gc-form-section {
+  background:#fff; margin-top:22px; padding:18px; border-radius:10px;
+  border:2px solid #e6f1e6;
+}
+.gc-form-section h2 {
+  margin:0 0 12px; border-bottom:2px solid #7abf58; padding-bottom:8px;
+}
+
+.gc-row { display:flex; gap:12px; margin-bottom:12px; }
+.gc-column { flex:1; display:flex; flex-direction:column; }
+.gc-column label, .gc-form-section label { font-weight:600; margin-bottom:6px; }
+.gc-column input, .gc-form-section input, .gc-form-section textarea, .gc-form-section select {
+  width:100%; padding:10px; border-radius:6px; border:1px solid #d6d6d6;
+  box-sizing:border-box; font-size:14px;
+}
+.gc-form-section textarea { min-height:110px; resize:vertical; }
+
+.gc-submit { margin-top:10px; background:#2b8a2b; color:#fff; padding:10px 16px; border:none; border-radius:6px; cursor:pointer; font-weight:700; }
+.gc-submit:hover { background:#1f6d1f; }
+
+.gc-posted-section { margin-top:22px; }
+.gc-post-card { background:#fff; border-radius:8px; padding:12px; margin-bottom:12px; border:1px solid #eee; }
+.gc-post-top { display:flex; justify-content:space-between; align-items:center; }
+.gc-post-title { margin:0; font-size:16px; color:#1b3a1b; }
+.gc-post-body { margin:10px 0; color:#333; white-space:pre-wrap; }
+.gc-thumb { width:220px; height:auto; border-radius:8px; margin-top:8px; display:block; }
+.gc-thumb-small { width:120px; margin-top:8px; border-radius:6px; }
+.gc-post-meta { margin-top:8px; display:flex; justify-content:space-between; font-size:12px; color:#666; }
+
+.gc-post-actions button { margin-left:8px; }
+.gc-edit { background:#ffb74d; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; }
+.gc-delete { background:#ff6b6b; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; color:#fff; }
+
+.gc-modal-backdrop {
+  position:fixed; left:0; top:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,0.35); z-index:1000;
+}
+.gc-modal { background:#fff; width:700px; max-width:95%; padding:16px; border-radius:8px; box-shadow:0 6px 30px rgba(0,0,0,0.2); }
+.gc-modal h3 { margin-top:0; }
+.gc-modal input, .gc-modal textarea { width:100%; padding:8px; margin-bottom:8px; border-radius:6px; border:1px solid #ddd; }
+.gc-modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+.gc-cancel { background:#ddd; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
