@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./login.css";
 import { loginAdmin } from "../userService";
 
-const Login = ({ onLogin }) => {   // ✅ Accept prop
+const Login = ({ onLogin }) => {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -15,16 +15,13 @@ const Login = ({ onLogin }) => {   // ✅ Accept prop
     setError("");
 
     try {
-      const success = await loginAdmin(email, password);
+      const token = await loginAdmin(email, password); // returns token string
 
-      if (success) {
-        // Save login
+      if (token) {
+        localStorage.setItem("adminToken", token);
         localStorage.setItem("isAdminLoggedIn", "true");
 
-        // Tell App.js to re-render
-        onLogin();   // 🔥 REQUIRED
-
-        // Redirect
+        onLogin();
         navigate("/dashboard", { replace: true });
       } else {
         setError("Invalid email or password");

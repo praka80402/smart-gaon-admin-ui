@@ -1,38 +1,79 @@
-// src/services/userService.js
 import axios from "axios";
 
-const BASE = "https://smart-gaon-admin-api.onrender.com/admin";
+const BASE = "http://localhost:9090/admin";
 const LOGIN_URL = `${BASE}/login`;
 const USERS_URL = `${BASE}/users`;
 
-// LOGIN — backend returns plain string ("Admin Login Successful")
+// -----------------------------------------------------
+// AUTH HEADER
+// -----------------------------------------------------
+const authHeader = () => ({
+  headers: {
+    Authorization: "Bearer " + localStorage.getItem("adminToken"),
+  },
+});
+
+// -----------------------------------------------------
+// LOGIN — returns token string
+// -----------------------------------------------------
 export const loginAdmin = async (email, password) => {
   const res = await axios.post(LOGIN_URL, { email, password });
 
-  if (res.data === "Admin Login Successful") {
-    // Return true, no token
-    return true;
-  } else {
-    throw new Error("Invalid credentials");
+  if (res.data?.token) {
+    return res.data.token;
   }
+
+  throw new Error("Invalid credentials");
 };
 
-// GET all users
+// -----------------------------------------------------
+// GET all users (SECURED)
+// -----------------------------------------------------
 export const getAllUsers = async () => {
-  const res = await axios.get(USERS_URL);
+  return axios
+    .get(USERS_URL, authHeader())
+    .then((res) => res.data)
+    .catch((err) => {
+      console.error("GET USERS ERROR →", err);
+      throw err;
+    });
+};
+
+// -----------------------------------------------------
+// SEARCH user by phone (SECURED)
+// -----------------------------------------------------
+export const getUserByPhone = async (phone) => {
+  const res = await axios.get(
+    `${USERS_URL}/search?phone=${phone}`,
+    authHeader()
+  );
   return res.data;
 };
 
-// SEARCH user by phone (client-side filter)
-export const getUserByPhone = async (phone) => {
-  const users = await getAllUsers();
-  const user = users.find((u) => u.phone === phone);
-
-  if (!user) throw new Error("User not found");
-  return user;
+// -----------------------------------------------------
+// DELETE user by ID (SECURED)
+// -----------------------------------------------------
+export const deleteUserById = async (id) => {
+  return axios.delete(`${USERS_URL}/${id}`, authHeader());
 };
 
-// DELETE user by ID
-export const deleteUserById = async (id) => {
-  return axios.delete(`${USERS_URL}/${id}`);
+// -----------------------------------------------------
+// UPDATE USER (EDIT)
+// -----------------------------------------------------
+export const updateUserById = async (id, updatedData) => {
+  return axios.put(`${USERS_URL}/${id}`, updatedData, authHeader());
+};
+
+// -----------------------------------------------------
+// ENABLE USER
+// -----------------------------------------------------
+export const enableUser = async (id) => {
+  return axios.put(`${USERS_URL}/${id}/enable`, {}, authHeader());
+};
+
+// -----------------------------------------------------
+// DISABLE USER
+// -----------------------------------------------------
+export const disableUser = async (id) => {
+  return axios.put(`${USERS_URL}/${id}/disable`, {}, authHeader());
 };
