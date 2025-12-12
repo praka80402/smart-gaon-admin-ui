@@ -3,12 +3,24 @@ import React, { useState, useEffect } from "react";
 import "./gaonconnect.css";
 import PostedItem from "./PostedItem";
 import EditModal from "./EditModal";
+import ForumFilter from "./ForumFilter";
+
+// ⭐ NEW IMPORT (DO NOT REMOVE)
+import VillageDirectory from "./VillageDirectory";
 
 import {
-  getAllNews, updateNews, deleteNews,
-  getAllEvents, updateEvent, deleteEvent,
-  createNewsWithImage, createEventWithMedia,
-  updateEventWithMedia, updateNewsWithMedia
+  getAllNews,
+  getAllEvents,
+  createNewsWithImage,
+  createEventWithMedia,
+  deleteNews,
+  deleteEvent,
+  updateNews,
+  updateEvent,
+  updateNewsWithMedia,
+  updateEventWithMedia,
+  getAllForumPosts,
+  deleteForumPost,
 } from "./gaonConnectService";
 
 function formatDateISO() {
@@ -16,7 +28,7 @@ function formatDateISO() {
 }
 
 const GaonConnect = () => {
-  const [activePage, setActivePage] = useState("Community Wall"); // 🔥 MAIN PAGE SWITCHER
+  const [activePage, setActivePage] = useState("Community Wall");
 
   const [section, setSection] = useState("News");
   const [title, setTitle] = useState("");
@@ -28,24 +40,38 @@ const GaonConnect = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // ---------------- Forum State ----------------
+  const [forumItems, setForumItems] = useState([]);
+  const [forumLoading, setForumLoading] = useState(false);
+
+  const [searchPhone, setSearchPhone] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
+  // Pagination + Sorting
+  const [forumPage, setForumPage] = useState(0);
+  const [forumSize] = useState(10);
+  const [forumSort, setForumSort] = useState("createdAt,desc");
+  const [forumTotalPages, setForumTotalPages] = useState(1);
+
   const [editVisible, setEditVisible] = useState(false);
   const [editing, setEditing] = useState(null);
 
-  // -------------------------------------------
-  // LOAD COMMUNITY WALL DATA (News & Events)
-  // -------------------------------------------
+  // ---------------- Load Community Wall ----------------
   const load = async () => {
-    if (activePage !== "Community Wall") return; // Only load when CW is active
+    if (activePage !== "Community Wall") return;
 
     setLoading(true);
+
     try {
-      const res = section === "News"
-        ? await getAllNews(0, 50)
-        : await getAllEvents(0, 50);
+      const res =
+        section === "News"
+          ? await getAllNews(0, 50)
+          : await getAllEvents(0, 50);
 
       setItems(res.data || []);
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
       setItems([]);
     } finally {
       setLoading(false);
@@ -56,7 +82,45 @@ const GaonConnect = () => {
     load();
   }, [section, activePage]);
 
-  // File preview
+  // ---------------- Load Forum ----------------
+  const loadForum = async () => {
+    if (activePage !== "Forum") return;
+
+    setForumLoading(true);
+
+    try {
+      const params = {
+        page: forumPage,
+        size: forumSize,
+        sort: forumSort,
+      };
+
+      if (searchPhone.trim()) params.phone = searchPhone.trim();
+      if (fromDate && toDate) {
+        params.fromDate = new Date(fromDate).toISOString();
+        params.toDate = new Date(toDate).toISOString();
+      }
+
+      const res = await getAllForumPosts(params);
+      setForumItems(res.data?.content || []);
+      setForumTotalPages(res.data?.totalPages || 1);
+    } catch (err) {
+      console.error(err);
+      setForumItems([]);
+    } finally {
+      setForumLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadForum();
+  }, [activePage]);
+
+  useEffect(() => {
+    if (activePage === "Forum") loadForum();
+  }, [forumPage, forumSort]);
+
+  // ---------------- File Upload ----------------
   const previewImages = images.map((f) => URL.createObjectURL(f));
   const previewVideo = video ? URL.createObjectURL(video) : null;
 
@@ -73,9 +137,7 @@ const GaonConnect = () => {
     setVideo(e.target.files?.[0] || null);
   };
 
-  // -------------------------------------------
-  // CREATE POST
-  // -------------------------------------------
+  // ---------------- Create ----------------
   const handlePost = async () => {
     if (!title.trim() || !body.trim()) {
       alert("Enter title and body");
@@ -86,7 +148,7 @@ const GaonConnect = () => {
 
     try {
       if (section === "News") {
-        const newsPayload = {
+        const payload = {
           category: "General",
           title,
           summary: body.substring(0, 150),
@@ -94,7 +156,7 @@ const GaonConnect = () => {
           author: "Admin",
         };
 
-        await createNewsWithImage(newsPayload, images, video);
+        await createNewsWithImage(payload, images, video);
       } else {
         if (images.length === 0) {
           alert("Event requires at least one image");
@@ -102,7 +164,7 @@ const GaonConnect = () => {
           return;
         }
 
-        const eventPayload = {
+        const payload = {
           title,
           description: body,
           startDateTime: formatDateISO(),
@@ -111,7 +173,7 @@ const GaonConnect = () => {
           contactInfo: "Admin",
         };
 
-        await createEventWithMedia(eventPayload, images, video);
+        await createEventWithMedia(payload, images, video);
       }
 
       setTitle("");
@@ -121,17 +183,15 @@ const GaonConnect = () => {
 
       await load();
       alert("Posted!");
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
       alert("Post failed");
     } finally {
       setLoading(false);
     }
   };
 
-  // -------------------------------------------
-  // DELETE POST
-  // -------------------------------------------
+  // ---------------- Delete CW Item ----------------
   const handleDelete = async (item) => {
     if (!window.confirm("Delete this item?")) return;
 
@@ -141,13 +201,26 @@ const GaonConnect = () => {
         : await deleteEvent(item.id);
 
       await load();
-      alert("Deleted");
-    } catch (e) {
-      console.error(e);
+      alert("Deleted!");
+    } catch {
       alert("Delete failed");
     }
   };
 
+  // ---------------- Delete Forum Post ----------------
+  const handleDeleteForum = async (postId) => {
+    if (!window.confirm("Delete this forum post?")) return;
+
+    try {
+      await deleteForumPost(postId);
+      await loadForum();
+      alert("Forum post deleted");
+    } catch {
+      alert("Delete failed");
+    }
+  };
+
+  // ---------------- Edit ----------------
   const openEdit = (item) => {
     setEditing(item);
     setEditVisible(true);
@@ -160,56 +233,64 @@ const GaonConnect = () => {
 
   const saveEdit = async (
     payload,
-    { newImages = [], newVideo = null, removedImageUrls = [], removeExistingVideo = false } = {}
+    { newImages = [], newVideo = null, removedImageUrls = [] } = {}
   ) => {
     try {
       const mediaChanged =
         newImages.length > 0 ||
         newVideo !== null ||
-        removedImageUrls.length > 0 ||
-        removeExistingVideo;
+        removedImageUrls.length > 0;
 
       if (section === "News") {
         mediaChanged
-          ? await updateNewsWithMedia(payload.id, payload, newImages, newVideo, removedImageUrls)
+          ? await updateNewsWithMedia(
+              payload.id,
+              payload,
+              newImages,
+              newVideo,
+              removedImageUrls
+            )
           : await updateNews(payload.id, payload);
       } else {
         mediaChanged
-          ? await updateEventWithMedia(payload.id, payload, newImages, newVideo, removedImageUrls)
+          ? await updateEventWithMedia(
+              payload.id,
+              payload,
+              newImages,
+              newVideo,
+              removedImageUrls
+            )
           : await updateEvent(payload.id, payload);
       }
 
       closeEdit();
       await load();
       alert("Updated!");
-    } catch (e) {
-      console.error(e);
+    } catch {
       alert("Update failed");
     }
   };
 
-  // -------------------------------------------
-  // HEADER TEXTS (Dynamic)
-  // -------------------------------------------
+  // ---------------- HEADER TEXT ----------------
   const headerSubtitle = {
-    "Community Wall": "Manage news & events in your village community.",
-    Forum: "Discuss topics, ask questions, and get help from villagers.",
-    "Raise Issue": "Report problems and track resolutions.",
-    "Job Board": "Browse and post job opportunities.",
-    "Village Directory": "Find important village contacts.",
-    Suggestions: "Share your ideas to improve the community.",
+    "Community Wall": "Manage news & events in your village.",
+    Forum: "View and manage community forum posts.",
+    "Raise Issue": "",
+    "Job Board": "",
+    Suggestions: "",
+    "Village Directory": "View and manage all users by pincode.",
   };
 
   return (
     <div className="gc-container">
 
-      {/* MAIN HEADER */}
+      {/* HEADER */}
       <div className="gc-header">
         <h1>Gaon Connect – {activePage}</h1>
         <p>{headerSubtitle[activePage]}</p>
       </div>
 
-      {/* SUB HEADER MENU */}
+      {/* SUB MENU */}
       <div className="gc-subheader">
         {[
           "Community Wall",
@@ -224,38 +305,31 @@ const GaonConnect = () => {
             className={`gc-sub-item ${activePage === tab ? "active" : ""}`}
             onClick={() => setActivePage(tab)}
           >
-            {tab === "Community Wall" && "📄 Community Wall"}
-            {tab === "Forum" && "💬 Forum"}
-            {tab === "Raise Issue" && "⚠️ Raise Issue"}
-            {tab === "Job Board" && "💼 Job Board"}
-            {tab === "Village Directory" && "📞 Village Directory"}
-            {tab === "Suggestions" && "💡 Suggestions"}
+            {tab}
           </div>
         ))}
       </div>
 
-      {/* -------------------------------------------
-         COMMUNITY WALL SECTION
-      ------------------------------------------- */}
+      {/* COMMUNITY WALL */}
       {activePage === "Community Wall" && (
         <>
           <div className="gc-form-section">
-            <h2>Community Wall – News & Events</h2>
+            <h2>Post News / Events</h2>
 
             <label>Headline</label>
             <input value={title} onChange={(e) => setTitle(e.target.value)} />
 
             <label>Section</label>
             <select value={section} onChange={(e) => setSection(e.target.value)}>
-              <option value="News">📰 News</option>
-              <option value="Event">📅 Event</option>
+              <option value="News">News</option>
+              <option value="Event">Event</option>
             </select>
 
             <label>Body Text</label>
             <textarea value={body} onChange={(e) => setBody(e.target.value)} />
 
-            <label>{section === "News" ? "Images (0-5)" : "Images (1-5)"}</label>
-            <input type="file" accept="image/*" multiple onChange={onImagesChange} />
+            <label>{section === "News" ? "Images (0–5)" : "Images (1–5)"}</label>
+            <input type="file" multiple accept="image/*" onChange={onImagesChange} />
 
             <div className="gc-preview-row">
               {previewImages.map((src, i) => (
@@ -270,12 +344,11 @@ const GaonConnect = () => {
               <video controls src={previewVideo} className="gc-video-preview" />
             )}
 
-            <button className="gc-submit" onClick={handlePost} disabled={loading}>
-              {loading ? "Posting..." : "Post to Wall"}
+            <button className="gc-submit" onClick={handlePost}>
+              Post
             </button>
           </div>
 
-          {/* POSTS LIST */}
           <div className="gc-posted-section">
             <h3>Posted Items</h3>
 
@@ -300,17 +373,74 @@ const GaonConnect = () => {
         </>
       )}
 
-      {/* -------------------------------------------
-         FORUM PAGE (Placeholder)
-      ------------------------------------------- */}
+      {/* FORUM PAGE */}
       {activePage === "Forum" && (
         <div className="gc-form-section">
-          <h2>Forum Coming Soon</h2>
-          <p>This is where villagers can create discussions & reply.</p>
+          <h2>Forum Posts</h2>
+
+          <ForumFilter
+            searchPhone={searchPhone}
+            setSearchPhone={setSearchPhone}
+            fromDate={fromDate}
+            setFromDate={setFromDate}
+            toDate={toDate}
+            setToDate={setToDate}
+            forumSort={forumSort}
+            setForumSort={(value) => {
+              setForumSort(value);
+              setForumPage(0);
+            }}
+            onSearch={() => {
+              setForumPage(0);
+              loadForum();
+            }}
+          />
+
+          {forumLoading ? (
+            <p>Loading...</p>
+          ) : forumItems.length === 0 ? (
+            <p>No forum posts found</p>
+          ) : (
+            <div className="gc-cart-grid">
+              {forumItems.map((it) => (
+                <PostedItem
+                  key={it.postId}
+                  item={it}
+                  type="Forum"
+                  onDelete={() => handleDeleteForum(it.postId)}
+                />
+              ))}
+            </div>
+          )}
+
+          <div className="gc-pagination">
+            <button
+              disabled={forumPage === 0}
+              onClick={() => setForumPage(forumPage - 1)}
+            >
+              ◀ Previous
+            </button>
+
+            <span>
+              Page {forumPage + 1} of {forumTotalPages}
+            </span>
+
+            <button
+              disabled={forumPage + 1 >= forumTotalPages}
+              onClick={() => setForumPage(forumPage + 1)}
+            >
+              Next ▶
+            </button>
+          </div>
         </div>
       )}
 
-      {/* MODAL */}
+      {/* ⭐ NEW PAGE — VILLAGE DIRECTORY */}
+      {activePage === "Village Directory" && (
+        <VillageDirectory />
+      )}
+
+      {/* EDIT MODAL */}
       <EditModal
         visible={editVisible}
         onClose={closeEdit}

@@ -1,74 +1,3 @@
-/* src/pages/gaonconnect/gaonconnect.css */
-/* .gc-container { padding: 20px; font-family: Inter, Arial, sans-serif; }
-
-.gc-header {
-  background: linear-gradient(135deg,#1b6b1b,#3fa63f);
-  padding: 24px 20px;
-  color: #fff;
-  border-radius: 10px;
-  margin-bottom: 18px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-}
-.gc-header h1 { margin: 0; font-size: 26px; }
-.gc-header p { margin: 6px 0 0; opacity: 0.95; }
-
-.gc-modules { display:flex; gap:14px; margin-top:18px; overflow-x:auto; padding-bottom:6px; }
-.gc-module-card {
-  background:#7abf58; color:#fff; padding:14px 22px;
-  border-radius:8px; min-width:150px; text-align:center; font-weight:700;
-  box-shadow:0 1px 4px rgba(0,0,0,0.06); cursor:pointer; transition:transform .12s;
-}
-.gc-module-card:hover{ transform:translateY(-3px); background:#5fa343; }
-
-.gc-form-section {
-  background:#fff; margin-top:22px; padding:18px; border-radius:10px;
-  border:2px solid #e6f1e6;
-}
-.gc-form-section h2 {
-  margin:0 0 12px; border-bottom:2px solid #7abf58; padding-bottom:8px;
-}
-
-.gc-row { display:flex; gap:12px; margin-bottom:12px; }
-.gc-column { flex:1; display:flex; flex-direction:column; }
-.gc-column label, .gc-form-section label { font-weight:600; margin-bottom:6px; }
-.gc-column input, .gc-form-section input, .gc-form-section textarea, .gc-form-section select {
-  width:100%; padding:10px; border-radius:6px; border:1px solid #d6d6d6;
-  box-sizing:border-box; font-size:14px;
-}
-.gc-form-section textarea { min-height:110px; resize:vertical; }
-
-.gc-submit { margin-top:10px; background:#2b8a2b; color:#fff; padding:10px 16px; border:none; border-radius:6px; cursor:pointer; font-weight:700; }
-.gc-submit:hover { background:#1f6d1f; }
-
-.gc-posted-section { margin-top:22px; }
-.gc-post-card { background:#fff; border-radius:8px; padding:12px; margin-bottom:12px; border:1px solid #eee; }
-.gc-post-top { display:flex; justify-content:space-between; align-items:center; }
-.gc-post-title { margin:0; font-size:16px; color:#1b3a1b; }
-.gc-post-body { margin:10px 0; color:#333; white-space:pre-wrap; }
-.gc-thumb { width:220px; height:auto; border-radius:8px; margin-top:8px; display:block; }
-.gc-thumb-small { width:120px; margin-top:8px; border-radius:6px; }
-.gc-post-meta { margin-top:8px; display:flex; justify-content:space-between; font-size:12px; color:#666; }
-
-.gc-post-actions button { margin-left:8px; }
-.gc-edit { background:#ffb74d; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; }
-.gc-delete { background:#ff6b6b; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; color:#fff; }
-
-.gc-modal-backdrop {
-  position:fixed; left:0; top:0; right:0; bottom:0; display:flex; align-items:center; justify-content:center;
-  background:rgba(0,0,0,0.35); z-index:1000;
-}
-.gc-modal { background:#fff; width:700px; max-width:95%; padding:16px; border-radius:8px; box-shadow:0 6px 30px rgba(0,0,0,0.2); }
-.gc-modal h3 { margin-top:0; }
-.gc-modal input, .gc-modal textarea { width:100%; padding:8px; margin-bottom:8px; border-radius:6px; border:1px solid #ddd; }
-.gc-modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
-.gc-cancel { background:#ddd; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
-
-/* ---------------------------------------------------------------------
-   CLEAN + MODERN FILE INPUT STYLE (works with normal <input type="file">)
----------------------------------------------------------------------- */
-/* ----------------------------------------------------------
-   GLOBAL CONTAINER
------------------------------------------------------------*/
 /* =====================================================================
    GLOBAL CONTAINER
 ===================================================================== */
@@ -78,7 +7,7 @@
 }
 
 /* =====================================================================
-   MAIN HEADER
+   HEADER SECTION
 ===================================================================== */
 .gc-header {
   background: linear-gradient(135deg, #1b5e20, #2e7d32);
@@ -134,7 +63,7 @@
 }
 
 /* =====================================================================
-   FORM SECTION
+   FORM SECTION (NEWS/EVENT POST)
 ===================================================================== */
 .gc-form-section {
   background: #fff;
@@ -154,7 +83,6 @@
   font-weight: 700;
 }
 
-/* Labels */
 .gc-form-section label {
   font-weight: 600;
   margin-top: 12px;
@@ -162,7 +90,6 @@
   display: block;
 }
 
-/* Inputs, Textarea, Select */
 .gc-form-section input,
 .gc-form-section textarea,
 .gc-form-section select {
@@ -173,11 +100,15 @@
   border: 1px solid #cbdcc8;
   background: #fafdf9;
   font-size: 14px;
-  box-sizing: border-box; /* FIX OVERFLOW */
+  box-sizing: border-box;
   transition: 0.2s ease;
 }
 
-/* Focus */
+.gc-form-section textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
 .gc-form-section input:focus,
 .gc-form-section textarea:focus,
 .gc-form-section select:focus {
@@ -187,13 +118,8 @@
   box-shadow: 0 0 0 2px rgba(94, 168, 94, 0.25);
 }
 
-.gc-form-section textarea {
-  min-height: 120px;
-  resize: vertical;
-}
-
 /* =====================================================================
-   FILE INPUT BUTTON STYLING
+   FILE INPUT
 ===================================================================== */
 input[type="file"] {
   padding: 10px;
@@ -204,10 +130,8 @@ input[type="file"] {
   font-size: 14px;
   color: #2e5a2e;
   width: 100%;
-  box-sizing: border-box;
 }
 
-input[type="file"]::-webkit-file-upload-button,
 input[type="file"]::file-selector-button {
   background: #2d7a2d;
   color: #fff;
@@ -215,19 +139,17 @@ input[type="file"]::file-selector-button {
   padding: 8px 14px;
   border-radius: 6px;
   margin-right: 10px;
-  font-weight: 600;
   cursor: pointer;
+  font-weight: 600;
   transition: 0.2s ease;
 }
 
-input[type="file"]::-webkit-file-upload-button:hover,
 input[type="file"]::file-selector-button:hover {
   background: #236423;
-  transform: translateY(-2px);
 }
 
 /* =====================================================================
-   POST BUTTON
+   SUBMIT BUTTON
 ===================================================================== */
 .gc-submit {
   background: #2b7a2b;
@@ -239,21 +161,16 @@ input[type="file"]::file-selector-button:hover {
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  transition: 0.2s ease-in-out;
+  transition: 0.2s ease;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
-
 .gc-submit:hover {
   background: #236423;
   transform: translateY(-2px);
 }
 
-.gc-submit:active {
-  transform: scale(0.97);
-}
-
 /* =====================================================================
-   IMAGE & VIDEO PREVIEW
+   IMAGE + VIDEO PREVIEW
 ===================================================================== */
 .gc-preview-row {
   display: flex;
@@ -277,7 +194,7 @@ input[type="file"]::file-selector-button:hover {
 }
 
 /* =====================================================================
-   CART GRID FOR POSTED ITEMS
+   GRID FOR POSTED ITEMS
 ===================================================================== */
 .gc-cart-grid {
   display: grid;
@@ -288,14 +205,14 @@ input[type="file"]::file-selector-button:hover {
 }
 
 /* =====================================================================
-   CART CARD (PostedItem)
+   POST CARD (PostedItem)
 ===================================================================== */
 .gc-cart {
   background: #fff;
   border-radius: 14px;
   padding: 16px;
   border: 1px solid #e0e0e0;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
   text-align: center;
   transition: 0.25s ease;
   position: relative;
@@ -303,82 +220,78 @@ input[type="file"]::file-selector-button:hover {
 
 .gc-cart:hover {
   transform: translateY(-4px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
 }
 
 .gc-cart-image {
   width: 100%;
-  height: 180px;         /* FIXED HEIGHT */
-  object-fit: cover;     /* CROPS NICELY */
+  height: 180px;
+  object-fit: cover;
   border-radius: 10px;
   border: 1px solid #ccc;
   margin-bottom: 12px;
 }
 
-
 .gc-cart-title {
   font-size: 17px;
   font-weight: 700;
-  margin: 6px 0;
   color: #1b3a1b;
 }
 
 .gc-cart-desc {
   font-size: 14px;
   color: #444;
-  margin-bottom: 10px;
-}
-
-.gc-cart-video {
-  width: 100%;
-  border-radius: 10px;
-  margin: 10px 0;
 }
 
 .gc-cart-footer {
+  margin-top: 12px;
   display: flex;
   justify-content: space-between;
-  color: #666;
   font-size: 12px;
+  color: #666;
 }
 
 .gc-cart-type {
-  font-weight: 700;
+  font-weight: bold;
   color: #2b7a2b;
 }
 
-/* ACTION BUTTONS */
-.gc-cart-actions {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 14px;
+/* =====================================================================
+   THREE DOT MENU (PostedItem)
+===================================================================== */
+.gc-menu-wrapper {
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
-
-.gc-cart-edit,
-.gc-cart-delete {
-  padding: 8px 14px;
+.gc-menu-dots {
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 6px;
   border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  border: none;
+}
+.gc-menu-dropdown {
+  position: absolute;
+  top: 28px;
+  right: 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  width: 130px;
+  overflow: hidden;
+}
+.gc-menu-item {
+  padding: 10px 14px;
   cursor: pointer;
 }
-
-.gc-cart-edit {
-  background: #ffb84d;
-  color: #4a3600;
-}
-.gc-cart-edit:hover {
-  background: #ff9e1c;
+.gc-menu-item.delete {
+  color: #d9534f;
 }
 
-.gc-cart-delete {
-  background: #e64646;
-  color: white;
+.gc-menu-item:hover {
+  background: #f1f1f1;
 }
-.gc-cart-delete:hover {
-  background: #cc3a3a;
+.gc-menu-item.delete:hover {
+  background: #ffeaea;
 }
 
 /* =====================================================================
@@ -403,67 +316,78 @@ input[type="file"]::file-selector-button:hover {
   box-shadow: 0 6px 30px rgba(0, 0, 0, 0.25);
 }
 
+.gc-modal input,
+.gc-modal textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+}
+
 .gc-modal-actions {
   display: flex;
-  gap: 10px;
   justify-content: flex-end;
-}
-/* --------------------------- */
-/* THREE DOT MENU */
-/* --------------------------- */
-.gc-menu-wrapper {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  gap: 10px;
 }
 
-.gc-menu-dots {
-  font-size: 22px;
-  cursor: pointer;
-  padding: 4px 6px;
+/* =====================================================================
+   FORUM FILTER ROW
+===================================================================== */
+.gc-filter-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.gc-filter-row input,
+.gc-filter-row select {
+  padding: 10px;
   border-radius: 6px;
-  transition: 0.2s;
-  user-select: none;
+  border: 1px solid #c8dac8;
+  background: #fafdf8;
+  min-width: 180px;
 }
 
-.gc-menu-dots:hover {
-  background: rgba(0, 0, 0, 0.08);
-}
-
-/* DROPDOWN BOX */
-.gc-menu-dropdown {
-  position: absolute;
-  top: 28px;
-  right: 0;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-  width: 130px;
-  overflow: hidden;
-  z-index: 100;
-}
-
-.gc-menu-item {
-  padding: 10px 14px;
+.gc-filter-row button {
+  background: #2b7a2b;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
   cursor: pointer;
+  font-weight: 600;
+}
+
+/* =====================================================================
+   PAGINATION
+===================================================================== */
+.gc-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 22px 0;
+  align-items: center;
+}
+
+.gc-pagination button {
+  background: #2d7a2d;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.gc-pagination button:disabled {
+  background: #9bbb9b;
+  cursor: not-allowed;
+}
+
+.gc-pagination span {
   font-size: 14px;
-  transition: 0.2s ease;
+  font-weight: 600;
+  color: #2e5a2e;
 }
-
-.gc-menu-item:hover {
-  background: #f1f1f1;
-}
-
-.gc-menu-item.delete {
-  color: #d9534f;
-}
-
-.gc-menu-item.delete:hover {
-  background: #ffefef;
-}
-
-/* Ensure card has relative positioning */
-.gc-cart {
-  position: relative;
-}
-

@@ -6,6 +6,7 @@ const ADMIN_BASE = "http://localhost:9090/admin";
 // ---------------- API BASE ----------------
 export const NEWS_URL = `${ADMIN_BASE}/news`;
 export const EVENTS_URL = `${ADMIN_BASE}/events`;
+export const FORUM_URL = `${ADMIN_BASE}/forum`;
 
 // ---------------- AUTH HEADER -------------
 const authHeader = () => ({
@@ -33,18 +34,8 @@ export const deleteNews = (id) =>
 /* ---------- NEWS WITH MULTIPLE IMAGES + VIDEO ---------- */
 export const createNewsWithImage = async (news, images = [], video = null) => {
   const form = new FormData();
-
-  // JSON data part
-  form.append(
-    "news",
-    new Blob([JSON.stringify(news)], { type: "application/json" })
-  );
-
-  // append up to 5 images (backend expects "images")
-  images.forEach((img) => {
-    if (img) form.append("images", img);
-  });
-
+  form.append("news", new Blob([JSON.stringify(news)], { type: "application/json" }));
+  images.forEach((img) => img && form.append("images", img));
   if (video) form.append("video", video);
 
   return axios.post(`${NEWS_URL}/upload`, form, {
@@ -55,7 +46,6 @@ export const createNewsWithImage = async (news, images = [], video = null) => {
   });
 };
 
-/* ---------- UPDATE NEWS WITH MEDIA (upload-multiple) ---------- */
 export const updateNewsWithMedia = async (
   id,
   news,
@@ -64,20 +54,11 @@ export const updateNewsWithMedia = async (
   removedImageUrls = []
 ) => {
   const form = new FormData();
+  form.append("news", new Blob([JSON.stringify(news)], { type: "application/json" }));
 
-  // JSON part
-  form.append(
-    "news",
-    new Blob([JSON.stringify(news)], { type: "application/json" })
-  );
-
-  newImages.forEach((img) => {
-    if (img) form.append("images", img);
-  });
-
+  newImages.forEach((img) => img && form.append("images", img));
   if (newVideo) form.append("video", newVideo);
 
-  // backend expects a JSON array string for removedImageUrls
   form.append("removedImageUrls", JSON.stringify(removedImageUrls || []));
 
   return axios.put(`${NEWS_URL}/upload-multiple/${id}`, form, {
@@ -104,18 +85,11 @@ export const updateEvent = (id, event) =>
 export const deleteEvent = (id) =>
   axios.delete(`${EVENTS_URL}/${id}`, authHeader());
 
-/* ---------- EVENT CREATE WITH MULTIPLE IMAGES + VIDEO ---------- */
 export const createEventWithMedia = async (event, images = [], video = null) => {
   const form = new FormData();
 
-  Object.keys(event).forEach((k) => {
-    if (event[k] !== undefined && event[k] !== null) form.append(k, event[k]);
-  });
-
-  images.forEach((img) => {
-    if (img) form.append("images", img);
-  });
-
+  Object.keys(event).forEach((k) => event[k] !== undefined && form.append(k, event[k]));
+  images.forEach((img) => img && form.append("images", img));
   if (video) form.append("video", video);
 
   return axios.post(`${EVENTS_URL}/upload`, form, {
@@ -126,8 +100,6 @@ export const createEventWithMedia = async (event, images = [], video = null) => 
   });
 };
 
-/* ---------- EVENT UPDATE WITH MEDIA (upload-multiple) ---------- */
-// NOTE: backend expects PUT /admin/events/upload-multiple/{id}
 export const updateEventWithMedia = async (
   id,
   event,
@@ -137,14 +109,8 @@ export const updateEventWithMedia = async (
 ) => {
   const form = new FormData();
 
-  Object.keys(event).forEach((k) => {
-    if (event[k] !== undefined && event[k] !== null) form.append(k, event[k]);
-  });
-
-  images.forEach((img) => {
-    if (img) form.append("images", img);
-  });
-
+  Object.keys(event).forEach((k) => event[k] !== undefined && form.append(k, event[k]));
+  images.forEach((img) => img && form.append("images", img));
   if (video) form.append("video", video);
 
   form.append("removedImageUrls", JSON.stringify(removedImageUrls || []));
@@ -156,3 +122,31 @@ export const updateEventWithMedia = async (
     },
   });
 };
+
+// ============================================================
+//                           FORUM
+// ============================================================
+
+export const getAllForumPosts = (params = {}) =>
+  axios.get(`${FORUM_URL}/list`, {
+    ...authHeader(),
+    params,
+  });
+
+export const deleteForumPost = (postId) =>
+  axios.delete(`${FORUM_URL}/${postId}`, authHeader());
+// villagedirectory
+export const getAllDirectoryUsers = () =>
+  axios.get(`${ADMIN_BASE}/users`, authHeader());
+
+export const getDirectoryUsersByPincode = (pincode) =>
+  axios.get(`${ADMIN_BASE}/users/by-pincode/${pincode}`, authHeader());
+
+export const addDirectoryUser = (data) =>
+  axios.post(`${ADMIN_BASE}/users/add-directory`, data, authHeader());
+
+export const updateDirectoryUser = (id, data) =>
+  axios.put(`${ADMIN_BASE}/users/${id}`, data, authHeader());
+
+export const deleteDirectoryUser = (id) =>
+  axios.delete(`${ADMIN_BASE}/users/${id}`, authHeader());
