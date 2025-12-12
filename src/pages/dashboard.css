@@ -27,6 +27,12 @@
   font-size: 28px;
   color: #1b5e20;
 }
+.today-tips-value {
+  font-size: 28px;
+  color: #1b5e20;
+  padding: 25px;
+  text-align: center;
+}
 
 .section-card {
   background: white;

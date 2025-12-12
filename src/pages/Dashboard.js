@@ -4,9 +4,13 @@ import UserManagement from "./UserManagement";
 import "./dashboard.css"; // adjust path
 import ModuleButtons from "./components/ModuleButtons";
 import GaonConnect from "./gaonconnect/GaonConnect";
+import Modal from "../components/Modal";
+import TodayTipsList from "./today-tips/TodayTipsList";
+
 
 const Dashboard = () => {
   const [selectedModule, setSelectedModule] = useState("Dashboard");
+   const [openTipsModal, setOpenTipsModal] = useState(false);
 
   const modules = [
     { name: "Dashboard", icon: "🏠" },
@@ -39,6 +43,24 @@ const Dashboard = () => {
               <p className="stats-title">Farmers</p>
               <h2 className="stats-value">687</h2>
             </div>
+
+             <div
+        className="stats-card"
+        onClick={() => setOpenTipsModal(true)}
+        style={{ cursor: "pointer" }}
+      >
+        <h2 className="today-tips-value">Today Tips</h2>
+      </div>
+
+      {/* Modal: Shows list of Today Tips */}
+      <Modal open={openTipsModal} onClose={() => setOpenTipsModal(false)}>
+        <TodayTipsList onClose={() => setOpenTipsModal(false)} />
+      </Modal>
+{/* 
+            <div className="stats-card">
+               <h2 className="today-tips-value">Today Tips</h2>
+
+            </div> */}
           </div>
 
           <div className="section-card">

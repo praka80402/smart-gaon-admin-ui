@@ -1,0 +1,133 @@
+/* === Modern Dashboard Theme === */
+
+:root {
+  --primary: #4caf50;
+  --primary-dark: #388e3c;
+  --bg-light: #f5f7fa;
+  --bg-card: #ffffff;
+  --text-dark: #333;
+  --text-light: #777;
+  --radius: 14px;
+  --shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* Page Background */
+.tips-page {
+  background: var(--bg-light);
+  padding: 20px;
+  font-family: "Inter", sans-serif;
+}
+
+/* Header Row */
+.tips-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Add Button */
+.btn-add {
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: 0.2s ease;
+}
+
+.btn-add:hover {
+  background: var(--primary-dark);
+}
+
+/* Input */
+.input {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+  font-size: 15px;
+  background: white;
+  box-shadow: var(--shadow);
+}
+
+/* Card Style */
+.tip-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  display: flex;
+  gap: 16px;
+  margin-bottom: 14px;
+  transition: 0.25s ease;
+}
+
+.tip-card:hover {
+  transform: translateY(-3px);
+}
+
+/* Image */
+.tip-image {
+  width: 110px;
+  height: 90px;
+  border-radius: var(--radius);
+  object-fit: cover;
+  background: #eee;
+}
+
+/* Texts */
+.tip-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  color: var(--text-dark);
+}
+
+.tip-category {
+  margin: 0;
+  font-weight: 500;
+  color: var(--primary-dark);
+}
+
+.tip-description {
+  margin-top: 8px;
+  margin-bottom: 6px;
+  color: var(--text-dark);
+}
+
+.tip-date {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* Modal Box */
+.modal-box {
+  background: white;
+  padding: 20px;
+  border-radius: var(--radius);
+  width: 550;
+  box-shadow: var(--shadow);
+}
+
+/* Save button */
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  padding: 12px 16px;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 10px;
+  transition: 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+}
