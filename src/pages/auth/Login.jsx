@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
-import { loginAdmin } from "../userService";
+import { loginAdmin } from "../userService"; 
+import logo from "../../assets/logo.svg";  // ✅ ADD LOGO
 
 const Login = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -15,17 +16,17 @@ const Login = ({ onLogin }) => {
     setError("");
 
     try {
-      const token = await loginAdmin(email, password); // returns token string
+      const res = await loginAdmin(email, password);
 
-      if (token) {
-        localStorage.setItem("adminToken", token);
-        localStorage.setItem("isAdminLoggedIn", "true");
+      // SAVE ADMIN DETAILS
+      localStorage.setItem("adminToken", res.token);
+      localStorage.setItem("adminRole", res.role || "");
+      localStorage.setItem("adminState", res.state || "");
+      localStorage.setItem("adminDistrict", res.district || "");
+      localStorage.setItem("isAdminLoggedIn", "true");
 
-        onLogin();
-        navigate("/dashboard", { replace: true });
-      } else {
-        setError("Invalid email or password");
-      }
+      onLogin();
+      navigate("/dashboard", { replace: true });
 
     } catch (err) {
       setError("Invalid email or password");
@@ -34,7 +35,16 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="login-container">
+
       <div className="login-card">
+
+        {/* 🔥 LOGO AT TOP */}
+        <img 
+          src={logo} 
+          alt="SmartGaon Logo" 
+          className="login-logo" 
+        />
+
         <h2 className="login-title">SmartGaon AI</h2>
         <p className="login-subtitle">Admin Login</p>
 
@@ -59,8 +69,11 @@ const Login = ({ onLogin }) => {
             required
           />
 
-          <button type="submit" className="login-btn">Login</button>
+          <button type="submit" className="login-btn">
+            Login
+          </button>
         </form>
+
       </div>
     </div>
   );

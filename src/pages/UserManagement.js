@@ -1,111 +1,18 @@
-// import React, { useEffect, useState } from "react";
-// import { getAllUsers, getUserByPhone, deleteUserById } from "./userService";
-// import "./userManagement.css";
-
-// const UserManagement = () => {
-//   const [users, setUsers] = useState([]);
-//   const [searchPhone, setSearchPhone] = useState("");
-
-//   const loadUsers = async () => {
-//     try {
-//       const data = await getAllUsers();
-//       setUsers(data);
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
-
-//   const searchUser = async () => {
-//     if (!searchPhone.trim()) return loadUsers();
-
-//     try {
-//       const u = await getUserByPhone(searchPhone.trim());
-//       setUsers([u]);
-//     } catch {
-//       alert("User not found");
-//       loadUsers();
-//     }
-//   };
-
-//   const deleteUser = async (id) => {
-//     if (!window.confirm("Delete user?")) return;
-
-//     try {
-//       await deleteUserById(id);
-//       alert("User deleted");
-//       loadUsers();
-//     } catch (err) {
-//       alert("Delete failed");
-//     }
-//   };
-
-//   useEffect(() => {
-//     loadUsers();
-//   }, []);
-
-//   return (
-//     <div className="section-card">
-//       <h2>User Management</h2>
-
-//       <div className="um-filter-row">
-//         <input
-//           type="text"
-//           placeholder="Search by phone..."
-//           value={searchPhone}
-//           onChange={(e) => setSearchPhone(e.target.value)}
-//         />
-//         <button className="search-btn" onClick={searchUser}>Search</button>
-//         <button className="search-btn" onClick={loadUsers}>Reset</button>
-//       </div>
-
-//       <table className="um-table">
-//         <thead>
-//           <tr>
-//             <th>Name</th>
-//             <th>Phone</th>
-//             <th>Area</th>
-//             <th>Roles</th>
-//             <th>Verified</th>
-//             <th>Action</th>
-//           </tr>
-//         </thead>
-
-//         <tbody>
-//           {users.map(u => (
-//             <tr key={u.id}>
-//               <td>{u.firstName} {u.lastName}</td>
-//               <td>{u.phone}</td>
-//               <td>{u.area}</td>
-//               <td>{u.roles}</td>
-//               <td>{u.verified ? "Yes" : "No"}</td>
-//               <td>
-//                 <button className="delete-btn" onClick={() => deleteUser(u.id)}>
-//                   Delete
-//                 </button>
-//               </td>
-//             </tr>
-//           ))}
-
-//           {users.length === 0 && (
-//             <tr>
-//               <td colSpan="6" style={{ textAlign: "center", padding: 20 }}>
-//                 No users found
-//               </td>
-//             </tr>
-//           )}
-//         </tbody>
-//       </table>
-//     </div>
-//   );
-// };
-
-// export default UserManagement;
-
 import React, { useEffect, useState } from "react";
+import {
+  getAllUsers,
+  getUserByPhone,
+  deleteUserById,
+  enableUser,
+  disableUser,
+  getAllAdmins,
+  createAdmin,
+} from "./userService";
+
 import "./userManagement.css";
 
 const UserManagement = () => {
-  const [activeTab, setActiveTab] = useState("users"); 
+  const [activeTab, setActiveTab] = useState("users"); // users | admins
   const [users, setUsers] = useState([]);
   const [admins, setAdmins] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -118,39 +25,27 @@ const UserManagement = () => {
     password: "",
     role: "",
     state: "",
-    district: ""
+    district: "",
   });
 
-  // ============================
+  // ---------------------------------------------------
   // LOAD USERS
-  // ============================
+  // ---------------------------------------------------
   const loadUsers = async () => {
     try {
-      const res = await fetch("http://localhost:9090/admin/users", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
-      });
-
-      const data = await res.json();
+      const data = await getAllUsers();
       setUsers(data);
     } catch (err) {
       console.error(err);
     }
   };
 
-  // ============================
+  // ---------------------------------------------------
   // LOAD ADMINS
-  // ============================
+  // ---------------------------------------------------
   const loadAdmins = async () => {
     try {
-      const res = await fetch("http://localhost:9090/admin/all", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
-      });
-
-      const data = await res.json();
+      const data = await getAllAdmins();
       setAdmins(data);
     } catch (err) {
       console.error(err);
@@ -162,11 +57,13 @@ const UserManagement = () => {
     loadAdmins();
   }, []);
 
-  // PAGINATION
+  // Pagination
   const paginatedUsers = users.slice((page - 1) * pageSize, page * pageSize);
   const totalPages = Math.ceil(users.length / pageSize);
 
-  // MODAL
+  // ---------------------------------------------------
+  // OPEN / CLOSE MODAL
+  // ---------------------------------------------------
   const openAddAdminModal = () => {
     setAdminForm({
       email: "",
@@ -184,7 +81,9 @@ const UserManagement = () => {
     setAdminForm({ ...adminForm, [e.target.name]: e.target.value });
   };
 
+  // ---------------------------------------------------
   // SAVE ADMIN
+  // ---------------------------------------------------
   const saveAdmin = async () => {
     if (!adminForm.email || !adminForm.password || !adminForm.role) {
       alert("Email, Password & Role are required");
@@ -192,30 +91,48 @@ const UserManagement = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:9090/admin/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
-        body: JSON.stringify(adminForm),
-      });
-
-      const msg = await res.text();
-      alert(msg);
-
-      if (res.ok) {
-        closeModal();
-        loadAdmins();
-      }
-    } catch (err) {
+      await createAdmin(adminForm);
+      alert("Admin created successfully!");
+      closeModal();
+      loadAdmins();
+    } catch {
       alert("Failed to create admin");
     }
   };
 
-  // ============================
-  // USER LIST TABLE
-  // ============================
+  // ---------------------------------------------------
+  // ENABLE / DISABLE USER
+  // ---------------------------------------------------
+  const toggleStatus = async (id, isActive) => {
+    try {
+      if (isActive) {
+        await disableUser(id);
+      } else {
+        await enableUser(id);
+      }
+      loadUsers();
+    } catch (err) {
+      alert("Status update failed");
+    }
+  };
+
+  // ---------------------------------------------------
+  // DELETE USER
+  // ---------------------------------------------------
+  const removeUser = async (id) => {
+    if (!window.confirm("Remove this user?")) return;
+
+    try {
+      await deleteUserById(id);
+      loadUsers();
+    } catch {
+      alert("Failed to delete user");
+    }
+  };
+
+  // ---------------------------------------------------
+  // USER TABLE
+  // ---------------------------------------------------
   const renderUsers = () => (
     <div>
       <table className="um-table">
@@ -223,7 +140,11 @@ const UserManagement = () => {
           <tr>
             <th>Name</th>
             <th>Phone</th>
+            <th>District</th>
             <th>Area</th>
+            <th>State</th>
+            <th>Pincode</th>
+            <th>Role</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -234,7 +155,12 @@ const UserManagement = () => {
             <tr key={u.id}>
               <td>{u.firstName} {u.lastName}</td>
               <td>{u.phone}</td>
+              <td>{u.district}</td>
               <td>{u.area}</td>
+              <td>{u.state}</td>
+              <td>{u.pincode}</td>
+              <td>{u.roles}</td>
+
               <td>
                 <span className={u.verified ? "badge-active" : "badge-disabled"}>
                   {u.verified ? "Active" : "Disabled"}
@@ -242,18 +168,25 @@ const UserManagement = () => {
               </td>
 
               <td>
-                <button className="edit-btn">Edit</button>
-                <button className={u.verified ? "disable-btn" : "enable-btn"}>
+                {/* <button className="edit-btn">Edit</button> */}
+
+                <button
+                  className={u.verified ? "disable-btn" : "enable-btn"}
+                  onClick={() => toggleStatus(u.id, u.verified)}
+                >
                   {u.verified ? "Disable" : "Enable"}
                 </button>
-                <button className="remove-btn">Remove</button>
+
+                <button className="remove-btn" onClick={() => removeUser(u.id)}>
+                  Remove
+                </button>
               </td>
             </tr>
           ))}
 
           {paginatedUsers.length === 0 && (
             <tr>
-              <td colSpan="5" style={{ textAlign: "center", padding: 20 }}>
+              <td colSpan="9" style={{ textAlign: "center", padding: 20 }}>
                 No users found
               </td>
             </tr>
@@ -276,9 +209,9 @@ const UserManagement = () => {
     </div>
   );
 
-  // ============================
-  // ADMIN LIST TABLE
-  // ============================
+  // ---------------------------------------------------
+  // ADMIN TABLE
+  // ---------------------------------------------------
   const renderAdmins = () => (
     <table className="um-table">
       <thead>
@@ -329,7 +262,7 @@ const UserManagement = () => {
       {activeTab === "users" && renderUsers()}
       {activeTab === "admins" && renderAdmins()}
 
-      {/* MODAL */}
+      {/* ADD ADMIN MODAL */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-card">
@@ -365,7 +298,7 @@ const UserManagement = () => {
             {adminForm.role === "DISTRICT_ADMIN" && (
               <>
                 <label>District</label>
-                <input name="district" value={adminForm.district} onChange={handleAdminChange} placeholder="District" />
+                <input name="district" value={adminForm.district} onChange={handleAdminChange} />
               </>
             )}
 

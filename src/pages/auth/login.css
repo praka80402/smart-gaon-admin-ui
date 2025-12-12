@@ -85,3 +85,13 @@ input {
   text-align: center;
   font-size: 14px;
 }
+.login-logo {
+  height: 70px;
+  width: 70px;
+  object-fit: contain;
+  margin-bottom: 10px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+

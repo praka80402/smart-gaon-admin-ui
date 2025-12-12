@@ -1,3 +1,4 @@
+// src/pages/gaonconnect/GaonConnect.jsx
 import React, { useState, useEffect } from "react";
 import "./gaonconnect.css";
 import PostedItem from "./PostedItem";
@@ -6,36 +7,43 @@ import EditModal from "./EditModal";
 import {
   getAllNews, updateNews, deleteNews,
   getAllEvents, updateEvent, deleteEvent,
-  createNewsWithImage, createEventWithImage
+  createNewsWithImage, createEventWithMedia,
+  updateEventWithMedia, updateNewsWithMedia
 } from "./gaonConnectService";
 
-// Format date: YYYY-MM-DDTHH:mm:ss
-function formatDate() {
+function formatDateISO() {
   return new Date().toISOString().slice(0, 19);
 }
 
 const GaonConnect = () => {
+  const [activePage, setActivePage] = useState("Community Wall"); // 🔥 MAIN PAGE SWITCHER
+
   const [section, setSection] = useState("News");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [file, setFile] = useState(null);
+
+  const [images, setImages] = useState([]);
+  const [video, setVideo] = useState(null);
+
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [editVisible, setEditVisible] = useState(false);
   const [editing, setEditing] = useState(null);
 
-  // LOAD LIST
+  // -------------------------------------------
+  // LOAD COMMUNITY WALL DATA (News & Events)
+  // -------------------------------------------
   const load = async () => {
+    if (activePage !== "Community Wall") return; // Only load when CW is active
+
     setLoading(true);
     try {
-      if (section === "News") {
-        const res = await getAllNews(0, 50);
-        setItems(res.data);
-      } else {
-        const res = await getAllEvents(0, 50);
-        setItems(res.data);
-      }
+      const res = section === "News"
+        ? await getAllNews(0, 50)
+        : await getAllEvents(0, 50);
+
+      setItems(res.data || []);
     } catch (e) {
       console.error(e);
       setItems([]);
@@ -44,9 +52,30 @@ const GaonConnect = () => {
     }
   };
 
-  useEffect(() => { load(); }, [section]);
+  useEffect(() => {
+    load();
+  }, [section, activePage]);
 
+  // File preview
+  const previewImages = images.map((f) => URL.createObjectURL(f));
+  const previewVideo = video ? URL.createObjectURL(video) : null;
+
+  const onImagesChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 5) {
+      alert("Max 5 images allowed");
+      return;
+    }
+    setImages(files);
+  };
+
+  const onVideoChange = (e) => {
+    setVideo(e.target.files?.[0] || null);
+  };
+
+  // -------------------------------------------
   // CREATE POST
+  // -------------------------------------------
   const handlePost = async () => {
     if (!title.trim() || !body.trim()) {
       alert("Enter title and body");
@@ -65,11 +94,10 @@ const GaonConnect = () => {
           author: "Admin",
         };
 
-        await createNewsWithImage(newsPayload, file);
-
+        await createNewsWithImage(newsPayload, images, video);
       } else {
-        if (!file) {
-          alert("Please select an event image");
+        if (images.length === 0) {
+          alert("Event requires at least one image");
           setLoading(false);
           return;
         }
@@ -77,20 +105,22 @@ const GaonConnect = () => {
         const eventPayload = {
           title,
           description: body,
-          startDateTime: formatDate(),
-          endDateTime: formatDate(),
+          startDateTime: formatDateISO(),
+          endDateTime: formatDateISO(),
           location: "Village",
           contactInfo: "Admin",
         };
 
-        await createEventWithImage(eventPayload, file);
+        await createEventWithMedia(eventPayload, images, video);
       }
 
       setTitle("");
       setBody("");
-      setFile(null);
+      setImages([]);
+      setVideo(null);
+
       await load();
-      alert("Posted successfully!");
+      alert("Posted!");
     } catch (e) {
       console.error(e);
       alert("Post failed");
@@ -99,13 +129,16 @@ const GaonConnect = () => {
     }
   };
 
-  // DELETE
+  // -------------------------------------------
+  // DELETE POST
+  // -------------------------------------------
   const handleDelete = async (item) => {
     if (!window.confirm("Delete this item?")) return;
 
     try {
-      if (section === "News") await deleteNews(item.id);
-      else await deleteEvent(item.id);
+      section === "News"
+        ? await deleteNews(item.id)
+        : await deleteEvent(item.id);
 
       await load();
       alert("Deleted");
@@ -115,7 +148,6 @@ const GaonConnect = () => {
     }
   };
 
-  // EDIT OPEN
   const openEdit = (item) => {
     setEditing(item);
     setEditVisible(true);
@@ -126,66 +158,166 @@ const GaonConnect = () => {
     setEditVisible(false);
   };
 
-  // SAVE EDIT
-  const saveEdit = async (payload) => {
+  const saveEdit = async (
+    payload,
+    { newImages = [], newVideo = null, removedImageUrls = [], removeExistingVideo = false } = {}
+  ) => {
     try {
-      if (section === "News") await updateNews(payload.id, payload);
-      else await updateEvent(payload.id, payload);
+      const mediaChanged =
+        newImages.length > 0 ||
+        newVideo !== null ||
+        removedImageUrls.length > 0 ||
+        removeExistingVideo;
+
+      if (section === "News") {
+        mediaChanged
+          ? await updateNewsWithMedia(payload.id, payload, newImages, newVideo, removedImageUrls)
+          : await updateNews(payload.id, payload);
+      } else {
+        mediaChanged
+          ? await updateEventWithMedia(payload.id, payload, newImages, newVideo, removedImageUrls)
+          : await updateEvent(payload.id, payload);
+      }
 
       closeEdit();
       await load();
-      alert("Updated");
+      alert("Updated!");
     } catch (e) {
       console.error(e);
       alert("Update failed");
     }
   };
 
+  // -------------------------------------------
+  // HEADER TEXTS (Dynamic)
+  // -------------------------------------------
+  const headerSubtitle = {
+    "Community Wall": "Manage news & events in your village community.",
+    Forum: "Discuss topics, ask questions, and get help from villagers.",
+    "Raise Issue": "Report problems and track resolutions.",
+    "Job Board": "Browse and post job opportunities.",
+    "Village Directory": "Find important village contacts.",
+    Suggestions: "Share your ideas to improve the community.",
+  };
+
   return (
     <div className="gc-container">
+
+      {/* MAIN HEADER */}
       <div className="gc-header">
-        <h1>Gaon Connect – Community Hub</h1>
-        <p>Manage news & events for the village community.</p>
+        <h1>Gaon Connect – {activePage}</h1>
+        <p>{headerSubtitle[activePage]}</p>
       </div>
 
-      <div className="gc-form-section">
-        <h2>Post News / Event</h2>
-
-        <label>Headline</label>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} />
-
-        <label>Section</label>
-        <select value={section} onChange={(e) => setSection(e.target.value)}>
-          <option value="News">📰 News</option>
-          <option value="Event">📅 Event</option>
-        </select>
-
-        <label>Description</label>
-        <textarea value={body} onChange={(e) => setBody(e.target.value)} />
-
-        <label>Image</label>
-        <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} />
-
-        <button onClick={handlePost} disabled={loading}>
-          {loading ? "Posting..." : "Post"}
-        </button>
+      {/* SUB HEADER MENU */}
+      <div className="gc-subheader">
+        {[
+          "Community Wall",
+          "Forum",
+          "Raise Issue",
+          "Job Board",
+          "Village Directory",
+          "Suggestions",
+        ].map((tab) => (
+          <div
+            key={tab}
+            className={`gc-sub-item ${activePage === tab ? "active" : ""}`}
+            onClick={() => setActivePage(tab)}
+          >
+            {tab === "Community Wall" && "📄 Community Wall"}
+            {tab === "Forum" && "💬 Forum"}
+            {tab === "Raise Issue" && "⚠️ Raise Issue"}
+            {tab === "Job Board" && "💼 Job Board"}
+            {tab === "Village Directory" && "📞 Village Directory"}
+            {tab === "Suggestions" && "💡 Suggestions"}
+          </div>
+        ))}
       </div>
 
-      <div className="gc-posted-section">
-        <h3>Posted Items</h3>
-        {loading ? <p>Loading...</p> : items.length === 0 ? <p>No items</p> :
-          items.map((it) => (
-            <PostedItem
-              key={it.id}
-              item={it}
-              type={section}
-              onEdit={openEdit}
-              onDelete={handleDelete}
-            />
-          ))}
-      </div>
+      {/* -------------------------------------------
+         COMMUNITY WALL SECTION
+      ------------------------------------------- */}
+      {activePage === "Community Wall" && (
+        <>
+          <div className="gc-form-section">
+            <h2>Community Wall – News & Events</h2>
 
-      <EditModal visible={editVisible} onClose={closeEdit} initial={editing} type={section} onSave={saveEdit} />
+            <label>Headline</label>
+            <input value={title} onChange={(e) => setTitle(e.target.value)} />
+
+            <label>Section</label>
+            <select value={section} onChange={(e) => setSection(e.target.value)}>
+              <option value="News">📰 News</option>
+              <option value="Event">📅 Event</option>
+            </select>
+
+            <label>Body Text</label>
+            <textarea value={body} onChange={(e) => setBody(e.target.value)} />
+
+            <label>{section === "News" ? "Images (0-5)" : "Images (1-5)"}</label>
+            <input type="file" accept="image/*" multiple onChange={onImagesChange} />
+
+            <div className="gc-preview-row">
+              {previewImages.map((src, i) => (
+                <img key={i} src={src} className="gc-thumb-small" alt="" />
+              ))}
+            </div>
+
+            <label>Video (optional)</label>
+            <input type="file" accept="video/*" onChange={onVideoChange} />
+
+            {previewVideo && (
+              <video controls src={previewVideo} className="gc-video-preview" />
+            )}
+
+            <button className="gc-submit" onClick={handlePost} disabled={loading}>
+              {loading ? "Posting..." : "Post to Wall"}
+            </button>
+          </div>
+
+          {/* POSTS LIST */}
+          <div className="gc-posted-section">
+            <h3>Posted Items</h3>
+
+            {loading ? (
+              <p>Loading...</p>
+            ) : items.length === 0 ? (
+              <p>No items</p>
+            ) : (
+              <div className="gc-cart-grid">
+                {items.map((it) => (
+                  <PostedItem
+                    key={it.id}
+                    item={it}
+                    type={section}
+                    onEdit={openEdit}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* -------------------------------------------
+         FORUM PAGE (Placeholder)
+      ------------------------------------------- */}
+      {activePage === "Forum" && (
+        <div className="gc-form-section">
+          <h2>Forum Coming Soon</h2>
+          <p>This is where villagers can create discussions & reply.</p>
+        </div>
+      )}
+
+      {/* MODAL */}
+      <EditModal
+        visible={editVisible}
+        onClose={closeEdit}
+        initial={editing}
+        type={section}
+        onSave={saveEdit}
+      />
     </div>
   );
 };

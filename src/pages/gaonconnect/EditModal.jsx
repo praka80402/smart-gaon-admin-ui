@@ -1,46 +1,121 @@
 // src/pages/gaonconnect/EditModal.jsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./gaonconnect.css";
+
+/*
+ EditModal supports:
+  - multiple images (max total = 5)
+  - remove existing images
+  - add new images + preview
+  - remove/replace video
+  - returns mediaChanges to parent:
+      onSave(payload, {
+         newImages,
+         newVideo,
+         removedImageUrls,
+         removeExistingVideo
+      })
+*/
 
 const EditModal = ({ visible, onClose, initial, type, onSave }) => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [imageFile, setImageFile] = useState(null);
-  const [imageUrl, setImageUrl] = useState("");
+
+  const [existingImages, setExistingImages] = useState([]);
+  const [removedImageUrls, setRemovedImageUrls] = useState([]);
+
+  const [newImages, setNewImages] = useState([]);
+  const [newVideo, setNewVideo] = useState(null);
+
+  const [existingVideoUrl, setExistingVideoUrl] = useState(null);
+  const [removeExistingVideo, setRemoveExistingVideo] = useState(false);
 
   useEffect(() => {
     if (initial) {
       setTitle(initial.title || "");
       setBody(initial.summary || initial.description || "");
-      setImageUrl(initial.thumbnailUrl || initial.pictureUrl || "");
+
+      // normalize images
+      if (Array.isArray(initial.imageUrls)) {
+        setExistingImages(initial.imageUrls);
+      } else if (initial.pictureUrl) {
+        setExistingImages([initial.pictureUrl]);
+      } else if (initial.thumbnailUrl) {
+        setExistingImages([initial.thumbnailUrl]);
+      } else {
+        setExistingImages([]);
+      }
+
+      // video
+      setExistingVideoUrl(initial.videoUrl || null);
+
+      // reset
+      setRemovedImageUrls([]);
+      setNewImages([]);
+      setNewVideo(null);
+      setRemoveExistingVideo(false);
     }
   }, [initial]);
 
   if (!visible) return null;
 
+  // Remove EXISTING image
+  const removeExistingImage = (url) => {
+    setExistingImages((prev) => prev.filter((u) => u !== url));
+    setRemovedImageUrls((prev) => [...prev, url]);
+  };
+
+  // Add NEW IMAGES (max 5 total)
+  const onNewImagesChange = (e) => {
+    const files = Array.from(e.target.files || []);
+
+    const total = existingImages.length + newImages.length + files.length;
+    if (total > 5) {
+      alert("Maximum total 5 images allowed.");
+      return;
+    }
+    setNewImages((prev) => [...prev, ...files]);
+  };
+
+  // Upload video
+  const onNewVideoChange = (e) => {
+    const f = e.target.files?.[0] || null;
+    setNewVideo(f);
+    if (f) setRemoveExistingVideo(true);
+  };
+
+  const newImagePreviews = newImages.map((f) => URL.createObjectURL(f));
+  const newVideoPreview = newVideo ? URL.createObjectURL(newVideo) : null;
+
   const handleSave = async () => {
-    let finalUrl = imageUrl;
+    const payload = {
+      ...initial,
+      title,
+    };
 
-    // If NEW file selected → convert to temporary URL (frontend-only preview)
-    // Upload in backend is not supported for editing, so store old URL unchanged.
-    
-    const payload =
-      type === "News"
-        ? {
-            ...initial,
-            title,
-            summary: body,
-            content: body,
-            thumbnailUrl: finalUrl,
-          }
-        : {
-            ...initial,
-            title,
-            description: body,
-            pictureUrl: finalUrl,
-          };
+    if (type === "News") {
+      payload.summary = body.substring(0, 150);
+      payload.content = body;
+    } else {
+      payload.description = body;
+    }
 
-    onSave(payload);
+    const mediaChanged =
+      newImages.length > 0 ||
+      newVideo !== null ||
+      removedImageUrls.length > 0 ||
+      removeExistingVideo;
+
+    if (mediaChanged) {
+      await onSave(payload, {
+        newImages,
+        newVideo,
+        removedImageUrls,
+        removeExistingVideo,
+      });
+    } else {
+      await onSave(payload);
+    }
   };
 
   return (
@@ -54,15 +129,54 @@ const EditModal = ({ visible, onClose, initial, type, onSave }) => {
         <label>Body</label>
         <textarea value={body} onChange={(e) => setBody(e.target.value)} />
 
-        <label>Image</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImageFile(e.target.files[0])}
-        />
+        <label>Existing Images</label>
+        <div className="gc-existing-images">
+          {existingImages.length === 0 && <p className="muted">No images</p>}
 
-        {imageUrl && (
-          <img src={imageUrl} alt="preview" className="gc-thumb-small" />
+          {existingImages.map((url) => (
+            <div key={url} className="gc-existing-thumb">
+              <img src={url} alt="exist" className="gc-thumb-small" />
+              <button
+                className="gc-remove-small"
+                onClick={() => removeExistingImage(url)}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <label>Add New Images (Max 5 total)</label>
+        <input type="file" accept="image/*" multiple onChange={onNewImagesChange} />
+
+        <div className="gc-preview-row">
+          {newImagePreviews.map((src, i) => (
+            <img key={i} src={src} className="gc-thumb-small" alt="preview" />
+          ))}
+        </div>
+
+        <label>Existing Video</label>
+        {existingVideoUrl && !removeExistingVideo ? (
+          <div>
+            <video controls className="gc-video-preview" src={existingVideoUrl} />
+            <button
+              onClick={() => {
+                setRemoveExistingVideo(true);
+                setExistingVideoUrl(null);
+              }}
+            >
+              Remove Video
+            </button>
+          </div>
+        ) : (
+          <p className="muted">No video</p>
+        )}
+
+        <label>Upload New Video</label>
+        <input type="file" accept="video/*" onChange={onNewVideoChange} />
+
+        {newVideoPreview && (
+          <video controls className="gc-video-preview" src={newVideoPreview} />
         )}
 
         <div className="gc-modal-actions">
