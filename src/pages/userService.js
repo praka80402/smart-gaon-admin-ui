@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE = "http://165.22.216.100:9090/admin";
+const BASE = "https://smartgaon.duckdns.org/admin";
 const LOGIN_URL = `${BASE}/login`;
 const USERS_URL = `${BASE}/users`;
 const ADMINS_URL = `${BASE}/all`;
