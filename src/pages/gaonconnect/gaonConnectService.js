@@ -1,7 +1,7 @@
 // src/pages/gaonconnect/gaonConnectService.js
 import axios from "axios";
 
-const ADMIN_BASE = "http://localhost:9090/admin";
+const ADMIN_BASE = "https://smartgaonadmin.duckdns.org/admin";
 
 // ---------------- API BASE ----------------
 export const NEWS_URL = `${ADMIN_BASE}/news`;
