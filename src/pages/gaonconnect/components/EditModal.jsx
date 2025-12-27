@@ -1,21 +1,8 @@
 // src/pages/gaonconnect/EditModal.jsx
 import React, { useEffect, useState } from "react";
-import "./gaonconnect.css";
+// import "./gaonconnect.css";
 
-/*
- EditModal supports:
-  - multiple images (max total = 5)
-  - remove existing images
-  - add new images + preview
-  - remove/replace video
-  - returns mediaChanges to parent:
-      onSave(payload, {
-         newImages,
-         newVideo,
-         removedImageUrls,
-         removeExistingVideo
-      })
-*/
+import "../gaonconnect.css";
 
 const EditModal = ({ visible, onClose, initial, type, onSave }) => {
   const [title, setTitle] = useState("");

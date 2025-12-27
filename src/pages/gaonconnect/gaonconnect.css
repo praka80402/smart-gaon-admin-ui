@@ -391,3 +391,98 @@ input[type="file"]::file-selector-button:hover {
   font-weight: 600;
   color: #2e5a2e;
 }
+/* ----- GAON TALENT COMMENTS UI ----- */
+.comments-container {
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 5px;
+  margin-top: 10px;
+}
+
+.comment-box {
+  display: flex;
+  gap: 12px;
+  background: #f8f8f8;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  border-left: 4px solid #4CAF50;
+  animation: fadeIn 0.3s ease;
+}
+
+.comment-avatar {
+  background: #4CAF50;
+  color: white;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.comment-username {
+  font-weight: 600;
+  color: #222;
+}
+
+.comment-date {
+  font-size: 11px;
+  color: gray;
+}
+
+.comment-text {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #444;
+}
+
+.no-comments {
+  font-size: 14px;
+  color: gray;
+}
+
+.likes-box {
+  background: #e9ffe9;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  width: max-content;
+  margin-bottom: 10px;
+}
+
+.talent-section-title {
+  margin-top: 20px;
+  margin-bottom: 6px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+.gc-top-divider {
+  width: 100%;
+  height: 5px;
+  background: #e0e0e0; 
+  margin: 10px 0 20px 0;
+
+ 
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  border-radius: 2px;
+}
+
+
+
