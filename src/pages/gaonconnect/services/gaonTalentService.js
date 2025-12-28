@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://localhost:9090/admin/gaon-talent";
+const API = "https://smartgaonadmin.duckdns.org/admin/gaon-talent";
 
 // ---------------------- Competitions ----------------------
 export const getAllCompetitions = () =>
