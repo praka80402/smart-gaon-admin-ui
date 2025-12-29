@@ -691,6 +691,7 @@ import Forum from "./components/Forum";
 import Directory from "./components/Directory";
 import Suggestions from "./components/Suggestions";
 import GaonTalent from "./components/gaontalent/GaonTalent";
+import CommunityNewsWrapper from "./components/communityNews/CommunityNewsWrapper";
 
 const GaonConnect = () => {
   const [activePage, setActivePage] = useState("Community Wall");
@@ -721,8 +722,8 @@ const GaonConnect = () => {
           </div>
         ))}
       </div>
-
-      {activePage === "Community Wall" && <NewsEvents />}
+      {activePage === "Community Wall" && <CommunityNewsWrapper />}
+      {/* {activePage === "Community Wall" && <NewsEvents />} */}
       {activePage === "Forum" && <Forum />}
       {activePage === "GaonTalent" && <GaonTalent />}
       {activePage === "Village Directory" && <Directory />}

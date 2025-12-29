@@ -11,8 +11,11 @@ export default function Engagement() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedPost, setSelectedPost] = useState(null);
-  const [searchInput, setSearchInput] = useState("");     // user types here
-  const [searchValue, setSearchValue] = useState("");     // actual search action
+
+  const [searchInput, setSearchInput] = useState("");   // user types
+  const [searchValue, setSearchValue] = useState("");   // actual search
+
+  const [likeFilter, setLikeFilter] = useState("NONE"); // ⭐ NEW FILTER
 
   const pageSize = 10;
 
@@ -46,9 +49,7 @@ export default function Engagement() {
     return comp ? comp.name : "Not Participated";
   };
 
-  const getCategory = (cat) => {
-    return cat ? cat : "Not Participated";
-  };
+  const getCategory = (cat) => (cat ? cat : "Not Participated");
 
   const isImage = (url) =>
     url?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/);
@@ -61,7 +62,7 @@ export default function Engagement() {
     loadEngagementData();
   };
 
-  /* SEARCH FILTER (activated only when searchValue updates) */
+  /* ⭐ SEARCH FILTER */
   const filteredUsers = users.filter((u) => {
     const text = searchValue.toLowerCase();
     return (
@@ -74,18 +75,28 @@ export default function Engagement() {
     );
   });
 
+  /* ⭐ LIKE / COMMENT SORTING */
+  let sortedUsers = [...filteredUsers];
+
+  if (likeFilter === "MOST_LIKED") {
+    sortedUsers.sort((a, b) => b.likes - a.likes);
+  } else if (likeFilter === "LEAST_LIKED") {
+    sortedUsers.sort((a, b) => a.likes - b.likes);
+  } else if (likeFilter === "MOST_COMMENTED") {
+    sortedUsers.sort((a, b) => b.comments - a.comments);
+  }
+
   /* PAGINATION */
   const indexOfLast = currentPage * pageSize;
   const indexOfFirst = indexOfLast - pageSize;
-  const currentRows = filteredUsers.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(filteredUsers.length / pageSize);
+  const currentRows = sortedUsers.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(sortedUsers.length / pageSize);
 
-  /* When pressing Enter key inside input */
+  /* Press Enter triggers search */
   const handleKeyPress = (e) => {
     if (e.key === "Enter") performSearch();
   };
 
-  /* Perform search */
   const performSearch = () => {
     setSearchValue(searchInput);
     setCurrentPage(1);
@@ -95,7 +106,7 @@ export default function Engagement() {
     <>
       <h2 style={{ marginBottom: "20px" }}>Engagement Overview</h2>
 
-      {/* ⭐ SEARCH BAR + BUTTON */}
+      {/* ⭐ SEARCH BAR + BUTTON + FILTER */}
       <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
         <input
           type="text"
@@ -104,7 +115,7 @@ export default function Engagement() {
           onKeyDown={handleKeyPress}
           onChange={(e) => setSearchInput(e.target.value)}
           style={{
-            width: "250px",
+            width: "480px",
             padding: "8px",
             borderRadius: "6px",
             border: "1px solid #ccc"
@@ -115,7 +126,7 @@ export default function Engagement() {
           onClick={performSearch}
           style={{
             padding: "8px 16px",
-            background: "#4d79ff",
+            background: "#2e7d32",
             color: "white",
             border: "none",
             borderRadius: "6px",
@@ -124,8 +135,29 @@ export default function Engagement() {
         >
           Search
         </button>
+
+        <select
+          value={likeFilter}
+          onChange={(e) => {
+            setLikeFilter(e.target.value);
+            setCurrentPage(1);
+          }}
+          style={{
+            width: "160px",
+            padding: "8px",
+            borderRadius: "6px",
+            border: "1px solid #ccc",
+            background: "#f8f8f8"
+          }}
+        >
+          <option value="NONE">Filter: None</option>
+          <option value="MOST_LIKED">Most Liked</option>
+          <option value="LEAST_LIKED">Least Liked</option>
+          <option value="MOST_COMMENTED">Most Commented</option>
+        </select>
       </div>
 
+      {/* TABLE */}
       <div className="table-container">
         <table className="eng-table">
           <thead>
@@ -148,8 +180,7 @@ export default function Engagement() {
             {currentRows.map((u) => (
               <tr key={u.id} className={u.winner ? "winner-row" : ""}>
                 <td>
-                  {u.name}{" "}
-                  {u.winner && <span style={{ color: "green" }}>🏆</span>}
+                  {u.name} {u.winner && <span style={{ color: "green" }}>🏆</span>}
                 </td>
                 <td>{u.dob}</td>
                 <td>{u.villageOrArea}</td>
@@ -159,22 +190,15 @@ export default function Engagement() {
                 <td>{u.referenceNumber || "N/A"}</td>
                 <td>{u.likes}</td>
                 <td>{u.comments}</td>
-
                 <td>
-                  <button
-                    className="view-btn"
-                    onClick={() => setSelectedPost(u)}
-                  >
+                  <button className="view-btn" onClick={() => setSelectedPost(u)}>
                     View
                   </button>
                 </td>
 
                 <td>
                   {!u.winner ? (
-                    <button
-                      className="save-btn"
-                      onClick={() => markAsWinner(u.id)}
-                    >
+                    <button className="save-btn" onClick={() => markAsWinner(u.id)}>
                       Declare
                     </button>
                   ) : (
@@ -214,15 +238,11 @@ export default function Engagement() {
         </button>
       </div>
 
-      {/* MODAL */}
+      {/* MEDIA MODAL */}
       {selectedPost && (
         <div className="modal-overlay">
           <div className="media-modal">
-
-            <button
-              className="modal-close"
-              onClick={() => setSelectedPost(null)}
-            >
+            <button className="modal-close" onClick={() => setSelectedPost(null)}>
               ✕
             </button>
 
@@ -239,10 +259,13 @@ export default function Engagement() {
             </div>
 
             <div className="modal-stats">
-              <p><b>Likes:</b> {selectedPost.likes}</p>
-              <p><b>Comments:</b> {selectedPost.comments}</p>
+              <p>
+                <b>Likes:</b> {selectedPost.likes}
+              </p>
+              <p>
+                <b>Comments:</b> {selectedPost.comments}
+              </p>
             </div>
-
           </div>
         </div>
       )}

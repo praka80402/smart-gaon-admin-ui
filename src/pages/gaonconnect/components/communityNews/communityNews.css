@@ -1,0 +1,588 @@
+/* -----------------------------------------------------
+   GLOBAL
+------------------------------------------------------ */
+.cn-wrapper {
+  width: 100%;
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+  font-family: "Inter", sans-serif;
+}
+
+/* -----------------------------------------------------
+   TABS
+------------------------------------------------------ */
+/* .cn-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e5e5e5;
+  padding-bottom: 10px;
+}
+
+.cn-tabs button {
+  background: #f1f1f1;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.cn-tabs button.active {
+  background: #257031;
+  color: white;
+}
+
+.cn-tabs button:hover {
+  background: #257031;;
+} */
+
+/* -----------------------------------------------------
+   TOP TABS (TEXT STYLE — NO BUTTON LOOK)
+------------------------------------------------------ */
+/* ===========================================================
+   TABS (Top Navigation)
+=========================================================== */
+.cn-tabs {
+  display: flex;
+  gap: 25px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e5e5e5;
+  padding-bottom: 8px;
+}
+
+/* Clean text tabs (NO button look) */
+.cn-tabs button {
+  background: none;
+  border: none;
+  padding: 8px 0;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: #555;
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+  transition: 0.25s;
+}
+
+.cn-tabs button.active {
+  color: #257031;
+  border-bottom: 3px solid #257031;
+}
+
+.cn-tabs button:hover {
+  color: #257031;
+}
+
+/* ===========================================================
+   TABLE
+=========================================================== */
+.cn-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Header & Cell Styling */
+.cn-table th,
+.cn-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #e2e2e2;
+  font-size: 15px;
+  vertical-align: middle;
+}
+
+/* HEADER */
+.cn-table th {
+  background: #f3f3f3;
+  font-weight: 600;
+  text-align: left;
+}
+
+/* Set column widths */
+.cn-table th:nth-child(1),
+.cn-table td:nth-child(1) {
+  width: 30%;
+}
+
+.cn-table th:nth-child(2),
+.cn-table td:nth-child(2) {
+  width: 40%;
+}
+
+.cn-table th:nth-child(3),
+.cn-table td:nth-child(3) {
+  width: 10%;
+  text-align: center !important;
+}
+
+.cn-table th:nth-child(4),
+.cn-table td:nth-child(4) {
+  width: 20%;
+}
+
+/* Center for View Button Column */
+.cn-center {
+  text-align: center !important;
+}
+
+/* ===========================================================
+   BUTTONS
+=========================================================== */
+.view-btn,
+.edit-btn,
+.delete-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* View Button */
+.view-btn {
+  background: #1976d2;
+  color: white;
+}
+
+/* Edit Button */
+.edit-btn {
+  background: #2e7d32;
+  color: white;
+}
+
+/* Delete Button */
+.delete-btn {
+  background: #d32f2f;
+  color: white;
+}
+
+/* Action buttons inline */
+.cn-action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ===========================================================
+   VIEW MODAL (Full Post View)
+=========================================================== */
+.cn-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.cn-view-modal {
+  width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+/* Images row */
+.cn-view-images {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.cn-view-images img {
+  width: 140px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Close button */
+.close-btn {
+  margin-top: 20px;
+  padding: 10px 16px;
+  background: #444;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Video */
+.cn-video {
+  width: 100%;
+  margin-top: 12px;
+  border-radius: 8px;
+}
+
+
+
+/* -----------------------------------------------------
+   FORM
+------------------------------------------------------ */
+.cn-form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.cn-form label {
+  display: block;
+  font-weight: 600;
+  margin: 10px 0 5px;
+}
+
+.cn-form input,
+.cn-form textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #b5b5b5;
+  outline: none;
+  font-size: 14px;
+}
+
+.cn-form textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.cn-form .submit {
+  margin-top: 15px;
+  background: #1a8cff;
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cn-form .submit:hover {
+  background: #0f6ddf;
+}
+
+/* -----------------------------------------------------
+   GRID LIST
+------------------------------------------------------ */
+.cn-list h2 {
+  margin-bottom: 15px;
+}
+
+.cn-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+/* -----------------------------------------------------
+   CARD
+------------------------------------------------------ */
+.cn-card {
+  background: white;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.07);
+  position: relative;
+}
+
+.cn-card h4 {
+  margin: 10px 0 6px;
+}
+
+.cn-card p {
+  color: #555;
+  font-size: 14px;
+}
+
+/* Image */
+.cn-img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* Video */
+.cn-video {
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+
+/* -----------------------------------------------------
+   CARD MENU (3 DOTS)
+------------------------------------------------------ */
+.cn-menu {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  cursor: pointer;
+}
+
+.cn-menu span {
+  font-size: 22px;
+}
+
+.cn-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 25px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  min-width: 120px;
+  z-index: 20;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.cn-menu-dropdown div {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cn-menu-dropdown div:hover {
+  background: #efefef;
+}
+
+.cn-menu-dropdown .delete {
+  color: red;
+}
+
+/* -----------------------------------------------------
+   MODAL
+------------------------------------------------------ */
+.cn-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.cn-modal {
+  width: 550px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.cn-modal label {
+  margin-top: 10px;
+  font-weight: 600;
+  display: block;
+}
+
+.cn-modal input,
+.cn-modal textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+/* Existing images */
+.cn-existing-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cn-existing-thumb {
+  position: relative;
+}
+
+.cn-thumb {
+  width: 90px;
+  height: 90px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.cn-existing-thumb button {
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  right: 0;
+  background: red;
+  color: white;
+  border: none;
+  padding: 4px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* New image preview */
+.cn-preview-row {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+/* Modal actions */
+.cn-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.cn-actions button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cn-actions .save {
+  background: #1a8cff;
+  color: white;
+}
+
+.cn-actions .cancel {
+  background: #ccc;
+}
+
+.muted {
+  color: #777;
+}
+/* ------------------------------- */
+/* -----------------------------------------------------
+   WRAPPER
+------------------------------------------------------ */
+.cn-wrapper {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+  font-family: "Inter", sans-serif;
+}
+
+/* -----------------------------------------------------
+   FORM BOX
+------------------------------------------------------ */
+.cn-form {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  margin-top: 20px;
+}
+
+.cn-form h2 {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* -----------------------------------------------------
+   LABELS
+------------------------------------------------------ */
+.cn-form label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 12px 0 5px;
+}
+
+/* -----------------------------------------------------
+   INPUTS
+------------------------------------------------------ */
+.cn-form input,
+.cn-form textarea,
+.cn-form select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: 0.25s;
+}
+
+.cn-form input:focus,
+.cn-form textarea:focus,
+.cn-form select:focus {
+  border-color: #1a8cff;
+  box-shadow: 0 0 0 2px rgba(26, 140, 255, 0.35);
+}
+
+/* TEXTAREA */
+.cn-form textarea {
+  resize: vertical;
+  min-height: 130px;
+}
+
+/* -----------------------------------------------------
+   SUBMIT BUTTON
+------------------------------------------------------ */
+.cn-form .submit {
+  margin-top: 15px;
+  padding: 12px 20px;
+  background: #1a8cff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: 0.25s;
+  width: 100%;
+}
+
+.cn-form .submit:hover {
+  background: #0f6ddf;
+}
+
+/* -----------------------------------------------------
+   FILE INPUTS
+------------------------------------------------------ */
+.cn-form input[type="file"] {
+  padding: 6px;
+  border: none;
+  background: #f4f4f4;
+  border-radius: 6px;
+}
+
+/* -----------------------------------------------------
+   PREVIEW STYLE SUPPORT (IF YOU ADD LATER)
+------------------------------------------------------ */
+.cn-img-preview {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  margin-top: 10px;
+  border-radius: 8px;
+}
+
+.cn-video-preview {
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 8px;
+}
+
+/* -----------------------------------------------------
+   RESPONSIVE
+------------------------------------------------------ */
+@media (max-width: 600px) {
+  .cn-form {
+    padding: 18px;
+  }
+
+  .cn-form .submit {
+    font-size: 14px;
+  }
+}

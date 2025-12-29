@@ -122,6 +122,9 @@ export default function Competitions() {
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
         />
+         <button className="search-btn" onClick={() => console.log("Searching...")}>
+    Search
+  </button>
 
         <select
           className="filter-select"
@@ -133,7 +136,7 @@ export default function Competitions() {
         >
           <option value="ALL">All</option>
           <option value="ACTIVE">Active</option>
-          <option value="UPCOMING">Upcoming</option>
+          {/* <option value="UPCOMING">Upcoming</option> */}
           <option value="CLOSED">Closed</option>
         </select>
 
@@ -176,7 +179,7 @@ export default function Competitions() {
                 </span>
 
                 {c.status === "ACTIVE" && (
-                  <span className="live-badge">LIVE ●</span>
+                  <span className="live-badge">LIVE</span>
                 )}
               </td>
 
@@ -259,61 +262,64 @@ export default function Competitions() {
       )}
 
       {/* CREATE COMPETITION MODAL */}
-      {modal && (
-        <div className="modal-bg">
-          <div className="modal-card">
-            <h3>Create Competition</h3>
+{modal && (
+  <div className="modal-bg">
+    <div className="modal-card">
 
-            <input
-              placeholder="Competition Name"
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-            />
+      {/* X BUTTON */}
+      <span className="modal-close-x" onClick={() => setModal(false)}>✕</span>
 
-            <textarea
-              placeholder="Description"
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
-            />
+      {/* HEADER */}
+      <div className="modal-header">Create Competition</div>
 
-            <label>Start Date</label>
-            <input
-              type="datetime-local"
-              onChange={(e) =>
-                setForm({ ...form, startDate: e.target.value })
-              }
-            />
+      {/* SCROLLABLE BODY */}
+      <div className="modal-body">
+         <label>Competition Name</label>
+        <input
+          placeholder="Competition Name"
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+        />
 
-            <label>End Date</label>
-            <input
-              type="datetime-local"
-              onChange={(e) =>
-                setForm({ ...form, endDate: e.target.value })
-              }
-            />
+        <label>Description</label>
+        <textarea
+          placeholder="Description"
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+        />
 
-            <label>Category</label>
-            <select
-              onChange={(e) =>
-                setForm({ ...form, category: e.target.value })
-              }
-            >
-              <option>ART</option>
-              <option>DANCING</option>
-              <option>SINGING</option>
-              <option>ENTERTAINMENT</option>
-              <option>PUBLIC_SPEAKING</option>
-            </select>
+        <label>Start Date</label>
+        <input
+          type="datetime-local"
+          onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+        />
 
-            <button className="save-btn" onClick={saveCompetition}>
-              Save
-            </button>
-            <button className="close-btn" onClick={() => setModal(false)}>
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+        <label>End Date</label>
+        <input
+          type="datetime-local"
+          onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+        />
+
+        <label>Category</label>
+        <select
+          onChange={(e) => setForm({ ...form, category: e.target.value })}
+        >
+          <option>ART</option>
+          <option>DANCING</option>
+          <option>SINGING</option>
+          <option>ENTERTAINMENT</option>
+          <option>PUBLIC_SPEAKING</option>
+        </select>
+      </div>
+
+      {/* FOOTER */}
+      <div className="modal-footer">
+        <button className="save-btn" onClick={saveCompetition}>Save</button>
+      </div>
+
+    </div>
+  </div>
+)}
+
+
 
     </>
   );

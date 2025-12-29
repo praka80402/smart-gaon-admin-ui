@@ -3,6 +3,7 @@
 ===================================================================== */
 .gc-container {
   padding: 20px;
+  /* background: #41ca91; */
   font-family: "Inter", Arial, sans-serif;
 }
 
@@ -483,6 +484,149 @@ input[type="file"]::file-selector-button:hover {
   box-shadow: 0 3px 6px rgba(0,0,0,0.15);
   border-radius: 2px;
 }
+/* directory */
+/* ===========================================================
+   DIRECTORY TABLE — SHOW ALL INFO
+=========================================================== */
+
+.cn-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.cn-table th,
+.cn-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e2e2;
+  font-size: 14px;
+  vertical-align: middle;
+  text-align: left;
+}
+
+.cn-table th {
+  background: #f3f3f3;
+  font-weight: 600;
+}
+
+/* Column Width Layout */
+/* Better balanced column widths */
+.cn-table th:nth-child(1), .cn-table td:nth-child(1) { width: 14%; } /* Name */
+.cn-table th:nth-child(2), .cn-table td:nth-child(2) { width: 12%; } /* Phone */
+.cn-table th:nth-child(3), .cn-table td:nth-child(3) { width: 14%; } /* Occupation */
+.cn-table th:nth-child(4), .cn-table td:nth-child(4) { width: 12%; } /* Area */
+.cn-table th:nth-child(5), .cn-table td:nth-child(5) { width: 10%; } /* Pincode */
+.cn-table th:nth-child(6), .cn-table td:nth-child(6) { width: 14%; } /* District */
+.cn-table th:nth-child(7), .cn-table td:nth-child(7) { width: 14%; } /* State */
+.cn-table th:nth-child(8), .cn-table td:nth-child(8) { width: 10%; } /* Actions */
+
+
+/* ===========================================================
+   ACTION BUTTONS (EDIT + DELETE)
+=========================================================== */
+
+.cn-action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+}
+
+.edit-btn {
+  background: #2e7d32;
+}
+
+.delete-btn {
+  background: #d32f2f;
+}
+
+/* Hover effects */
+.edit-btn:hover {
+  background: #256829;
+}
+
+.delete-btn:hover {
+  background: #b72121;
+}
+
+/* ===========================================================
+   PAGINATION
+=========================================================== */
+
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.pagination button {
+  padding: 6px 10px;
+  border: none;
+  background: #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.pagination button:hover {
+  background: #257031;
+  color: white;
+}
+
+.pagination button.active {
+  background: #257031;
+  color: white;
+}
+
+
+.cn-search-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.cn-search-row input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* Search Button */
+.cn-search-btn {
+ 
+  padding: 6px 11px;
+  background: #257031;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.cn-search-btn:hover {
+  background: #1e5a29;
+}
+
+
 
 
 
