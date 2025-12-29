@@ -1,0 +1,22 @@
+.page-container { padding: 25px; background:#f7f7f7; min-height:100vh; }
+h1 { font-size:24px; font-weight:bold; margin-bottom:20px; }
+
+/* Tabs */
+.tabs { display:flex; border-bottom:2px solid #ccc; margin-bottom:15px; }
+.tab-btn { padding:10px 15px; background:#eee; border:none; cursor:pointer; }
+.tab-btn.active { background:#00A651; color:#fff; }
+
+/* Table */
+.card { background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+.data-table { width:100%; border-collapse:collapse; margin-top:15px; }
+.data-table th, .data-table td { padding:10px; border-bottom:1px solid #ccc; }
+.data-table th { text-align:left; background:#f0f0f0; }
+
+.img-col img { width:50px; height:30px; margin-right:5px; border-radius:4px; object-fit:cover; }
+
+/* Buttons */
+.edit-btn,.add-btn { padding:5px 12px; border:none; cursor:pointer; color:#fff; border-radius:4px; }
+.edit-btn { background:#1e88e5; }
+.add-btn { background:#00A651; }
+
+.pagination{ display:flex; gap:10px; margin-top:10px; align-items:center; }
