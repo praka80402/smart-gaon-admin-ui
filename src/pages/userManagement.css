@@ -301,3 +301,13 @@
 .filter-row .danger-btn:hover {
   background: #b61f1f;
 }
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.small {
+  padding: 4px 8px;
+  font-size: 12px;
+}

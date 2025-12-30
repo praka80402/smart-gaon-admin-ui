@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE = "https://smartgaonadmin.duckdns.org/admin";
+const BASE = "http://https://smartgaonadmin.duckdns.org/admin";
 const LOGIN_URL = `${BASE}/login`;
 const USERS_URL = `${BASE}/users`;
 const ADMINS_URL = `${BASE}/all`;
@@ -70,16 +70,16 @@ export const updateUserById = async (id, updatedData) => {
 // -----------------------------------------------------
 // ENABLE USER
 // -----------------------------------------------------
-export const enableUser = async (id) => {
-  return axios.put(`${USERS_URL}/${id}/enable`, {}, authHeader());
-};
+// export const enableUser = async (id) => {
+//   return axios.put(`${USERS_URL}/${id}/enable`, {}, authHeader());
+// };
 
 // -----------------------------------------------------
 // DISABLE USER
 // -----------------------------------------------------
-export const disableUser = async (id) => {
-  return axios.put(`${USERS_URL}/${id}/disable`, {}, authHeader());
-};
+// export const disableUser = async (id) => {
+//   return axios.put(`${USERS_URL}/${id}/disable`, {}, authHeader());
+// };
 
 // -----------------------------------------------------
 // GET ALL ADMINS – ONLY SUPER ADMIN CAN CALL
@@ -167,4 +167,12 @@ export const getUsersByPincode = async (pincode) => {
     authHeader()
   );
   return res.data;
+};
+// disable
+
+export const disableUser = async (id) => {
+  return axios.put(`${USERS_URL}/${id}/disable`, {}, authHeader());
+};
+export const enableUser = async (id) => {
+  return axios.put(`${USERS_URL}/${id}/enable`, {}, authHeader());
 };

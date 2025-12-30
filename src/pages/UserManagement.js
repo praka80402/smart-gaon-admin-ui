@@ -387,6 +387,8 @@ import {
   createAdmin,
   searchUsers,
   getUsersByPincode,
+  enableUser,
+  disableUser
 } from "./userService";
 
 import "./userManagement.css";
@@ -438,7 +440,7 @@ const UserManagement = () => {
     }
   };
 
-  // Reset pagination when users change
+  // Reset pagination when list changes
   useEffect(() => {
     setPage(1);
   }, [users]);
@@ -487,6 +489,25 @@ const UserManagement = () => {
     setConfirmDelete(false);
   };
 
+  // ---------------- ENABLE / DISABLE ----------------
+  const handleEnable = async (id) => {
+    try {
+      await enableUser(id);
+      loadUsers();
+    } catch {
+      alert("Failed to enable user");
+    }
+  };
+
+  const handleDisable = async (id) => {
+    try {
+      await disableUser(id);
+      loadUsers();
+    } catch {
+      alert("Failed to disable user");
+    }
+  };
+
   // ---------------- PAGINATION ----------------
   const totalPages = Math.ceil(users.length / pageSize);
   const paginatedUsers = users.slice((page - 1) * pageSize, page * pageSize);
@@ -515,8 +536,12 @@ const UserManagement = () => {
           onChange={(e) => setFilterPincode(e.target.value)}
         />
 
-        <button className="primary-btn" onClick={applyFilters}>Apply</button>
-        <button className="danger-btn" onClick={resetFilters}>Reset</button>
+        <button className="primary-btn" onClick={applyFilters}>
+          Apply
+        </button>
+        <button className="danger-btn" onClick={resetFilters}>
+          Reset
+        </button>
       </div>
 
       {/* TABLE */}
@@ -545,18 +570,42 @@ const UserManagement = () => {
               <td>{u.pincode}</td>
 
               <td>
-                <span className={u.isDeleted ? "badge-disabled" : "badge-active"}>
-                  {u.isDeleted ? `Deleted by ${u.deletedBy}` : "Active"}
-                </span>
+                {u.isDeleted ? (
+                  <span className="badge-disabled">Deleted</span>
+                ) : u.accountEnabled ? (
+                  <span className="badge-active">Active</span>
+                ) : (
+                  <span className="badge-disabled">Disabled</span>
+                )}
               </td>
 
-              <td>
-                <button
-                  className="remove-btn"
-                  onClick={() => askDeleteUser(u.id)}
-                >
-                  Delete
-                </button>
+              <td className="action-buttons">
+                {!u.isDeleted && (
+                  <>
+                    {u.accountEnabled ? (
+                      <button
+                        className="danger-btn small"
+                        onClick={() => handleDisable(u.id)}
+                      >
+                        Disable
+                      </button>
+                    ) : (
+                      <button
+                        className="primary-btn small"
+                        onClick={() => handleEnable(u.id)}
+                      >
+                        Enable
+                      </button>
+                    )}
+
+                    <button
+                      className="remove-btn small"
+                      onClick={() => askDeleteUser(u.id)}
+                    >
+                      Delete
+                    </button>
+                  </>
+                )}
               </td>
             </tr>
           ))}
@@ -719,17 +768,26 @@ const UserManagement = () => {
                   name="district"
                   value={adminForm.district}
                   onChange={(e) =>
-                    setAdminForm({ ...adminForm, district: e.target.value })
+                    setAdminForm({
+                      ...adminForm,
+                      district: e.target.value,
+                    })
                   }
                 />
               </>
             )}
 
             <div className="modal-actions">
-              <button className="primary-btn" onClick={() => createAdmin(adminForm)}>
+              <button
+                className="primary-btn"
+                onClick={() => createAdmin(adminForm)}
+              >
                 Save
               </button>
-              <button className="danger-btn" onClick={() => setShowModal(false)}>
+              <button
+                className="danger-btn"
+                onClick={() => setShowModal(false)}
+              >
                 Cancel
               </button>
             </div>
