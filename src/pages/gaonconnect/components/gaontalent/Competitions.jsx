@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   getAllCompetitions,
   createCompetition,
-  getCompetitionEntries
+  getCompetitionEntries,
 } from "../../services/gaonTalentService";
 
 export default function Competitions() {
@@ -27,6 +27,8 @@ export default function Competitions() {
     startDate: "",
     endDate: "",
     category: "ART",
+    state: "ALL",
+    pincode: "",
   });
 
   useEffect(() => {
@@ -51,30 +53,24 @@ export default function Competitions() {
       return { ...c, status };
     });
 
-    // SORT: ACTIVE → UPCOMING → CLOSED + latest first
     const sorted = updated.sort((a, b) => {
       const order = { ACTIVE: 1, UPCOMING: 2, CLOSED: 3 };
       if (order[a.status] !== order[b.status]) {
         return order[a.status] - order[b.status];
       }
 
-      const dateA = new Date(a.startDate.replace(" ", "T"));
-      const dateB = new Date(b.startDate.replace(" ", "T"));
-
-      return dateB - dateA;
+      return new Date(b.startDate) - new Date(a.startDate);
     });
 
     setCompetitions(sorted);
   };
 
-  // ⭐ FIXED PARTICIPANTS LOADING
   const loadParticipants = async (competitionId, competitionName) => {
     const res = await getCompetitionEntries(competitionId);
 
     setSelectedCompetition({ id: competitionId, name: competitionName });
     setParticipants(res.data);
 
-    // FIX: open modal AFTER state update
     setTimeout(() => {
       setParticipantsModal(true);
     }, 0);
@@ -86,25 +82,43 @@ export default function Competitions() {
     loadCompetitions();
   };
 
-  // SEARCH + FILTER
+  // const filteredCompetitions = competitions.filter((c) => {
+  //   const text = searchText.toLowerCase();
+  //   const matchesSearch =
+  //     c.name.toLowerCase().includes(text) ||
+  //     c.category.toLowerCase().includes(text) ||
+  //     c.status.toLowerCase().includes(text);
+
+  //   const matchesFilter =
+  //     filterStatus === "ALL" || filterStatus === c.status;
+
+  //   return matchesSearch && matchesFilter;
+  // });
   const filteredCompetitions = competitions.filter((c) => {
-    const text = searchText.toLowerCase();
-    const name = c.name ? c.name.toLowerCase() : "";
-    const category = c.category ? c.category.toLowerCase() : "";
-    const status = c.status ? c.status.toLowerCase() : "";
+  const text = (searchText || "").toLowerCase();
 
-    const matchesSearch =
-      name.includes(text) ||
-      category.includes(text) ||
-      status.includes(text);
+  const name = (c?.name || "").toLowerCase();
+  const category = (c?.category || "").toLowerCase();
+  const status = (c?.status || "").toLowerCase();
+  const desc = (c?.description || "").toLowerCase();
+  const state = (c?.state || "").toLowerCase();
+  const pin = (c?.pincode || "").toLowerCase();
 
-    const matchesFilter =
-      filterStatus === "ALL" || filterStatus === c.status;
+  const matchesSearch =
+    name.includes(text) ||
+    category.includes(text) ||
+    status.includes(text) ||
+    desc.includes(text) ||
+    state.includes(text) ||
+    pin.includes(text);
 
-    return matchesSearch && matchesFilter;
-  });
+  const matchesFilter =
+    filterStatus === "ALL" || filterStatus === c?.status;
 
-  // PAGINATION
+  return matchesSearch && matchesFilter;
+});
+
+
   const indexOfLast = currentPage * pageSize;
   const indexOfFirst = indexOfLast - pageSize;
   const currentRows = filteredCompetitions.slice(indexOfFirst, indexOfLast);
@@ -112,7 +126,6 @@ export default function Competitions() {
 
   return (
     <>
-
       {/* SEARCH + FILTER */}
       <div className="search-filter-box">
         <input
@@ -122,9 +135,8 @@ export default function Competitions() {
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
         />
-         <button className="search-btn" onClick={() => console.log("Searching...")}>
-    Search
-  </button>
+
+        <button className="search-btn">Search</button>
 
         <select
           className="filter-select"
@@ -136,7 +148,6 @@ export default function Competitions() {
         >
           <option value="ALL">All</option>
           <option value="ACTIVE">Active</option>
-          {/* <option value="UPCOMING">Upcoming</option> */}
           <option value="CLOSED">Closed</option>
         </select>
 
@@ -155,16 +166,15 @@ export default function Competitions() {
             <th>Start</th>
             <th>End</th>
             <th>Description</th>
+            <th>State</th>
+            <th>Pincode</th>
             <th>Participants</th>
           </tr>
         </thead>
 
         <tbody>
           {currentRows.map((c) => (
-            <tr
-              key={c.id}
-              className={c.status === "ACTIVE" ? "active-row" : ""}
-            >
+            <tr key={c.id} className={c.status === "ACTIVE" ? "active-row" : ""}>
               <td>
                 <span
                   className={
@@ -177,10 +187,7 @@ export default function Competitions() {
                 >
                   {c.status}
                 </span>
-
-                {c.status === "ACTIVE" && (
-                  <span className="live-badge">LIVE</span>
-                )}
+                {c.status === "ACTIVE" && <span className="live-badge">LIVE</span>}
               </td>
 
               <td>{c.name}</td>
@@ -188,6 +195,8 @@ export default function Competitions() {
               <td>{c.startDate}</td>
               <td>{c.endDate}</td>
               <td>{c.description}</td>
+              <td>{c.state}</td>
+              <td>{c.pincode}</td>
 
               <td>
                 <button
@@ -229,98 +238,86 @@ export default function Competitions() {
         </button>
       </div>
 
-      {/* PARTICIPANTS MODAL */}
-      {participantsModal && (
-        <div className="modal-overlay">
-          <div className="participants-modal">
-
-            {/* CROSS BUTTON */}
-            <button
-              className="modal-close-btn"
-              onClick={() => setParticipantsModal(false)}
-            >
+      {/* CREATE COMPETITION MODAL */}
+      {modal && (
+        <div className="modal-bg">
+          <div className="modal-card">
+            <span className="modal-close-x" onClick={() => setModal(false)}>
               ✕
-            </button>
+            </span>
 
-            <h2 className="modal-title">
-              Participants — {selectedCompetition?.name}
-            </h2>
+            <div className="modal-header">Create Competition</div>
 
-            {participants.length === 0 ? (
-              <p>No participants found.</p>
-            ) : (
-              <ul className="participant-list">
-                {participants.map((p) => (
-                  <li key={p.id}>
-                    <b>{p.name}</b> — {p.phone} ({p.villageOrArea})
-                  </li>
-                ))}
-              </ul>
-            )}
+            <div className="modal-body">
+              <label>Competition Name</label>
+              <input
+                placeholder="Competition Name"
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+
+              <label>Description</label>
+<input
+  placeholder="Description"
+  onChange={(e) => setForm({ ...form, description: e.target.value })}
+/>
+
+
+              <label>Start Date</label>
+              <input
+                type="datetime-local"
+                onChange={(e) =>
+                  setForm({ ...form, startDate: e.target.value })
+                }
+              />
+
+              <label>End Date</label>
+              <input
+                type="datetime-local"
+                onChange={(e) =>
+                  setForm({ ...form, endDate: e.target.value })
+                }
+              />
+
+              <label>Category</label>
+              <select
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+              >
+                <option>ART</option>
+                <option>DANCING</option>
+                <option>SINGING</option>
+                <option>ENTERTAINMENT</option>
+                <option>PUBLIC_SPEAKING</option>
+              </select>
+
+              {/* ⭐ NEW: STATE */}
+              <label>State</label>
+              <select
+                onChange={(e) => setForm({ ...form, state: e.target.value })}
+              >
+                <option value="ALL">All</option>
+                <option value="BIHAR">Bihar</option>
+                <option value="UP">UP</option>
+                <option value="GUJRAT">Gujrat</option>
+                <option value="MAHARASHTRA">Maharashtra</option>
+                <option value="JHARKHAND">Jharkhand</option>
+              </select>
+
+              {/* ⭐ NEW: PINCODE */}
+              <label>Pincode</label>
+              <input
+                placeholder="Enter pincode"
+                onChange={(e) => setForm({ ...form, pincode: e.target.value })}
+              />
+            </div>
+
+            <div className="modal-footer">
+              <button className="save-btn" onClick={saveCompetition}>
+                Save
+              </button>
+            </div>
           </div>
         </div>
       )}
-
-      {/* CREATE COMPETITION MODAL */}
-{modal && (
-  <div className="modal-bg">
-    <div className="modal-card">
-
-      {/* X BUTTON */}
-      <span className="modal-close-x" onClick={() => setModal(false)}>✕</span>
-
-      {/* HEADER */}
-      <div className="modal-header">Create Competition</div>
-
-      {/* SCROLLABLE BODY */}
-      <div className="modal-body">
-         <label>Competition Name</label>
-        <input
-          placeholder="Competition Name"
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-        />
-
-        <label>Description</label>
-        <textarea
-          placeholder="Description"
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-        />
-
-        <label>Start Date</label>
-        <input
-          type="datetime-local"
-          onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-        />
-
-        <label>End Date</label>
-        <input
-          type="datetime-local"
-          onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-        />
-
-        <label>Category</label>
-        <select
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
-        >
-          <option>ART</option>
-          <option>DANCING</option>
-          <option>SINGING</option>
-          <option>ENTERTAINMENT</option>
-          <option>PUBLIC_SPEAKING</option>
-        </select>
-      </div>
-
-      {/* FOOTER */}
-      <div className="modal-footer">
-        <button className="save-btn" onClick={saveCompetition}>Save</button>
-      </div>
-
-    </div>
-  </div>
-)}
-
-
-
     </>
   );
 }

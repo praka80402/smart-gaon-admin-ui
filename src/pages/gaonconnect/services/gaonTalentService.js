@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = "https://smartgaonadmin.duckdns.org/admin/gaon-talent";
-
+// const API = "http://localhost:9090/admin/gaon-talent";
 // ---------------------- Competitions ----------------------
 export const getAllCompetitions = () =>
   axios.get(`${API}/competition/all`);
