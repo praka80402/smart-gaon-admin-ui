@@ -9,35 +9,6 @@
   font-family: "Inter", sans-serif;
 }
 
-/* -----------------------------------------------------
-   TABS
------------------------------------------------------- */
-/* .cn-tabs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #e5e5e5;
-  padding-bottom: 10px;
-}
-
-.cn-tabs button {
-  background: #f1f1f1;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: 0.2s;
-}
-
-.cn-tabs button.active {
-  background: #257031;
-  color: white;
-}
-
-.cn-tabs button:hover {
-  background: #257031;;
-} */
 
 /* -----------------------------------------------------
    TOP TABS (TEXT STYLE — NO BUTTON LOOK)
@@ -585,4 +556,43 @@
   .cn-form .submit {
     font-size: 14px;
   }
+}
+/* =================== */
+/* =================== PAGINATION =================== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.page-btn {
+  padding: 8px 16px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.page-btn:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.current-page {
+  padding: 8px 16px;
+  background: #2563eb;
+  color: white;
+  border-radius: 6px;
+  font-weight: bold;
+  min-width: 40px;
+  text-align: center;
 }

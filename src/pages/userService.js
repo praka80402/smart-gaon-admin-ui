@@ -144,3 +144,27 @@ export const createAdmin = async (adminData) => {
   const res = await axios.post(CREATE_ADMIN_URL, adminData, authHeader());
   return res.data;
 };
+
+export const getUserCount = async () => {
+  const res = await axios.get(`${USERS_URL}/count`, authHeader());
+  return res.data;
+};
+
+
+// ---------------- NEW: SEARCH BY STATE + PHONE ----------------
+export const searchUsers = async (phone, state) => {
+  const res = await axios.get(
+    `${USERS_URL}/search?phone=${phone}&state=${state}`,
+    authHeader()
+  );
+  return res.data;
+};
+
+// ---------------- NEW: SEARCH BY PINCODE ----------------
+export const getUsersByPincode = async (pincode) => {
+  const res = await axios.get(
+    `${USERS_URL}/by-pincode/${pincode}`,
+    authHeader()
+  );
+  return res.data;
+};

@@ -17,7 +17,7 @@ export default function Engagement() {
 
   const [likeFilter, setLikeFilter] = useState("NONE"); // ⭐ NEW FILTER
 
-  const pageSize = 10;
+  const pageSize = 5;
 
   const categories = [
     "ART",
