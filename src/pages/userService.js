@@ -89,6 +89,54 @@ export const getAllAdmins = async () => {
   return res.data;
 };
 
+
+export const searchVillages = async ({ page, size, name, city, state }) => {
+  const res = await axios.get(`${BASE}/villages/search`, {
+    headers: {
+      Authorization: "Bearer " + localStorage.getItem("adminToken"),
+    },
+    params: {
+      ...(page !== undefined && { page }),
+      ...(size !== undefined && { size }),
+      ...(name && { name }),
+      ...(city && { city }),
+      ...(state && { state }),
+    },
+  });
+
+  return res.data;
+};
+
+export const createVillage = async ({ name, city, state, description, images }) => {
+  const fd = new FormData();
+  fd.append("name", name);
+  fd.append("city", city);
+  fd.append("state", state);
+  fd.append("description", description);
+
+  // append multiple images
+  images.forEach((img) => fd.append("images", img));
+
+  const res = await axios.post(`${BASE}/villages/upload`, fd, {
+    headers: {
+      Authorization: "Bearer " + localStorage.getItem("adminToken"),
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return res.data;
+};
+
+export const deleteVillage = async (id) => {
+  const res = await axios.delete(`${BASE}/villages/${id}`, {
+    headers: {
+      Authorization: "Bearer " + localStorage.getItem("adminToken")
+    }
+  });
+  return res.data;
+};
+
+
 // -----------------------------------------------------
 // CREATE NEW ADMIN (SUPER ADMIN / STATE ADMIN)
 // -----------------------------------------------------
