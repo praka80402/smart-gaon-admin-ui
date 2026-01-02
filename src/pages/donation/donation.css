@@ -1,0 +1,332 @@
+/* ===============================
+   GLOBAL CONTAINER
+   =============================== */
+
+.donation-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* ===============================
+   HEADINGS
+   =============================== */
+
+.donation-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.donation-subtitle {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+/* ===============================
+   TABS
+   =============================== */
+
+.donation-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.donation-tabs button {
+  padding: 8px 16px;
+  border: none;
+  background: #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.donation-tabs button.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* ===============================
+   CREATE PROJECT CARD (CENTERED)
+   =============================== */
+
+.donation-form-card {
+  max-width: 1100px;
+  margin: 0 auto;                 /* ✅ CENTER */
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* ===============================
+   FORM
+   =============================== */
+
+.donation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.donation-form label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Inputs */
+.donation-form input,
+.donation-form textarea,
+.donation-form select {
+  width: 90%;                    /* ✅ FIXED */
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.donation-form textarea {
+  resize: none;
+  min-height: 120px;
+}
+
+/* ===============================
+   FILE INPUT
+   =============================== */
+
+.file-input {
+  border: 1px dashed #cbd5e1;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ===============================
+   CHECKBOX
+   =============================== */
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.checkbox-row input {
+  width: 16px;
+  height: 16px;
+}
+
+/* ===============================
+   BUTTONS
+   =============================== */
+
+.btn-primary {
+  align-self: flex-start;
+  padding: 10px 18px;
+  background: #22c55e;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #16a34a;
+}
+
+.btn-secondary {
+  padding: 6px 12px;
+  background: #2563eb;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-danger {
+  padding: 6px 12px;
+  background: #2563eb;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ===============================
+   BADGE BUTTON
+   =============================== */
+
+.badge-btn {
+  margin-top: 6px;
+  padding: 6px 14px;
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ===============================
+   TABLE
+   =============================== */
+
+.donation-table-container {
+  margin-top: 24px;
+}
+
+.donation-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.donation-table th,
+.donation-table td {
+  border: 1px solid #e5e7eb;
+  padding: 10px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.donation-table th {
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+/* ===============================
+   DONATION CARDS (MODAL)
+   =============================== */
+
+.donation-card {
+  background: #ffffff;
+  border-left: 4px solid #f59e0b;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.donation-card.verified {
+  border-left-color: #22c55e;
+}
+
+.status-pending {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.status-verified {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+/* ===============================
+   MODAL (PROJECT & DONATIONS)
+   =============================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;                  /* ✅ FIXED */
+}
+
+.modal-card {
+  background: #ffffff;
+  padding: 20px;
+  width: 520px;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-radius: 10px;
+}
+
+td button {
+  margin-right: 6px;
+}
+
+/* ===============================
+   EDIT PROJECT MODAL
+   =============================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-card {
+  background: #ffffff;
+  width: 520px;
+  max-width: 90%;
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* ---------- Modal Heading ---------- */
+
+.modal-card h3 {
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ---------- Modal Form ---------- */
+
+.modal-card label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.modal-card input,
+.modal-card textarea {
+  width: 90%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.modal-card textarea {
+  min-height: 100px;
+  resize: none;
+}
+
+/* ---------- Modal Buttons ---------- */
+
+.modal-card button {
+  margin-top: 14px;
+  margin-right: 8px;
+}
+
+.modal-card .btn-primary {
+  background: #2563eb;
+}
+
+.modal-card .btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.modal-card .btn-secondary {
+  background: #6b7280;
+}
+
+.modal-card .btn-secondary:hover {
+  background: #4b5563;
+}
+
