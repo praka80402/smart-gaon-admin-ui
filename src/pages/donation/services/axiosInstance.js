@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:9090/api",
+  baseURL: "https://smartgaonadmin.duckdns.org/admin/api",
   headers: {
     "Content-Type": "application/json",
   },
