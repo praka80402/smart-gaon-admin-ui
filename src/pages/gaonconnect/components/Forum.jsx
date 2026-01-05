@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import ForumFilter from "./ForumFilter";
-import PostedItem from "./PostedItem";
+import ForumTable from "./ForumTable";
 import {
   getAllForumPosts,
   deleteForumPost,
 } from "../services/forumService";
+import "./forum.css";
 
 const Forum = () => {
   const [items, setItems] = useState([]);
@@ -13,28 +14,24 @@ const Forum = () => {
   const [searchPhone, setSearchPhone] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [sort, setSort] = useState("createdAt,desc");
 
   const load = async () => {
     setLoading(true);
     try {
-      const params = {
-        sort,
+      const res = await getAllForumPosts({
         phone: searchPhone || undefined,
-        fromDate: fromDate ? new Date(fromDate).toISOString() : undefined,
-        toDate: toDate ? new Date(toDate).toISOString() : undefined,
-      };
-
-      const res = await getAllForumPosts(params);
+        fromDate: fromDate || undefined,
+        toDate: toDate || undefined,
+      });
       setItems(res.data?.content || []);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (postId) => {
     if (!window.confirm("Delete this post?")) return;
-    await deleteForumPost(id);
+    await deleteForumPost(postId);
     load();
   };
 
@@ -53,24 +50,13 @@ const Forum = () => {
         setFromDate={setFromDate}
         toDate={toDate}
         setToDate={setToDate}
-        forumSort={sort}
-        setForumSort={setSort}
         onSearch={load}
       />
 
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <div className="gc-cart-grid">
-          {items.map((it) => (
-            <PostedItem
-              key={it.postId}
-              item={it}
-              type="Forum"
-              onDelete={() => handleDelete(it.postId)}
-            />
-          ))}
-        </div>
+        <ForumTable items={items} onDelete={handleDelete} />
       )}
     </div>
   );

@@ -1,173 +1,265 @@
+
+// import React, { useState } from "react";
+// import { createDonationProject } from "./services/donationService";
+// import "./donation.css";
+
+// const STATES = [
+//   "BIHAR",
+//   "JHARKHAND",
+//   "UTTAR_PRADESH",
+//   "MAHARASHTRA",
+//   "GUJARAT",
+// ];
+
+// const CreateProject = () => {
+//   const [form, setForm] = useState({
+//     projectName: "",
+//     description: "",
+//     requiredAmount: "",
+//   });
+
+//   const [allStates, setAllStates] = useState(false);
+//   const [state, setState] = useState("");
+//   const [pincode, setPincode] = useState("");
+
+//   const [images, setImages] = useState([]);
+//   const [videos, setVideos] = useState([]);
+
+//   const submit = async () => {
+//     if (!form.projectName || !form.requiredAmount) {
+//       alert("Project name and required amount are mandatory");
+//       return;
+//     }
+
+//     if (!allStates && (!state || !pincode)) {
+//       alert("Please select state and pincode");
+//       return;
+//     }
+
+//     // ✅ FORM DATA
+//     const fd = new FormData();
+//     fd.append("projectName", form.projectName);
+//     fd.append("description", form.description);
+//     fd.append("requiredAmount", form.requiredAmount);
+//     fd.append("allStates", allStates);
+
+//     if (!allStates) {
+//       fd.append("state", state);
+//       fd.append("pincode", pincode);
+//     }
+
+//     images.forEach((img) => fd.append("imageFiles", img));
+//     videos.forEach((vid) => fd.append("videoFiles", vid));
+
+//     await createDonationProject(fd);
+
+//     alert("Donation Project Created Successfully");
+
+//     // reset
+//     setForm({ projectName: "", description: "", requiredAmount: "" });
+//     setAllStates(false);
+//     setState("");
+//     setPincode("");
+//     setImages([]);
+//     setVideos([]);
+//   };
+
+//   return (
+//     <div className="donation-form-card">
+//       <h3 className="donation-subtitle">Create Donation Project</h3>
+
+//       <div className="donation-form">
+//         <label>Project Name</label>
+//         <input
+//           value={form.projectName}
+//           onChange={(e) =>
+//             setForm({ ...form, projectName: e.target.value })
+//           }
+//         />
+
+//         <label>Description</label>
+//         <textarea
+//           maxLength={1500}
+//           value={form.description}
+//           onChange={(e) =>
+//             setForm({ ...form, description: e.target.value })
+//           }
+//         />
+
+//         <label>Required Amount</label>
+//         <input
+//           type="number"
+//           value={form.requiredAmount}
+//           onChange={(e) =>
+//             setForm({ ...form, requiredAmount: e.target.value })
+//           }
+//         />
+
+//         <label>Project Images</label>
+//         <input
+//           type="file"
+//           multiple
+//           accept="image/*"
+//           onChange={(e) => setImages([...e.target.files])}
+//         />
+
+//         <label>Project Videos</label>
+//         <input
+//           type="file"
+//           multiple
+//           accept="video/*"
+//           onChange={(e) => setVideos([...e.target.files])}
+//         />
+
+//         <div className="checkbox-row">
+//           <input
+//             type="checkbox"
+//             checked={allStates}
+//             onChange={() => setAllStates(!allStates)}
+//           />
+//           <label>All States</label>
+//         </div>
+
+//         {!allStates && (
+//           <>
+//             <select value={state} onChange={(e) => setState(e.target.value)}>
+//               <option value="">Select State</option>
+//               {STATES.map((s) => (
+//                 <option key={s} value={s}>{s}</option>
+//               ))}
+//             </select>
+
+//             <input
+//               placeholder="Pincode"
+//               value={pincode}
+//               onChange={(e) => setPincode(e.target.value)}
+//             />
+//           </>
+//         )}
+
+//         <button className="btn-primary" onClick={submit}>
+//           Post Project
+//         </button>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default CreateProject;
+
 import React, { useState } from "react";
 import { createDonationProject } from "./services/donationService";
 import "./donation.css";
 
-const STATES = [
-  "BIHAR",
-  "JHARKHAND",
-  "UTTAR_PRADESH",
-  "MAHARASHTRA",
-  "GUJARAT",
-];
+const STATES = ["BIHAR", "JHARKHAND", "UTTAR_PRADESH", "MAHARASHTRA", "GUJARAT"];
 
 const CreateProject = () => {
-  const [form, setForm] = useState({
-    projectName: "",
-    description: "",
-    requiredAmount: "",
-  });
+  const [projectName, setProjectName] = useState("");
+  const [description, setDescription] = useState("");
+  const [requiredAmount, setRequiredAmount] = useState("");
 
   const [allStates, setAllStates] = useState(false);
   const [state, setState] = useState("");
   const [pincode, setPincode] = useState("");
 
-  // ✅ NEW: multiple images & videos
   const [images, setImages] = useState([]);
   const [videos, setVideos] = useState([]);
 
-  const handleImages = (e) => {
-    setImages(Array.from(e.target.files));
-  };
-
-  const handleVideos = (e) => {
-    setVideos(Array.from(e.target.files));
-  };
-
   const submit = async () => {
-    // basic validation
-    if (!form.projectName || !form.requiredAmount) {
-      alert("Project name and required amount are mandatory");
-      return;
+    const fd = new FormData();
+
+    fd.append("projectName", projectName);
+    fd.append("description", description);
+    fd.append("requiredAmount", requiredAmount);
+    fd.append("allStates", allStates);
+
+    if (!allStates) {
+      fd.append("state", state);
+      fd.append("pincode", pincode);
     }
 
-    if (!allStates && (!state || !pincode)) {
-      alert("Please select state and pincode");
-      return;
+    // ✅ CRITICAL: append files correctly
+    for (let i = 0; i < images.length; i++) {
+      fd.append("imageFiles", images[i]);
     }
 
-    await createDonationProject({
-      projectName: form.projectName,
-      description: form.description,
-      requiredAmount: Number(form.requiredAmount),
-      allStates,
-      state: allStates ? null : state,
-      pincode: allStates ? null : pincode,
+    for (let i = 0; i < videos.length; i++) {
+      fd.append("videoFiles", videos[i]);
+    }
 
-      // ✅ TEMP: sending file names as URLs
-      // Later replace with Cloudinary/S3 uploaded URLs
-      imageUrls: images.map((f) => f.name),
-      videoUrls: videos.map((f) => f.name),
-    });
+    await createDonationProject(fd);
 
-    alert("Donation Project Created Successfully");
-
-    // reset form
-    setForm({ projectName: "", description: "", requiredAmount: "" });
-    setAllStates(false);
-    setState("");
-    setPincode("");
-    setImages([]);
-    setVideos([]);
+    alert("Project created successfully");
   };
 
   return (
     <div className="donation-form-card">
-      <h3 className="donation-subtitle">Create Donation Project</h3>
+      <h3>Create Donation Project</h3>
+      <label>Project Name</label>
+      <input
+        placeholder="Project Name"
+        value={projectName}
+        onChange={(e) => setProjectName(e.target.value)}
+      />
+     <label>Description</label>
+      <textarea
+        placeholder="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <label>Required Amount</label>
+      <input
+        type="number"
+        placeholder="Required Amount"
+        value={requiredAmount}
+        onChange={(e) => setRequiredAmount(e.target.value)}
+      />
 
-      <div className="donation-form">
-         <label>Project Name</label>
+      {/* ✅ IMAGE INPUT */}
+      <input
+        type="file"
+        multiple
+        accept="image/*"
+        onChange={(e) => setImages(Array.from(e.target.files))}
+      />
+
+      {/* ✅ VIDEO INPUT */}
+      <input
+        type="file"
+        multiple
+        accept="video/*"
+        onChange={(e) => setVideos(Array.from(e.target.files))}
+      />
+
+      <label>
         <input
-          placeholder="Project Name"
-          value={form.projectName}
-          onChange={(e) =>
-            setForm({ ...form, projectName: e.target.value })
-          }
+          type="checkbox"
+          checked={allStates}
+          onChange={() => setAllStates(!allStates)}
         />
-         <label>Description</label>
-        <textarea
-          placeholder="Description (max 1500)"
-          maxLength={1500}
-          value={form.description}
-          onChange={(e) =>
-            setForm({ ...form, description: e.target.value })
-          }
-        />
-       <label>Raise Amount</label>
-        <input
-          type="number"
-          placeholder="Required Amount"
-          value={form.requiredAmount}
-          onChange={(e) =>
-            setForm({ ...form, requiredAmount: e.target.value })
-          }
-        />
+        All States
+      </label>
 
-        {/* ✅ MULTIPLE IMAGES */}
-        <label>Project Images</label>
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          className="file-input"
-          onChange={handleImages}
-        />
+      {!allStates && (
+        <>
+          <select value={state} onChange={(e) => setState(e.target.value)}>
+            <option value="">Select State</option>
+            {STATES.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
 
-        {/* Preview image names */}
-        {images.length > 0 && (
-          <small>{images.length} image(s) selected</small>
-        )}
-
-        {/* ✅ MULTIPLE VIDEOS */}
-        <label>Project Videos</label>
-        <input
-          type="file"
-          multiple
-          accept="video/*"
-          className="file-input"
-          onChange={handleVideos}
-        />
-
-        {videos.length > 0 && (
-          <small>{videos.length} video(s) selected</small>
-        )}
-
-        {/* ✅ CHECKBOX */}
-        <div className="checkbox-row">
           <input
-            id="allStates"
-            type="checkbox"
-            checked={allStates}
-            onChange={() => setAllStates(!allStates)}
+            placeholder="Pincode"
+            value={pincode}
+            onChange={(e) => setPincode(e.target.value)}
           />
-          <label htmlFor="allStates">All States</label>
-        </div>
+        </>
+      )}
 
-        {!allStates && (
-          <>
-            <select
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-            >
-              <option value="">Select State</option>
-              {STATES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          <label>Pincode</label>
-            <input
-              placeholder="Pincode"
-              value={pincode}
-              onChange={(e) => setPincode(e.target.value)}
-            />
-          </>
-        )}
-
-        <button className="btn-primary" onClick={submit}>
-          Post Project
-        </button>
-      </div>
+      <button className="btn-primary" onClick={submit}>
+        Create Project
+      </button>
     </div>
   );
 };

@@ -1,45 +1,78 @@
-import React from "react";
+
+import React, { useEffect, useState } from "react";
+import { getProjectById } from "./services/donationService";
 import "./donation.css";
 
 const ProjectDetails = ({ project, onClose }) => {
-  if (!project) return null;
+  const [details, setDetails] = useState(null);
+
+  useEffect(() => {
+    if (project?.id) {
+      getProjectById(project.id).then((res) =>
+        setDetails(res.data)
+      );
+    }
+  }, [project]);
+
+  if (!details) return null;
+
+  const images = details.imageUrls || [];
+  const videos = details.videoUrls || [];
 
   return (
     <div className="modal-overlay">
       <div className="modal-card">
-        <h3>{project.projectName}</h3>
+        <h3>{details.projectName}</h3>
 
-        <p><b>Description:</b> {project.description}</p>
-        <p><b>Required:</b> ₹{project.requiredAmount}</p>
-        <p><b>Raised:</b> ₹{project.raisedAmount}</p>
-        <p><b>State:</b> {project.allStates ? "ALL" : project.state}</p>
-        <p><b>Pincode:</b> {project.allStates ? "-" : project.pincode}</p>
+        <p><b>Description:</b> {details.description}</p>
+        <p><b>Required:</b> ₹{details.requiredAmount}</p>
+        <p><b>Raised:</b> ₹{details.raisedAmount}</p>
+        <p>
+          <b>Remaining:</b>{" "}
+          ₹{details.requiredAmount - details.raisedAmount}
+        </p>
+        <p><b>State:</b> {details.allStates ? "ALL" : details.state}</p>
+        <p><b>Pincode:</b> {details.allStates ? "-" : details.pincode}</p>
 
-        {/* Images */}
-        {project.imageUrls?.length > 0 && (
+        {/* IMAGES */}
+        {images.length > 0 && (
           <>
-            <b>Images:</b>
-            <ul>
-              {project.imageUrls.map((img, i) => (
-                <li key={i}>{img}</li>
+            <h4>Images</h4>
+            <div className="media-grid">
+              {images.map((url, i) => (
+                <img
+                  key={i}
+                  src={url}
+                  alt="project"
+                  className="project-media"
+                />
               ))}
-            </ul>
+            </div>
           </>
         )}
 
-        {/* Videos */}
-        {project.videoUrls?.length > 0 && (
+        {/* VIDEOS */}
+        {videos.length > 0 && (
           <>
-            <b>Videos:</b>
-            <ul>
-              {project.videoUrls.map((vid, i) => (
-                <li key={i}>{vid}</li>
+            <h4>Videos</h4>
+            <div className="media-grid">
+              {videos.map((url, i) => (
+                <video
+                  key={i}
+                  src={url}
+                  controls
+                  className="project-media"
+                />
               ))}
-            </ul>
+            </div>
           </>
         )}
 
-        <button className="btn-danger" onClick={onClose}>
+        {images.length === 0 && videos.length === 0 && (
+          <p style={{ color: "gray" }}>No media uploaded</p>
+        )}
+
+        <button className="btn-primary" onClick={onClose}>
           Close
         </button>
       </div>

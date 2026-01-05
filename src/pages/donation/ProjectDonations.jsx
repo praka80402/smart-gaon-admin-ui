@@ -1,127 +1,101 @@
-// import React, { useEffect, useState } from "react";
-// import {
-//   getDonationsByProject,
-//   verifyDonation,
-// } from "./services/donationService";
-// import AssignBadge from "./AssignBadge";
-// import "./donation.css";
-
-// const ProjectDonations = ({ projectId }) => {
-//   const [donations, setDonations] = useState([]);
-
-//   useEffect(() => {
-//     getDonationsByProject(projectId)
-//       .then((res) => setDonations(res.data));
-//   }, [projectId]);
-
-//   const verify = async (donationId) => {
-//     await verifyDonation(donationId);
-//     alert("Donation Verified");
-//   };
-
-//   return (
-//     <div>
-//       <h4 className="donation-subtitle">Donations</h4>
-
-//       {donations.map((d) => (
-//         <div
-//           key={d.id}
-//           className={`donation-card ${d.verified ? "verified" : ""}`}
-//         >
-//           <div className="donation-info">User ID: {d.userId}</div>
-//           <div className="donation-info">Amount: ₹{d.amount}</div>
-
-//           <div
-//             className={
-//               d.verified ? "status-verified" : "status-pending"
-//             }
-//           >
-//             {d.verified ? "Verified" : "Pending"}
-//           </div>
-
-//           {!d.verified && (
-//             <button
-//               className="btn-danger"
-//               onClick={() => verify(d.id)}
-//             >
-//               Verify Donation
-//             </button>
-//           )}
-
-//           {d.verified && <AssignBadge userId={d.userId} />}
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-
-// export default ProjectDonations;
-
-
 import React, { useEffect, useState } from "react";
 import {
-  getDonationsByProject,
+  getAdminDonationsByProject,
   verifyDonation,
 } from "./services/donationService";
 import AssignBadge from "./AssignBadge";
-import "./donation.css";
+import "./ProjectDonation.css";
 
 const ProjectDonations = ({ projectId, onClose }) => {
   const [donations, setDonations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    if (!projectId) return;
+    setLoading(true);
+    const res = await getAdminDonationsByProject(projectId);
+    setDonations(res.data || []);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    getDonationsByProject(projectId)
-      .then((res) => setDonations(res.data));
+    load();
   }, [projectId]);
 
   const verify = async (donationId) => {
     await verifyDonation(donationId);
     alert("Donation Verified");
-
-    // refresh list
-    const res = await getDonationsByProject(projectId);
-    setDonations(res.data);
+    load();
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-card">
-        <h3>Donations</h3>
+   <div className="modal-overlay">
+  <div className="modal-card wide">
+    
+    {/* ❌ CLOSE ICON */}
+   <span className="modal-close" onClick={onClose}>
+  X
+</span>
 
-        {donations.length === 0 && <p>No donations yet.</p>}
+    {/* <span className="modal-close" onClick={() => setModal(false)}>
+              ✕
+            </span> */}
 
-        {donations.map((d) => (
-          <div
-            key={d.id}
-            className={`donation-card ${d.verified ? "verified" : ""}`}
-          >
-            <p><b>User ID:</b> {d.userId}</p>
-            <p><b>Amount:</b> ₹{d.amount}</p>
-            <p>
-              <b>Status:</b>{" "}
-              <span className={d.verified ? "status-verified" : "status-pending"}>
-                {d.verified ? "Verified" : "Pending"}
-              </span>
-            </p>
+    <h3>Project Donations</h3>
 
-            {!d.verified && (
-              <button
-                className="btn-danger"
-                onClick={() => verify(d.id)}
-              >
-                Verify
-              </button>
-            )}
+    {donations.length === 0 && <p>No donations yet.</p>}
 
-            {d.verified && <AssignBadge userId={d.userId} />}
-          </div>
-        ))}
+    {donations.length > 0 && (
+      <table className="donation-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>User</th>
+            <th>Project</th>
+            <th>Amount (₹)</th>
+            <th>Status</th>
+            <th>Verify</th>
+            <th>Badge</th>
+          </tr>
+        </thead>
+        <tbody>
+          {donations.map((d, index) => (
+            <tr key={d.donationId}>
+              <td>{index + 1}</td>
+              <td>{d.userName}</td>
+              <td>{d.projectName}</td>
+              <td>{d.amount}</td>
+              <td>
+                <span
+                  className={
+                    d.verified ? "status-verified" : "status-pending"
+                  }
+                >
+                  {d.verified ? "Verified" : "Pending"}
+                </span>
+              </td>
+              <td>{d.verified ? "✓" : "-"}</td>
+         <td>
+  {d.verified && d.userId ? (
+    <AssignBadge
+      userId={d.userId}
+      badgeName="GOLD"
+      reason={`Verified donation for ${d.projectName}`}
+    />
+  ) : (
+    "-"
+  )}
+</td>
 
-        <button className="btn-secondary" onClick={onClose}>
-          Close
-        </button>
-      </div>
-    </div>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+
+  </div>
+</div>
+
   );
 };
 

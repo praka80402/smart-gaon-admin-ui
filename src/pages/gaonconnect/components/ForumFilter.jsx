@@ -1,5 +1,5 @@
 import React from "react";
-
+import "./forum.css";
 const ForumFilter = ({
   searchPhone,
   setSearchPhone,

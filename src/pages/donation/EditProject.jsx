@@ -3,7 +3,14 @@ import { updateDonationProject } from "./services/donationService";
 import "./donation.css";
 
 const EditProject = ({ project, onClose, onUpdated }) => {
-  const [form, setForm] = useState(project);
+  const [form, setForm] = useState({
+    projectName: project.projectName,
+    description: project.description,
+    requiredAmount: project.requiredAmount,
+    allStates: project.allStates,
+    state: project.state,
+    pincode: project.pincode,
+  });
 
   const save = async () => {
     await updateDonationProject(project.id, form);
@@ -39,12 +46,8 @@ const EditProject = ({ project, onClose, onUpdated }) => {
           }
         />
 
-        <button className="btn-primary" onClick={save}>
-          Save
-        </button>
-        <button className="btn-secondary" onClick={onClose}>
-          Cancel
-        </button>
+        <button className="btn-primary" onClick={save}>Save</button>
+        <button className="btn-secondary" onClick={onClose}>Cancel</button>
       </div>
     </div>
   );

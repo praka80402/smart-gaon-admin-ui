@@ -1,31 +1,41 @@
 import axiosInstance from "./axiosInstance";
 
-// ================= PROJECT =================
-
-export const createDonationProject = (data) =>
-  axiosInstance.post("/project", data);
+// ================= PROJECTS =================
+export const createDonationProject = (formData) =>
+  axiosInstance.post("/projects", formData);
 
 export const getProjectsByLocation = (state, pincode) =>
-  axiosInstance.get("/project/filter", {
+  axiosInstance.get("/projects/filter", {
     params: { state, pincode },
   });
 
-
 export const updateDonationProject = (id, data) =>
-  axiosInstance.put(`/project/${id}`, data);
+  axiosInstance.put(`/projects/${id}`, data);
 
 export const deleteDonationProject = (id) =>
-  axiosInstance.delete(`/project/${id}`);
+  axiosInstance.delete(`/projects/${id}`);
 
-// ================= DONATION =================
+export const getProjectById = (id) =>
+  axiosInstance.get(`/projects/${id}`);
 
-export const getDonationsByProject = (projectId) =>
-  axiosInstance.get(`/donation/project/${projectId}`);
+// ================= DONATIONS =================
 
+// USER DONATE
+export const donate = (data) =>
+  axiosInstance.post("/donation", data);
+
+// ADMIN – ALL DONATIONS (dashboard)
+export const getAdminDonations = () =>
+  axiosInstance.get("/donation/admin");
+
+// ADMIN – PROJECT WISE DONATIONS ✅
+export const getAdminDonationsByProject = (projectId) =>
+  axiosInstance.get(`/donation/admin/project/${projectId}`);
+
+// ADMIN – VERIFY
 export const verifyDonation = (donationId) =>
   axiosInstance.put(`/donation/verify/${donationId}`);
 
 // ================= BADGE =================
-
 export const assignBadge = (data) =>
   axiosInstance.post("/badge", data);
