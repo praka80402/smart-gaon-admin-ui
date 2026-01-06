@@ -41,3 +41,16 @@
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
+
+/* ================= HOME LAYOUT MODAL ONLY ================= */
+
+.home-layout-modal {
+  width: 400;          /* BIGGER WIDTH */
+  max-width: 900px;
+  height: 80vh;         /* BIGGER HEIGHT */
+  max-height: 700px;
+
+  overflow-y: auto;     /* Scroll if content grows */
+  padding: 20px;
+}
+
