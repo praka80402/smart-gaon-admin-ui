@@ -1,19 +1,24 @@
-// src/pages/Dashboard.jsx
 import React, { useState, useEffect } from "react";
-import UserManagement from "./UserManagement";
 import "./dashboard.css";
+
 import ModuleButtons from "./components/ModuleButtons";
+import UserManagement from "./UserManagement";
 import GaonConnect from "./gaonconnect/GaonConnect";
-import Modal from "../components/Modal";
-import TodayTipsList from "./today-tips/TodayTipsList";
-import { getUserCount } from "./userService";
 import DonationAdmin from "./donation/DonationAdmin";
+import TodayTipsList from "./today-tips/TodayTipsList";
+import HomeLayoutAdmin from "./home-layout/HomeLayoutAdmin";
+
+import Modal from "../components/Modal";
+import { getUserCount } from "./userService";
 
 const Dashboard = () => {
   const [selectedModule, setSelectedModule] = useState("Dashboard");
-  const [openTipsModal, setOpenTipsModal] = useState(false);
 
-  // NEW: Real total user count
+  // Modals
+  const [openTipsModal, setOpenTipsModal] = useState(false);
+  const [openHomeLayoutModal, setOpenHomeLayoutModal] = useState(false);
+
+  // Stats
   const [totalUsers, setTotalUsers] = useState(0);
 
   const modules = [
@@ -27,7 +32,6 @@ const Dashboard = () => {
     { name: "Gaon Saathi", icon: "🎙️" },
   ];
 
-  // Load total users from backend
   useEffect(() => {
     loadUserCount();
   }, []);
@@ -43,27 +47,24 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
+      {/* LEFT MODULE BUTTONS */}
       <ModuleButtons
         modules={modules}
         selectedModule={selectedModule}
         setSelectedModule={setSelectedModule}
       />
 
+      {/* ================= DASHBOARD ================= */}
       {selectedModule === "Dashboard" && (
         <>
           <div className="stats-wrapper">
+            {/* TOTAL USERS */}
             <div className="stats-card">
               <p className="stats-title">Total Users</p>
-
-              {/* 📌 Show Real User Count Here */}
               <h2 className="stats-value">{totalUsers}</h2>
             </div>
 
-            {/* <div className="stats-card">
-              <p className="stats-title">Farmers</p>
-              <h2 className="stats-value">687</h2>
-            </div> */}
-
+            {/* TODAY TIPS */}
             <div
               className="stats-card"
               onClick={() => setOpenTipsModal(true)}
@@ -72,23 +73,44 @@ const Dashboard = () => {
               <h2 className="today-tips-value">Today Tips</h2>
             </div>
 
-            {/* Today Tips Modal */}
-            <Modal open={openTipsModal} onClose={() => setOpenTipsModal(false)}>
-              <TodayTipsList onClose={() => setOpenTipsModal(false)} />
-            </Modal>
+            {/* HOME LAYOUT */}
+            <div
+              className="stats-card"
+              onClick={() => setOpenHomeLayoutModal(true)}
+              style={{ cursor: "pointer" }}
+            >
+              <h2 className="today-tips-value">Home Layout</h2>
+            </div>
           </div>
 
+          {/* TODAY TIPS MODAL */}
+          <Modal open={openTipsModal} onClose={() => setOpenTipsModal(false)}>
+            <TodayTipsList onClose={() => setOpenTipsModal(false)} />
+          </Modal>
+
+          {/* HOME LAYOUT MODAL */}
+          <Modal
+            open={openHomeLayoutModal}
+            className="home-layout-modal"
+            onClose={() => setOpenHomeLayoutModal(false)}
+          >
+            <HomeLayoutAdmin />
+          </Modal>
+
+          {/* DASHBOARD INFO */}
           <div className="section-card">
             <h2 className="section-heading">Admin Dashboard</h2>
-            <p className="section-info">Monitor activities and update success stories.</p>
+            <p className="section-info">
+              Monitor activities and manage mobile app content dynamically.
+            </p>
           </div>
         </>
       )}
 
+      {/* ================= OTHER MODULES ================= */}
       {selectedModule === "User Mgmt" && <UserManagement />}
       {selectedModule === "Gaon Connect" && <GaonConnect />}
       {selectedModule === "Donation" && <DonationAdmin />}
-
     </div>
   );
 };
