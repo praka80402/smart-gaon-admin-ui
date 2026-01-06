@@ -72,3 +72,26 @@
   width: 100%;
   margin-top: 16px;
 }
+.btn-verify {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-verify:hover {
+  background-color: #218838;
+}
+
+.status-verified {
+  color: green;
+  font-weight: 700;
+}
+
+.status-pending {
+  color: orange;
+  font-weight: 700;
+}

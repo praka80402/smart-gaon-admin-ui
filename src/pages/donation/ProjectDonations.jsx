@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import {
   getAdminDonationsByProject,
@@ -23,79 +24,99 @@ const ProjectDonations = ({ projectId, onClose }) => {
   }, [projectId]);
 
   const verify = async (donationId) => {
-    await verifyDonation(donationId);
-    alert("Donation Verified");
-    load();
+    try {
+      await verifyDonation(donationId);
+      alert("Donation Verified ✅");
+      load(); // reload table
+    } catch (err) {
+      alert("Verification Failed");
+    }
   };
 
   return (
-   <div className="modal-overlay">
-  <div className="modal-card wide">
-    
-    {/* ❌ CLOSE ICON */}
-   <span className="modal-close" onClick={onClose}>
-  X
-</span>
+    <div className="modal-overlay">
+      <div className="modal-card wide">
 
-    {/* <span className="modal-close" onClick={() => setModal(false)}>
-              ✕
-            </span> */}
+        {/* ❌ CLOSE ICON */}
+        <span className="modal-close" onClick={onClose}>
+          X
+        </span>
 
-    <h3>Project Donations</h3>
+        <h3>Project Donations</h3>
 
-    {donations.length === 0 && <p>No donations yet.</p>}
+        {loading && <p>Loading...</p>}
 
-    {donations.length > 0 && (
-      <table className="donation-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>User</th>
-            <th>Project</th>
-            <th>Amount (₹)</th>
-            <th>Status</th>
-            <th>Verify</th>
-            <th>Badge</th>
-          </tr>
-        </thead>
-        <tbody>
-          {donations.map((d, index) => (
-            <tr key={d.donationId}>
-              <td>{index + 1}</td>
-              <td>{d.userName}</td>
-              <td>{d.projectName}</td>
-              <td>{d.amount}</td>
-              <td>
-                <span
-                  className={
-                    d.verified ? "status-verified" : "status-pending"
-                  }
-                >
-                  {d.verified ? "Verified" : "Pending"}
-                </span>
-              </td>
-              <td>{d.verified ? "✓" : "-"}</td>
-         <td>
-  {d.verified && d.userId ? (
-    <AssignBadge
-      userId={d.userId}
-      badgeName="GOLD"
-      reason={`Verified donation for ${d.projectName}`}
-    />
-  ) : (
-    "-"
-  )}
-</td>
+        {!loading && donations.length === 0 && (
+          <p>No donations yet.</p>
+        )}
 
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    )}
+        {!loading && donations.length > 0 && (
+          <table className="donation-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>User</th>
+                <th>Project</th>
+                <th>Amount (₹)</th>
+                <th>Status</th>
+                <th>Verify</th>
+                <th>Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              {donations.map((d, index) => (
+                <tr key={d.donationId}>
+                  <td>{index + 1}</td>
+                  <td>{d.userName}</td>
+                  <td>{d.projectName}</td>
+                  <td>{d.amount}</td>
 
-  </div>
-</div>
+                  {/* STATUS */}
+                  <td>
+                    <span
+                      className={
+                        d.verified
+                          ? "status-verified"
+                          : "status-pending"
+                      }
+                    >
+                      {d.verified ? "Verified" : "Pending"}
+                    </span>
+                  </td>
 
+                  {/* VERIFY ACTION */}
+                  <td>
+                    {!d.verified ? (
+                      <button
+                        className="btn-verify"
+                        onClick={() => verify(d.donationId)}
+                      >
+                        Verify
+                      </button>
+                    ) : (
+                      "✓"
+                    )}
+                  </td>
+
+                  {/* BADGE */}
+                  <td>
+                    {d.verified && d.userId ? (
+                      <AssignBadge
+                        userId={d.userId}
+                        badgeName="GOLD"
+                        reason={`Verified donation for ${d.projectName}`}
+                      />
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
   );
 };
 
