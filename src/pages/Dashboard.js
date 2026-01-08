@@ -10,6 +10,7 @@ import HomeLayoutAdmin from "./home-layout/HomeLayoutAdmin";
 
 import Modal from "../components/Modal";
 import { getUserCount } from "./userService";
+import AdminSuccessStory from "./shikshasahayak/successstory";
 
 const Dashboard = () => {
   const [selectedModule, setSelectedModule] = useState("Dashboard");
@@ -111,6 +112,7 @@ const Dashboard = () => {
       {selectedModule === "User Mgmt" && <UserManagement />}
       {selectedModule === "Gaon Connect" && <GaonConnect />}
       {selectedModule === "Donation" && <DonationAdmin />}
+      {selectedModule === "Shiksha Sahayak" && < AdminSuccessStory/>}
     </div>
   );
 };
