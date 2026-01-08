@@ -1,7 +1,7 @@
 /* =======================
    BASE CONFIG
 ======================= */
-const BASE_URL = "http://localhost:9090";
+const BASE_URL = "https://smartgaonadmin.duckdns.org";
 
 /* =======================
    API CALLS
