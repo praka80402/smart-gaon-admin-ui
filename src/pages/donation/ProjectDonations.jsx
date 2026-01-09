@@ -104,7 +104,7 @@ const ProjectDonations = ({ projectId, onClose }) => {
                       <AssignBadge
                         userId={d.userId}
                         badgeName="GOLD"
-                        reason={`Verified donation for ${d.projectName}`}
+                        // reason={`Verified donation for ${d.projectName}`}
                       />
                     ) : (
                       "-"
