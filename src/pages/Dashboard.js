@@ -11,9 +11,11 @@ import HomeLayoutAdmin from "./home-layout/HomeLayoutAdmin";
 import Modal from "../components/Modal";
 import { getUserCount } from "./userService";
 import AdminSuccessStory from "./shikshasahayak/successstory";
+import SchemeAdmin from "./scheme/schemeAdmin";
 
 const Dashboard = () => {
   const [selectedModule, setSelectedModule] = useState("Dashboard");
+ const [openSchemeModal, setOpenSchemeModal] = useState(false);
 
   // Modals
   const [openTipsModal, setOpenTipsModal] = useState(false);
@@ -74,6 +76,15 @@ const Dashboard = () => {
               <h2 className="today-tips-value">Today Tips</h2>
             </div>
 
+             <div
+  className="stats-card"
+  onClick={() => setOpenSchemeModal(true)}
+  style={{ cursor: "pointer" }}
+>
+  <h2 className="today-tips-value">Schemes</h2>
+</div>
+
+
             {/* HOME LAYOUT */}
             <div
               className="stats-card"
@@ -88,6 +99,14 @@ const Dashboard = () => {
           <Modal open={openTipsModal} onClose={() => setOpenTipsModal(false)}>
             <TodayTipsList onClose={() => setOpenTipsModal(false)} />
           </Modal>
+
+          <Modal
+  open={openSchemeModal}
+  onClose={() => setOpenSchemeModal(false)}
+>
+  <SchemeAdmin />
+</Modal>
+
 
           {/* HOME LAYOUT MODAL */}
           <Modal
