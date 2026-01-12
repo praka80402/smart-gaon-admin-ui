@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:9090/api/admin/categories";
+const BASE_URL = "https://smartgaonadmin.duckdns.org/api/admin/categories";
 
 export const getCategories = () => {
   return axios.get(BASE_URL);

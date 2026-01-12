@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:9090/api/admin/schemes";
+const BASE_URL = "https://smartgaonadmin.duckdns.org/api/admin/schemes";
 
 export const createScheme = (data) => {
   return axios.post(BASE_URL, data);
