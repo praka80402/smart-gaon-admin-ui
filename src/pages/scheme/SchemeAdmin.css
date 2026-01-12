@@ -1,4 +1,4 @@
-.scheme-container {
+/* .scheme-container {
   padding: 24px;
   font-family: Inter, Arial, sans-serif;
   position: relative;
@@ -15,7 +15,7 @@
   gap: 12px;
 }
 
-/* GRID */
+
 .scheme-grid {
   margin-top: 20px;
   display: grid;
@@ -43,7 +43,7 @@
   gap: 10px;
 }
 
-/* BUTTONS */
+
 .primary-btn {
   background: #2563eb;
   color: #fff;
@@ -75,7 +75,7 @@
   border-radius: 6px;
 }
 
-/* MODAL */
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -96,7 +96,7 @@
   border-radius: 10px;
 }
 
-/* CLOSE BUTTON */
+
 .close-btn {
   position: absolute;
   top: 12px;
@@ -113,7 +113,7 @@
   color: #ef4444;
 }
 
-/* FORM */
+
 .modal-form input,
 .modal-form select,
 .modal-form textarea,
@@ -126,7 +126,7 @@
   border: 1px solid #d1d5db;
 }
 
-/* SAVE BUTTON */
+
 .save-btn {
   width: 100%;
   margin-top: 12px;
@@ -138,8 +138,194 @@
   font-size: 15px;
 }
 
-/* CATEGORY LIST */
+
 .category-list {
   margin-top: 12px;
   font-size: 14px;
+} */
+
+
+/* ================= ROOT ================= */
+.scheme-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: #f5f7fb;
+  min-height: 100vh;
+}
+
+/* ================= HEADER ================= */
+.scheme-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-actions button {
+  margin-left: 10px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #1976d2;
+  color: white;
+}
+
+.header-actions button:last-child {
+  background: #2e7d32;
+}
+
+/* ================= TABLE ================= */
+.scheme-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.scheme-table th,
+.scheme-table td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.scheme-table th {
+  background: #f0f2f5;
+}
+
+.actions button {
+  margin-right: 6px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.actions button:nth-child(1) {
+  background: #0288d1;
+  color: white;
+}
+
+.actions button:nth-child(2) {
+  background: #f9a825;
+}
+
+.actions button:nth-child(3) {
+  background: #d32f2f;
+  color: white;
+}
+
+/* ================= MODAL OVERLAY ================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* ================= MODAL BOX ================= */
+.modal-box {
+  background: #fff;
+  width: 500px;
+  max-width: 95%;
+  max-height: 85vh;              /* 🔥 KEY: limit height */
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  position: relative;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+/* ================= MODAL HEADER ================= */
+.modal-box h3 {
+  margin: 0;
+  padding: 14px 18px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* ================= MODAL BODY (SCROLLABLE) ================= */
+.modal-box form,
+.modal-box .modal-content {
+  padding: 16px 18px;
+  overflow-y: auto;             /* 🔥 SCROLL ENABLED */
+}
+
+/* ================= CLOSE BUTTON ================= */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* ================= FORM ELEMENTS ================= */
+.modal-box input,
+.modal-box textarea,
+.modal-box select {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.modal-box textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+/* ================= BUTTONS ================= */
+.modal-box button[type="submit"],
+.modal-box button:not(.close-btn) {
+  margin-top: 10px;
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+  background: #1976d2;
+  color: white;
+  cursor: pointer;
+}
+
+/* ================= CATEGORY LIST ================= */
+.category-list {
+  margin-top: 10px;
+  padding-left: 18px;
+}
+
+.category-list li {
+  font-size: 14px;
+}
+
+/* ================= DETAILS MODAL TEXT ================= */
+.modal-box p {
+  margin: 6px 0;
+}
+
+.modal-box a {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .modal-box {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .scheme-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    margin-top: 10px;
+  }
 }
