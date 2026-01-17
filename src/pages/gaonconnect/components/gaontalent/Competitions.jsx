@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect,useCallback } from "react";
 import {
   getAllCompetitions,
   createCompetition,
@@ -37,33 +37,39 @@ export default function Competitions() {
 
   const parseDate = (dt) => new Date(dt.replace(" ", "T"));
 
-  const loadCompetitions = async () => {
-    const res = await getAllCompetitions();
-    const comps = res.data;
-    const now = new Date();
 
-    const updated = comps.map((c) => {
-      const start = parseDate(c.startDate);
-      const end = parseDate(c.endDate);
+const loadCompetitions = useCallback(async () => {
+  const res = await getAllCompetitions();
+  const comps = res.data;
+  const now = new Date();
 
-      let status = "UPCOMING";
-      if (now >= start && now <= end) status = "ACTIVE";
-      else if (now > end) status = "CLOSED";
+  const updated = comps.map((c) => {
+    const start = parseDate(c.startDate);
+    const end = parseDate(c.endDate);
 
-      return { ...c, status };
-    });
+    let status = "UPCOMING";
+    if (now >= start && now <= end) status = "ACTIVE";
+    else if (now > end) status = "CLOSED";
 
-    const sorted = updated.sort((a, b) => {
-      const order = { ACTIVE: 1, UPCOMING: 2, CLOSED: 3 };
-      if (order[a.status] !== order[b.status]) {
-        return order[a.status] - order[b.status];
-      }
+    return { ...c, status };
+  });
 
-      return new Date(b.startDate) - new Date(a.startDate);
-    });
+  const sorted = updated.sort((a, b) => {
+    const order = { ACTIVE: 1, UPCOMING: 2, CLOSED: 3 };
 
-    setCompetitions(sorted);
-  };
+    if (order[a.status] !== order[b.status]) {
+      return order[a.status] - order[b.status];
+    }
+
+    return new Date(b.startDate) - new Date(a.startDate);
+  });
+
+  setCompetitions(sorted);
+}, []);
+
+  useEffect(() => {
+  loadCompetitions();
+}, [loadCompetitions]);
 
   const loadParticipants = async (competitionId, competitionName) => {
     const res = await getCompetitionEntries(competitionId);
