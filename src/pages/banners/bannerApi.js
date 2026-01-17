@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:9090/api/admin/banners";
+//const API_URL = "http://localhost:9090/api/admin/banners";
+const API_URL = "https://smartgaonadmin.duckdns.org/api/admin/banners";
+// baseURL: "https://smartgaonadmin.duckdns.org/api",
 
 export const getBanners = () => axios.get(API_URL);
 
