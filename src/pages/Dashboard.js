@@ -7,6 +7,8 @@ import GaonConnect from "./gaonconnect/GaonConnect";
 import DonationAdmin from "./donation/DonationAdmin";
 import TodayTipsList from "./today-tips/TodayTipsList";
 import HomeLayoutAdmin from "./home-layout/HomeLayoutAdmin";
+import BannerAdmin from "./banners/bannerAdmin";
+
 
 import Modal from "../components/Modal";
 import { getUserCount } from "./userService";
@@ -20,6 +22,7 @@ const Dashboard = () => {
   // Modals
   const [openTipsModal, setOpenTipsModal] = useState(false);
   const [openHomeLayoutModal, setOpenHomeLayoutModal] = useState(false);
+  const [openBannerModal, setOpenBannerModal] = useState(false);
 
   // Stats
   const [totalUsers, setTotalUsers] = useState(0);
@@ -85,6 +88,16 @@ const Dashboard = () => {
 </div>
 
 
+   <div
+  className="stats-card"
+  onClick={() => setOpenBannerModal(true)}
+  style={{ cursor: "pointer" }}
+>
+  <h2 className="today-tips-value">Banners</h2>
+</div>
+
+
+
             {/* HOME LAYOUT */}
             <div
               className="stats-card"
@@ -106,6 +119,14 @@ const Dashboard = () => {
 >
   <SchemeAdmin />
 </Modal>
+
+   <Modal
+  open={openBannerModal}
+  onClose={() => setOpenBannerModal(false)}
+>
+  <BannerAdmin />
+</Modal>
+
 
 
           {/* HOME LAYOUT MODAL */}
