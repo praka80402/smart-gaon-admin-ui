@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import ForumFilter from "./ForumFilter";
 import ForumTable from "./ForumTable";
 import {
@@ -15,7 +15,8 @@ const Forum = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  const load = async () => {
+  /* ================= LOAD POSTS ================= */
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const res = await getAllForumPosts({
@@ -24,20 +25,30 @@ const Forum = () => {
         toDate: toDate || undefined,
       });
       setItems(res.data?.content || []);
+    } catch (e) {
+      console.error("Forum load failed", e);
+      setItems([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchPhone, fromDate, toDate]);
 
+  /* ================= DELETE ================= */
   const handleDelete = async (postId) => {
     if (!window.confirm("Delete this post?")) return;
-    await deleteForumPost(postId);
-    load();
+
+    try {
+      await deleteForumPost(postId);
+      load(); // refresh list
+    } catch (e) {
+      alert("Failed to delete post");
+    }
   };
 
+  /* ================= EFFECT ================= */
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   return (
     <div className="gc-form-section">

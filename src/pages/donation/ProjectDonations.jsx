@@ -1,5 +1,4 @@
-
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   getAdminDonationsByProject,
   verifyDonation,
@@ -11,18 +10,28 @@ const ProjectDonations = ({ projectId, onClose }) => {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const load = async () => {
+  /* ================= LOAD DONATIONS ================= */
+  const load = useCallback(async () => {
     if (!projectId) return;
-    setLoading(true);
-    const res = await getAdminDonationsByProject(projectId);
-    setDonations(res.data || []);
-    setLoading(false);
-  };
 
-  useEffect(() => {
-    load();
+    setLoading(true);
+    try {
+      const res = await getAdminDonationsByProject(projectId);
+      setDonations(res.data || []);
+    } catch (e) {
+      console.error("Failed to load donations", e);
+      setDonations([]);
+    } finally {
+      setLoading(false);
+    }
   }, [projectId]);
 
+  /* ================= EFFECT ================= */
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  /* ================= VERIFY ================= */
   const verify = async (donationId) => {
     try {
       await verifyDonation(donationId);
@@ -36,19 +45,16 @@ const ProjectDonations = ({ projectId, onClose }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-card wide">
-
-        {/* ❌ CLOSE ICON */}
+        {/* CLOSE ICON */}
         <span className="modal-close" onClick={onClose}>
-          X
+          ×
         </span>
 
         <h3>Project Donations</h3>
 
         {loading && <p>Loading...</p>}
 
-        {!loading && donations.length === 0 && (
-          <p>No donations yet.</p>
-        )}
+        {!loading && donations.length === 0 && <p>No donations yet.</p>}
 
         {!loading && donations.length > 0 && (
           <table className="donation-table">
@@ -84,7 +90,7 @@ const ProjectDonations = ({ projectId, onClose }) => {
                     </span>
                   </td>
 
-                  {/* VERIFY ACTION */}
+                  {/* VERIFY */}
                   <td>
                     {!d.verified ? (
                       <button
@@ -104,7 +110,6 @@ const ProjectDonations = ({ projectId, onClose }) => {
                       <AssignBadge
                         userId={d.userId}
                         badgeName="GOLD"
-                        // reason={`Verified donation for ${d.projectName}`}
                       />
                     ) : (
                       "-"
