@@ -10,10 +10,10 @@ export default function Competitions() {
   const [modal, setModal] = useState(false);
 
   // PARTICIPANTS MODAL
-  const [participantsModal, setParticipantsModal] = useState(false);
+  const [, setParticipantsModal] = useState(false);
 
-  const [participants, setParticipants] = useState([]);
-  const [selectedCompetition, setSelectedCompetition] = useState(null);
+  const [, setParticipants] = useState([]);
+  const [, setSelectedCompetition] = useState(null);
 
   // SEARCH, FILTER, PAGINATION
   const [searchText, setSearchText] = useState("");
@@ -33,7 +33,7 @@ export default function Competitions() {
 
   useEffect(() => {
     loadCompetitions();
-  }, []);
+  }, );
 
   const parseDate = (dt) => new Date(dt.replace(" ", "T"));
 
