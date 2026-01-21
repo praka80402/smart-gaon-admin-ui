@@ -1,19 +1,24 @@
-import axios from "axios";
+import { api } from "../../pages/gaonconnect/services/apiConfig";
 
-const BASE_URL = "https://smartgaonadmin.duckdns.org/api/admin/schemes";
+// baseURL already = https://smartgaonadmin.duckdns.org
+const BASE = "/api/admin/schemes";
 
+// ---------------- CREATE ----------------
 export const createScheme = (data) => {
-  return axios.post(BASE_URL, data);
+  return api.post(BASE, data);
 };
 
+// ---------------- GET ALL ----------------
 export const getAllSchemes = () => {
-  return axios.get(BASE_URL);
+  return api.get(BASE);
 };
 
+// ---------------- DELETE ----------------
 export const deleteScheme = (id) => {
-  return axios.delete(`${BASE_URL}/${id}`);
+  return api.delete(`${BASE}/${id}`);
 };
 
-export const updateScheme = (id, data) =>
-  axios.put(`${BASE_URL}/${id}`, data);
-
+// ---------------- UPDATE ----------------
+export const updateScheme = (id, data) => {
+  return api.put(`${BASE}/${id}`, data);
+};

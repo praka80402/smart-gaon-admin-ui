@@ -1,10 +1,9 @@
 
 // -------------------------------------
 
-import React, { useState } from "react";
+import { useState } from "react";
 import "./gaonconnect.css";
 
-import NewsEvents from "./components/NewsEvents";
 import Forum from "./components/Forum";
 import Directory from "./components/Directory";
 import Suggestions from "./components/Suggestions";

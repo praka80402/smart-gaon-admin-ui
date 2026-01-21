@@ -107,7 +107,7 @@ const EditModal = ({ visible, onClose, initial, type, onSave }) => {
 
           {existingImages.map((url) => (
             <div key={url} className="cn-existing-thumb">
-              <img src={url} className="cn-thumb" />
+              <img src={url} className="cn-thumb" alt="" />
               <button onClick={() => removeExistingImage(url)}>Remove</button>
             </div>
           ))}
@@ -118,7 +118,7 @@ const EditModal = ({ visible, onClose, initial, type, onSave }) => {
 
         <div className="cn-preview-row">
           {newImagePreviews.map((src, i) => (
-            <img key={i} src={src} className="cn-thumb" />
+            <img key={i} src={src} className="cn-thumb" alt={`Preview ${i + 1}`} />
           ))}
         </div>
 

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import axios from "axios";
+
+import { api } from "../../pages/gaonconnect/services/apiConfig";
 import "./homeLayoutAdmin.css";
 
-const API_BASE = "https://smartgaonadmin.duckdns.org/admin";
+const API_BASE = "/admin";
 
 const authHeader = () => ({
   headers: {
@@ -27,7 +28,7 @@ const HomeLayoutAdmin = () => {
   /* ================= LOAD ================= */
   const loadLayout = async () => {
     try {
-      const res = await axios.get(
+      const res = await api.get(
         `${API_BASE}/home-layout`,
         authHeader()
       );
@@ -97,7 +98,7 @@ const HomeLayoutAdmin = () => {
   const saveLayout = async () => {
     setSaving(true);
     try {
-      await axios.post(
+      await api.post(
         `${API_BASE}/home-layout`,
         sections.map((s) => ({
           sectionKey: s.id,

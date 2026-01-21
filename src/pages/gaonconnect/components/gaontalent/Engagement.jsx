@@ -1,9 +1,17 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState,useCallback } from "react";
 import {
   getEntriesByCategory,
   getAllCompetitions,
   declareWinner
 } from "../../services/gaonTalentService";
+
+  const CATEGORIES = [
+    "ART",
+    "DANCING",
+    "PUBLIC_SPEAKING",
+    "SINGING",
+    "ENTERTAINMENT"
+  ];
 
 export default function Engagement() {
   const [users, setUsers] = useState([]);
@@ -19,29 +27,22 @@ export default function Engagement() {
 
   const pageSize = 5;
 
-  const categories = [
-    "ART",
-    "DANCING",
-    "PUBLIC_SPEAKING",
-    "SINGING",
-    "ENTERTAINMENT"
-  ];
+  
+const loadEngagementData = useCallback(async () => {
+  const compRes = await getAllCompetitions();
+  setCompetitions(compRes.data);
 
-  useEffect(() => {
-    loadEngagementData();
-  }, []);
+  let allUsers = [];
+  for (let cat of CATEGORIES) {
+    const res = await getEntriesByCategory(cat);
+    allUsers = [...allUsers, ...res.data];
+  }
+  setUsers(allUsers);
+}, []);
 
-  const loadEngagementData = async () => {
-    const compRes = await getAllCompetitions();
-    setCompetitions(compRes.data);
-
-    let allUsers = [];
-    for (let cat of categories) {
-      const res = await getEntriesByCategory(cat);
-      allUsers = [...allUsers, ...res.data];
-    }
-    setUsers(allUsers);
-  };
+useEffect(() => {
+  loadEngagementData();
+}, [loadEngagementData]);
 
   const getCompetitionName = (id) => {
     if (!id) return "Not Participated";
@@ -248,7 +249,11 @@ export default function Engagement() {
 
             <div className="media-wrapper">
               {isImage(selectedPost.mediaUrl) ? (
-                <img src={selectedPost.mediaUrl} className="media-content" />
+                <img
+                  src={selectedPost.mediaUrl}
+                  alt={selectedPost.name ? `${selectedPost.name} image` : "Media"}
+                  className="media-content"
+                />
               ) : isVideo(selectedPost.mediaUrl) ? (
                 <video controls className="media-content">
                   <source src={selectedPost.mediaUrl} />
