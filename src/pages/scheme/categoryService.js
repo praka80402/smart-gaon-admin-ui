@@ -1,13 +1,13 @@
-import axios from "axios";
+import { api } from "../../pages/gaonconnect/services/apiConfig";
 
-const BASE_URL = "https://smartgaonadmin.duckdns.org/api/admin/categories";
+const BASE_URL = "/api/admin/categories";
 
 export const getCategories = () => {
-  return axios.get(BASE_URL);
+  return api.get(BASE_URL);
 };
 
 export const createCategory = (name) => {
-  return axios.post(
+  return api.post(
     BASE_URL,
     null,
     {

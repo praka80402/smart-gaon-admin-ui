@@ -31,9 +31,7 @@ export default function Competitions() {
     pincode: "",
   });
 
-  useEffect(() => {
-    loadCompetitions();
-  }, );
+ 
 
   const parseDate = (dt) => new Date(dt.replace(" ", "T"));
 

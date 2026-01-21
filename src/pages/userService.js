@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "../pages/gaonconnect/services/apiConfig"
 
 const BASE = "https://smartgaonadmin.duckdns.org/admin";
 const LOGIN_URL = `${BASE}/login`;
@@ -19,7 +19,7 @@ const authHeader = () => ({
 // LOGIN — returns token string
 // -----------------------------------------------------
 export const loginAdmin = async (email, password) => {
-  const res = await axios.post(LOGIN_URL, { email, password });
+  const res = await api.post(LOGIN_URL, { email, password });
 
   console.log("LOGIN RESPONSE:", res.data);  // DEBUG
 
@@ -37,7 +37,7 @@ export const loginAdmin = async (email, password) => {
 // -----------------------------------------------------
 export const getAllUsers = async () => {
   try {
-    const res = await axios.get(USERS_URL, authHeader());
+    const res = await api.get(USERS_URL, authHeader());
     return res.data;
   } catch (err) {
     console.error("GET USERS ERROR →", err);
@@ -49,7 +49,7 @@ export const getAllUsers = async () => {
 // SEARCH user by phone
 // -----------------------------------------------------
 export const getUserByPhone = async (phone) => {
-  const res = await axios.get(`${USERS_URL}/search?phone=${phone}`, authHeader());
+  const res = await api.get(`${USERS_URL}/search?phone=${phone}`, authHeader());
   return res.data;
 };
 
@@ -57,41 +57,41 @@ export const getUserByPhone = async (phone) => {
 // DELETE user
 // -----------------------------------------------------
 export const deleteUserById = async (id) => {
-  return axios.delete(`${USERS_URL}/${id}`, authHeader());
+  return api.delete(`${USERS_URL}/${id}`, authHeader());
 };
 
 // -----------------------------------------------------
 // UPDATE USER (EDIT)
 // -----------------------------------------------------
 export const updateUserById = async (id, updatedData) => {
-  return axios.put(`${USERS_URL}/${id}`, updatedData, authHeader());
+  return api.put(`${USERS_URL}/${id}`, updatedData, authHeader());
 };
 
 // -----------------------------------------------------
 // ENABLE USER
 // -----------------------------------------------------
 // export const enableUser = async (id) => {
-//   return axios.put(`${USERS_URL}/${id}/enable`, {}, authHeader());
+//   return api.put(`${USERS_URL}/${id}/enable`, {}, authHeader());
 // };
 
 // -----------------------------------------------------
 // DISABLE USER
 // -----------------------------------------------------
 // export const disableUser = async (id) => {
-//   return axios.put(`${USERS_URL}/${id}/disable`, {}, authHeader());
+//   return api.put(`${USERS_URL}/${id}/disable`, {}, authHeader());
 // };
 
 // -----------------------------------------------------
 // GET ALL ADMINS – ONLY SUPER ADMIN CAN CALL
 // -----------------------------------------------------
 export const getAllAdmins = async () => {
-  const res = await axios.get(ADMINS_URL, authHeader());
+  const res = await api.get(ADMINS_URL, authHeader());
   return res.data;
 };
 
 
 export const searchVillages = async ({ page, size, name, city, state }) => {
-  const res = await axios.get(`${BASE}/villages/search`, {
+  const res = await api.get(`${BASE}/villages/search`, {
     headers: {
       Authorization: "Bearer " + localStorage.getItem("adminToken"),
     },
@@ -117,7 +117,7 @@ export const createVillage = async ({ name, city, state, description, images }) 
   // append multiple images
   images.forEach((img) => fd.append("images", img));
 
-  const res = await axios.post(`${BASE}/villages/upload`, fd, {
+  const res = await api.post(`${BASE}/villages/upload`, fd, {
     headers: {
       Authorization: "Bearer " + localStorage.getItem("adminToken"),
       "Content-Type": "multipart/form-data",
@@ -128,7 +128,7 @@ export const createVillage = async ({ name, city, state, description, images }) 
 };
 
 export const deleteVillage = async (id) => {
-  const res = await axios.delete(`${BASE}/villages/${id}`, {
+  const res = await api.delete(`${BASE}/villages/${id}`, {
     headers: {
       Authorization: "Bearer " + localStorage.getItem("adminToken")
     }
@@ -141,19 +141,19 @@ export const deleteVillage = async (id) => {
 // CREATE NEW ADMIN (SUPER ADMIN / STATE ADMIN)
 // -----------------------------------------------------
 export const createAdmin = async (adminData) => {
-  const res = await axios.post(CREATE_ADMIN_URL, adminData, authHeader());
+  const res = await api.post(CREATE_ADMIN_URL, adminData, authHeader());
   return res.data;
 };
 
 export const getUserCount = async () => {
-  const res = await axios.get(`${USERS_URL}/count`, authHeader());
+  const res = await api.get(`${USERS_URL}/count`, authHeader());
   return res.data;
 };
 
 
 // ---------------- NEW: SEARCH BY STATE + PHONE ----------------
 export const searchUsers = async (phone, state) => {
-  const res = await axios.get(
+  const res = await api.get(
     `${USERS_URL}/search?phone=${phone}&state=${state}`,
     authHeader()
   );
@@ -162,7 +162,7 @@ export const searchUsers = async (phone, state) => {
 
 // ---------------- NEW: SEARCH BY PINCODE ----------------
 export const getUsersByPincode = async (pincode) => {
-  const res = await axios.get(
+  const res = await api.get(
     `${USERS_URL}/by-pincode/${pincode}`,
     authHeader()
   );
@@ -171,8 +171,8 @@ export const getUsersByPincode = async (pincode) => {
 // disable
 
 export const disableUser = async (id) => {
-  return axios.put(`${USERS_URL}/${id}/disable`, {}, authHeader());
+  return api.put(`${USERS_URL}/${id}/disable`, {}, authHeader());
 };
 export const enableUser = async (id) => {
-  return axios.put(`${USERS_URL}/${id}/enable`, {}, authHeader());
+  return api.put(`${USERS_URL}/${id}/enable`, {}, authHeader());
 };

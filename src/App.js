@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import Dashboard from "./pages/Dashboard";
 import GaonConnect from "./pages/gaonconnect/GaonConnect";
 import Login from "./pages/auth/Login";
+import Loader from "./Loader";
 
 import "./App.css";
 
@@ -27,7 +28,9 @@ function App() {
   };
 
   return (
+  
     <Router>
+       <Loader />
       {/* Show header only if logged in */}
       {isLoggedIn && <Header onLogout={handleLogout} />}
 

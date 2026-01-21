@@ -1,36 +1,37 @@
-import axios from "axios";
+import { api } from "../../gaonconnect/services/apiConfig";
 
-const API = "https://smartgaonadmin.duckdns.org/admin/gaon-talent";
-// const API = "http://localhost:9090/admin/gaon-talent";
+// baseURL is already: https://smartgaonadmin.duckdns.org
+const BASE = "/admin/gaon-talent";
+
 // ---------------------- Competitions ----------------------
 export const getAllCompetitions = () =>
-  axios.get(`${API}/competition/all`);
+  api.get(`${BASE}/competition/all`);
 
 export const createCompetition = (data) =>
-  axios.post(`${API}/competition`, data);
+  api.post(`${BASE}/competition`, data);
 
 export const getCompetitionEntries = (competitionId) =>
-  axios.get(`${API}/competition/${competitionId}/entries`);
+  api.get(`${BASE}/competition/${competitionId}/entries`);
 
 export const getCompetitionByCategory = (category) =>
-  axios.get(`${API}/competition/category?category=${category}`);
-
+  api.get(`${BASE}/competition/category`, {
+    params: { category }
+  });
 
 // ---------------------- Entries ----------------------
 export const getEntriesByCategory = (category) =>
-  axios.get(`${API}/entries?category=${category}`);
-
+  api.get(`${BASE}/entries`, {
+    params: { category }
+  });
 
 // ---------------------- Likes ----------------------
 export const getLikes = (entryId) =>
-  axios.get(`${API}/likes/${entryId}`);
-
+  api.get(`${BASE}/likes/${entryId}`);
 
 // ---------------------- Comments ----------------------
 export const getComments = (entryId) =>
-  axios.get(`${API}/comments/${entryId}`);
-
+  api.get(`${BASE}/comments/${entryId}`);
 
 // ---------------------- Winner ----------------------
 export const declareWinner = (entryId) =>
-  axios.post(`${API}/winner/${entryId}`);
+  api.post(`${BASE}/winner/${entryId}`);

@@ -1,20 +1,33 @@
 import axios from "axios";
+import { loaderStore } from "../../../loaderStore";
 
 export const api = axios.create({
-    baseURL: "https://smartgaonadmin.duckdns.org",
-    // baseURL: "http://localhost:9090",
+  baseURL: "https://smartgaonadmin.duckdns.org",
 });
 
-// api.interceptors.request.use((config) => {
-//   const token = localStorage.getItem("adminToken");
-//   if (token) config.headers.Authorization = "Bearer " + token;
-//   return config;
-// });
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("adminToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("adminToken");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    loaderStore.show(); // ✅ SHOW loader
+    return config;
+  },
+  (error) => {
+    loaderStore.hide(); // safety
+    return Promise.reject(error);
   }
-  return config;
-});
+);
+
+api.interceptors.response.use(
+  (response) => {
+    loaderStore.hide(); // ✅ HIDE loader
+    return response;
+  },
+  (error) => {
+    loaderStore.hide(); // ✅ HIDE loader
+    return Promise.reject(error);
+  }
+);
