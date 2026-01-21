@@ -4,8 +4,10 @@ import ForumTable from "./ForumTable";
 import {
   getAllForumPosts,
   deleteForumPost,
+  getPostReports,
 } from "../services/forumService";
 import "./forum.css";
+import ReportModal from "./ReportModal";
 
 const Forum = () => {
   const [items, setItems] = useState([]);
@@ -14,6 +16,9 @@ const Forum = () => {
   const [searchPhone, setSearchPhone] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+
+  const [reports, setReports] = useState([]);
+const [showReports, setShowReports] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -28,6 +33,13 @@ const Forum = () => {
       setLoading(false);
     }
   };
+
+  const handleViewReports = async (postId) => {
+  const res = await getPostReports(postId);
+  setReports(res.data || []);
+  setShowReports(true);
+};
+
 
   const handleDelete = async (postId) => {
     if (!window.confirm("Delete this post?")) return;
@@ -56,8 +68,18 @@ const Forum = () => {
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <ForumTable items={items} onDelete={handleDelete} />
+        <ForumTable items={items} onDelete={handleDelete} onViewReports={handleViewReports} />
       )}
+
+   {showReports && (
+  <ReportModal
+    reports={Array.isArray(reports) ? reports : []}
+    onClose={() => setShowReports(false)}
+  />
+)}
+
+
+
     </div>
   );
 };

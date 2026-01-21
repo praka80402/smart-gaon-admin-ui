@@ -1,4 +1,4 @@
-.gc-table {
+/* .gc-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
@@ -28,4 +28,224 @@
   padding: 6px 10px;
   border-radius: 4px;
   cursor: pointer;
+} */
+
+/* =========================
+   COMMON TABLE STYLES
+   ========================= */
+
+.gc-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.gc-table th {
+  background: #f2f4f8;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.gc-table td {
+  padding: 10px;
+  font-size: 13px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+.gc-table-image {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* =========================
+   BUTTONS
+   ========================= */
+
+.gc-btn-view {
+  margin-left: 8px;
+  background: #007bff;
+  color: #ffffff;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.gc-btn-view:hover {
+  background: #0056b3;
+}
+
+.gc-btn-delete {
+  background: #dc3545;
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.gc-btn-delete:hover {
+  background: #c82333;
+}
+
+.gc-btn-close {
+  background: #dc3545;
+  color: #ffffff;
+  border: none;
+  padding: 8px 22px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.gc-btn-close:hover {
+  background: #c82333;
+}
+
+/* =========================
+   REPORT COUNT
+   ========================= */
+
+.gc-report-count {
+  font-weight: 600;
+  color: #dc3545;
+}
+
+/* =========================
+   MODAL OVERLAY
+   ========================= */
+
+.gc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+/* =========================
+   MODAL CONTAINER
+   ========================= */
+
+.gc-modal {
+  background: #ffffff;
+  width: 750px;
+  max-width: 95%;
+  max-height: 85vh;
+  border-radius: 12px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  animation: gcFadeIn 0.25s ease-in-out;
+}
+
+/* =========================
+   MODAL HEADER
+   ========================= */
+
+.gc-modal-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gc-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.gc-modal-close-icon {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* =========================
+   MODAL TABLE
+   ========================= */
+
+.gc-modal .gc-table th {
+  background: #f4f6f9;
+}
+
+.gc-modal .gc-table td[colspan] {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+}
+
+/* =========================
+   REPORT REASON BADGE
+   ========================= */
+
+.gc-report-reason {
+  background: #ffe3e3;
+  color: #c82333;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* =========================
+   MODAL FOOTER
+   ========================= */
+
+.gc-modal-footer {
+  padding: 12px;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+
+/* =========================
+   EMPTY STATE
+   ========================= */
+
+.gc-empty {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+}
+
+/* =========================
+   ANIMATION
+   ========================= */
+
+@keyframes gcFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 600px) {
+  .gc-modal {
+    width: 95%;
+  }
+
+  .gc-table th,
+  .gc-table td {
+    font-size: 12px;
+  }
 }
