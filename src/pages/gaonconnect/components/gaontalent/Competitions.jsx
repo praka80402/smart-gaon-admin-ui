@@ -10,10 +10,10 @@ export default function Competitions() {
   const [modal, setModal] = useState(false);
 
   // PARTICIPANTS MODAL
-  const [, setParticipantsModal] = useState(false);
+const [participantsModal, setParticipantsModal] = useState(false);
+const [participants, setParticipants] = useState([]);
+const [selectedCompetition, setSelectedCompetition] = useState(null);
 
-  const [, setParticipants] = useState([]);
-  const [, setSelectedCompetition] = useState(null);
 
   // SEARCH, FILTER, PAGINATION
   const [searchText, setSearchText] = useState("");
@@ -33,8 +33,22 @@ export default function Competitions() {
 
  
 
-  const parseDate = (dt) => new Date(dt.replace(" ", "T"));
+  // const parseDate = (dt) => new Date(dt.replace(" ", "T"));
 
+const parseDate = (dt) => {
+  if (!dt) return null;
+
+  // Format: "dd/MM/yyyy"
+  const parts = dt.split("/");
+
+  if (parts.length !== 3) return null;
+
+  const day = Number(parts[0]);
+  const month = Number(parts[1]) - 1; // JS months start from 0
+  const year = Number(parts[2]);
+
+  return new Date(year, month, day);
+};
 
 const loadCompetitions = useCallback(async () => {
   const res = await getAllCompetitions();
@@ -99,6 +113,9 @@ const loadCompetitions = useCallback(async () => {
   //   return matchesSearch && matchesFilter;
   // });
   const filteredCompetitions = competitions.filter((c) => {
+  //    if (c.status === "UPCOMING") {
+  //   return false;
+  // }
   const text = (searchText || "").toLowerCase();
 
   const name = (c?.name || "").toLowerCase();
@@ -322,6 +339,62 @@ const loadCompetitions = useCallback(async () => {
           </div>
         </div>
       )}
-    </>
+    
+    {/* PARTICIPANTS MODAL */}
+{participantsModal && (
+  <div className="modal-bg">
+    <div className="modal-card large-modal">
+
+      <span
+        className="modal-close-x"
+        onClick={() => setParticipantsModal(false)}
+      >
+        ✕
+      </span>
+
+      <h3>
+        Participants — {selectedCompetition?.name}
+      </h3>
+
+      <table className="eng-table" style={{ marginTop: "15px" }}>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Village</th>
+            <th>Category</th>
+            <th>Likes</th>
+            <th>Comments</th>
+            <th>Reference</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {participants.length === 0 ? (
+            <tr>
+              <td colSpan="7" style={{ textAlign: "center" }}>
+                No participants found
+              </td>
+            </tr>
+          ) : (
+            participants.map((p) => (
+              <tr key={p.id}>
+                <td>{p.name}</td>
+                <td>{p.phone}</td>
+                <td>{p.villageOrArea}</td>
+                <td>{p.category}</td>
+                <td>{p.likes}</td>
+                <td>{p.comments}</td>
+                <td>{p.referenceNumber}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+)}
+</>
   );
 }

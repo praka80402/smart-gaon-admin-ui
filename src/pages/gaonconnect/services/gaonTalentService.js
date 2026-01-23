@@ -17,6 +17,13 @@ export const getCompetitionByCategory = (category) =>
   api.get(`${BASE}/competition/category`, {
     params: { category }
   });
+  // ---------------------- Reports (ADMIN) ----------------------
+export const getTalentEntriesWithReports = (params) =>
+  api.get(`${BASE}/entries/list`, { params });
+
+export const getTalentEntryReports = (entryId) =>
+  api.get(`${BASE}/entries/reports/${entryId}`);
+
 
 // ---------------------- Entries ----------------------
 export const getEntriesByCategory = (category) =>

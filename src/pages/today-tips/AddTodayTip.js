@@ -41,7 +41,10 @@ export default function AddTodayTip({ onSuccess, initialData = null, docId = nul
   useEffect(() => {
     if (initialData) {
       setTitle(initialData.title || "");
-      setOccupation(initialData.category || ""); // UPDATED
+        
+    const cat = initialData.category;
+    setOccupation(cat === "ALL" ? "ALL" : cat || "");
+      // setOccupation(initialData.category || ""); // UPDATED
       setDescription(initialData.description || "");
       setDate(initialData.date ? parseDateToISO(initialData.date) : "");
       setImageBase64(initialData.imageBase64 || "");
@@ -119,6 +122,7 @@ export default function AddTodayTip({ onSuccess, initialData = null, docId = nul
           onChange={(e) => setOccupation(e.target.value)}
         >
           <option value="">Select Occupation</option>
+          <option value="ALL">All </option>
           <option value="Citizen">Citizen</option>
           <option value="Farmer">Farmer</option>
           <option value="Vendor">Vendor</option>
@@ -134,6 +138,7 @@ export default function AddTodayTip({ onSuccess, initialData = null, docId = nul
           className="form-input textarea"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+
           placeholder="Write a short description…"
         ></textarea>
       </div>

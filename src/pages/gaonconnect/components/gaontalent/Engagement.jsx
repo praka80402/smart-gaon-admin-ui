@@ -2,8 +2,11 @@ import { useEffect, useState,useCallback } from "react";
 import {
   getEntriesByCategory,
   getAllCompetitions,
-  declareWinner
+  declareWinner,
+  getTalentEntriesWithReports,
+  getTalentEntryReports 
 } from "../../services/gaonTalentService";
+import ReportModal from "../ReportModal";
 
   const CATEGORIES = [
     "ART",
@@ -24,6 +27,10 @@ export default function Engagement() {
   const [searchValue, setSearchValue] = useState("");   // actual search
 
   const [likeFilter, setLikeFilter] = useState("NONE"); // ⭐ NEW FILTER
+  
+  const [reports, setReports] = useState([]);
+const [showReports, setShowReports] = useState(false);
+
 
   const pageSize = 5;
 
@@ -31,14 +38,33 @@ export default function Engagement() {
 const loadEngagementData = useCallback(async () => {
   const compRes = await getAllCompetitions();
   setCompetitions(compRes.data);
+const res = await getTalentEntriesWithReports({
+    page: 0,
+    size: 5
+  });
 
-  let allUsers = [];
-  for (let cat of CATEGORIES) {
-    const res = await getEntriesByCategory(cat);
-    allUsers = [...allUsers, ...res.data];
-  }
-  setUsers(allUsers);
+  setUsers(res.data?.content || []);
 }, []);
+
+const handleViewReports = async (entryId) => {
+  try {
+    const res = await getTalentEntryReports(entryId);
+    setReports(res.data || []);
+    setShowReports(true);
+  } catch {
+    setReports([]);
+    setShowReports(true);
+  }
+};
+
+//   let allUsers = [];
+//   for (let cat of CATEGORIES) {
+//     // const res = await getEntriesByCategory(cat);
+//     const res = await getTalentEntriesWithReports();
+//     allUsers = [...allUsers, ...res.data];
+//   }
+//   setUsers(allUsers);
+// }, []);
 
 useEffect(() => {
   loadEngagementData();
@@ -172,6 +198,7 @@ useEffect(() => {
               <th>Reference No.</th>
               <th>Likes</th>
               <th>Comments</th>
+              <th>Reports</th>
               <th>View</th>
               <th>Winner</th>
             </tr>
@@ -191,6 +218,21 @@ useEffect(() => {
                 <td>{u.referenceNumber || "N/A"}</td>
                 <td>{u.likes}</td>
                 <td>{u.comments}</td>
+                  
+                  <td>
+  <b>{u.reportCount ?? 0}</b>
+  {u.reportCount > 0 && (
+    <button
+      className="gc-btn-view"
+      style={{ marginLeft: "6px" }}
+      onClick={() => handleViewReports(u.id)}
+    >
+      View
+    </button>
+  )}
+</td>
+
+
                 <td>
                   <button className="view-btn" onClick={() => setSelectedPost(u)}>
                     View
@@ -270,10 +312,20 @@ useEffect(() => {
               <p>
                 <b>Comments:</b> {selectedPost.comments}
               </p>
+
+         
+
             </div>
           </div>
         </div>
       )}
+      {/* REPORT MODAL (TOP LEVEL) */}
+{showReports && (
+  <ReportModal
+    reports={reports}
+    onClose={() => setShowReports(false)}
+  />
+)}
     </>
   );
 }

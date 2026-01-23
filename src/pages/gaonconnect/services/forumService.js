@@ -6,6 +6,10 @@ export const getAllForumPosts = (params) =>
 export const deleteForumPost = (id) =>
   api.delete(`/admin/forum/${id}`);
 
+/* ================= REPORTS ================= */
+export const getForumPostReports = (postId) =>
+  api.get(`/admin/forum/reports/${postId}`);
+
 // import axios from "axios";
 
 // const api = axios.create({
