@@ -1,0 +1,122 @@
+/* Page */
+.problem-container {
+  padding: 40px;
+  background: #f4f7fb;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* Title */
+.problem-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 25px;
+}
+
+/* Table Wrapper */
+.problem-table-wrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  overflow-x: auto;
+  padding: 15px;
+}
+
+/* Table */
+.problem-table {
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: collapse;
+}
+
+/* Header */
+.problem-table thead {
+  background: #1f2937;
+  color: white;
+}
+
+.problem-table th,
+.problem-table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Hover */
+.problem-table tbody tr:hover {
+  background: #f1f5f9;
+}
+
+/* Description */
+.desc-short {
+  max-width: 260px;
+  max-height: 40px;
+  overflow: hidden;
+}
+
+.desc-full {
+  max-width: 260px;
+  line-height: 1.4;
+}
+
+/* View btn */
+.view-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.view-btn:hover {
+  text-decoration: underline;
+}
+
+/* Status */
+.status-select {
+  padding: 5px 8px;
+  border-radius: 6px;
+}
+
+/* Media */
+.media-box {
+  display: flex;
+  gap: 6px;
+}
+
+.media-box img {
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+/* Delete */
+.delete-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #b91c1c;
+}
+
+/* Empty */
+.empty {
+  text-align: center;
+  padding: 25px;
+  color: #6b7280;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+}

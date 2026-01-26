@@ -4,7 +4,7 @@ import {
   createCompetition,
   getCompetitionEntries,
 } from "../../services/gaonTalentService";
-
+import "./createcompetition.css";
 export default function Competitions() {
   const [competitions, setCompetitions] = useState([]);
   const [modal, setModal] = useState(false);
@@ -32,6 +32,18 @@ const [selectedCompetition, setSelectedCompetition] = useState(null);
   });
 
  
+  const toDDMMYYYY = (date) => {
+  if (!date) return "";
+
+  const d = new Date(date);
+
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+
+  return `${day}/${month}/${year}`;
+};
+
 
   // const parseDate = (dt) => new Date(dt.replace(" ", "T"));
 
@@ -95,7 +107,14 @@ const loadCompetitions = useCallback(async () => {
   };
 
   const saveCompetition = async () => {
-    await createCompetition(form);
+
+    const payload = {
+    ...form,
+    startDate: toDDMMYYYY(form.startDate),
+    endDate: toDDMMYYYY(form.endDate),
+  };
+  await createCompetition(payload);
+    // await createCompetition(form);
     setModal(false);
     loadCompetitions();
   };
@@ -148,19 +167,19 @@ const loadCompetitions = useCallback(async () => {
   return (
     <>
       {/* SEARCH + FILTER */}
-      <div className="search-filter-box">
+      <div className="comp-toolbar">
         <input
-          className="search-input"
+          className="comp-search"
           type="text"
           placeholder="Search by name, category, status..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
         />
 
-        <button className="search-btn">Search</button>
+        <button className="comp-search-btn">Search</button>
 
         <select
-          className="filter-select"
+          className="comp-filter"
           value={filterStatus}
           onChange={(e) => {
             setFilterStatus(e.target.value);
@@ -172,13 +191,13 @@ const loadCompetitions = useCallback(async () => {
           <option value="CLOSED">Closed</option>
         </select>
 
-        <button className="add-btn" onClick={() => setModal(true)}>
+        <button className="comp-add-btn" onClick={() => setModal(true)}>
           + Create Competition
         </button>
       </div>
 
       {/* COMPETITIONS TABLE */}
-      <table className="eng-table">
+      <table className="comp-table">
         <thead>
           <tr>
             <th>Status</th>
@@ -195,20 +214,20 @@ const loadCompetitions = useCallback(async () => {
 
         <tbody>
           {currentRows.map((c) => (
-            <tr key={c.id} className={c.status === "ACTIVE" ? "active-row" : ""}>
+            <tr key={c.id} className={c.status === "ACTIVE" ? "comp-row-active" : ""}>
               <td>
                 <span
                   className={
                     c.status === "ACTIVE"
-                      ? "status-active"
+                      ? "comp-status-active"
                       : c.status === "CLOSED"
-                      ? "status-closed"
-                      : "status-upcoming"
+                      ? "comp-status-closed"
+                      : "comp-status-upcoming"
                   }
                 >
                   {c.status}
                 </span>
-                {c.status === "ACTIVE" && <span className="live-badge">LIVE</span>}
+                {c.status === "ACTIVE" && <span className="comp-live-badge">LIVE</span>}
               </td>
 
               <td>{c.name}</td>
@@ -221,7 +240,7 @@ const loadCompetitions = useCallback(async () => {
 
               <td>
                 <button
-                  className="view-btn"
+                  className="comp-view-btn"
                   onClick={() => loadParticipants(c.id, c.name)}
                 >
                   View
@@ -233,7 +252,7 @@ const loadCompetitions = useCallback(async () => {
       </table>
 
       {/* PAGINATION */}
-      <div className="pagination">
+      <div className="comp-pagination">
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage((p) => p - 1)}
@@ -244,7 +263,7 @@ const loadCompetitions = useCallback(async () => {
         {[...Array(totalPages)].map((_, i) => (
           <button
             key={i}
-            className={currentPage === i + 1 ? "active-page" : ""}
+            className={currentPage === i + 1 ? "comp-active-page" : ""}
             onClick={() => setCurrentPage(i + 1)}
           >
             {i + 1}
@@ -261,15 +280,15 @@ const loadCompetitions = useCallback(async () => {
 
       {/* CREATE COMPETITION MODAL */}
       {modal && (
-        <div className="modal-bg">
-          <div className="modal-card">
-            <span className="modal-close-x" onClick={() => setModal(false)}>
+        <div className="comp-modal-backdrop">
+          <div className="comp-modal">
+            <span className="comp-modal-close" onClick={() => setModal(false)}>
               ✕
             </span>
 
-            <div className="modal-header">Create Competition</div>
+            <div className="comp-modal-header">Create Competition</div>
 
-            <div className="modal-body">
+            <div className="comp-modal-body">
               <label>Competition Name</label>
               <input
                 placeholder="Competition Name"
@@ -284,20 +303,20 @@ const loadCompetitions = useCallback(async () => {
 
 
               <label>Start Date</label>
-              <input
-                type="datetime-local"
-                onChange={(e) =>
-                  setForm({ ...form, startDate: e.target.value })
-                }
-              />
+             <input
+  type="date"
+  onChange={(e) =>
+    setForm({ ...form, startDate: e.target.value })
+  }
+/>
 
               <label>End Date</label>
               <input
-                type="datetime-local"
-                onChange={(e) =>
-                  setForm({ ...form, endDate: e.target.value })
-                }
-              />
+  type="date"
+  onChange={(e) =>
+    setForm({ ...form, endDate: e.target.value })
+  }
+/>
 
               <label>Category</label>
               <select
@@ -313,6 +332,7 @@ const loadCompetitions = useCallback(async () => {
               {/* ⭐ NEW: STATE */}
               <label>State</label>
               <select
+              value={form.state}
                 onChange={(e) => setForm({ ...form, state: e.target.value })}
               >
                 <option value="ALL">All</option>
@@ -331,8 +351,8 @@ const loadCompetitions = useCallback(async () => {
               />
             </div>
 
-            <div className="modal-footer">
-              <button className="save-btn" onClick={saveCompetition}>
+            <div className="comp-modal-footer">
+              <button className="comp-save-btn" onClick={saveCompetition}>
                 Save
               </button>
             </div>
@@ -342,11 +362,11 @@ const loadCompetitions = useCallback(async () => {
     
     {/* PARTICIPANTS MODAL */}
 {participantsModal && (
-  <div className="modal-bg">
-    <div className="modal-card large-modal">
+  <div className="comp-modal-backdrop">
+    <div className="comp-modal comp-modal-lg">
 
       <span
-        className="modal-close-x"
+        className="comp-modal-close"
         onClick={() => setParticipantsModal(false)}
       >
         ✕
@@ -356,7 +376,7 @@ const loadCompetitions = useCallback(async () => {
         Participants — {selectedCompetition?.name}
       </h3>
 
-      <table className="eng-table" style={{ marginTop: "15px" }}>
+      <table className="comp-table" style={{ marginTop: "15px" }}>
         <thead>
           <tr>
             <th>Name</th>

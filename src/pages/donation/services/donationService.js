@@ -10,8 +10,12 @@ export const createDonationProject = (formData) =>
   });
 
 // GET ALL PROJECTS
-export const getProjects = () =>
-  api.get("/api/projects");
+// export const getProjects = () =>
+//   api.get("/api/projects");
+
+export const getProjects = (page = 0, size = 5) => {
+  return api.get(`/api/projects?page=${page}&size=${size}`);
+};
 
 // GET PROJECT BY ID
 export const getProjectById = (id) =>

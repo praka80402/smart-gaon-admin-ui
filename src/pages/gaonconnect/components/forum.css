@@ -249,3 +249,42 @@
     font-size: 12px;
   }
 }
+/* Pagination */
+
+.gc-pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  align-items: center;
+}
+
+.gc-pagination button {
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+/* Image Preview Modal */
+
+.gc-image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+  cursor: pointer;
+}
+
+.gc-image-modal img {
+  max-width: 50%;
+  max-height: 50%;
+  border-radius: 8px;
+  box-shadow: 0 0 20px #000;
+}

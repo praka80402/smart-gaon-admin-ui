@@ -1,9 +1,13 @@
+
+
 // import { useEffect, useState, useCallback } from "react";
 // import ForumFilter from "./ForumFilter";
 // import ForumTable from "./ForumTable";
+// import ReportModal from "./ReportModal";
 // import {
 //   getAllForumPosts,
 //   deleteForumPost,
+//   getForumPostReports,
 // } from "../services/forumService";
 // import "./forum.css";
 
@@ -14,6 +18,9 @@
 //   const [searchPhone, setSearchPhone] = useState("");
 //   const [fromDate, setFromDate] = useState("");
 //   const [toDate, setToDate] = useState("");
+
+//   const [reports, setReports] = useState([]);
+//   const [showReports, setShowReports] = useState(false);
 
 //   /* ================= LOAD POSTS ================= */
 //   const load = useCallback(async () => {
@@ -26,7 +33,6 @@
 //       });
 //       setItems(res.data?.content || []);
 //     } catch (e) {
-//       console.error("Forum load failed", e);
 //       setItems([]);
 //     } finally {
 //       setLoading(false);
@@ -36,16 +42,22 @@
 //   /* ================= DELETE ================= */
 //   const handleDelete = async (postId) => {
 //     if (!window.confirm("Delete this post?")) return;
+//     await deleteForumPost(postId);
+//     load();
+//   };
 
+//   /* ================= VIEW REPORTS ================= */
+//   const handleViewReports = async (postId) => {
 //     try {
-//       await deleteForumPost(postId);
-//       load(); // refresh list
-//     } catch (e) {
-//       alert("Failed to delete post");
+//       const res = await getForumPostReports(postId);
+//       setReports(res.data || []);
+//       setShowReports(true);
+//     } catch {
+//       setReports([]);
+//       setShowReports(true);
 //     }
 //   };
 
-//   /* ================= EFFECT ================= */
 //   useEffect(() => {
 //     load();
 //   }, [load]);
@@ -67,7 +79,18 @@
 //       {loading ? (
 //         <p>Loading...</p>
 //       ) : (
-//         <ForumTable items={items} onDelete={handleDelete} />
+//         <ForumTable
+//           items={items}
+//           onDelete={handleDelete}
+//           onViewReports={handleViewReports}
+//         />
+//       )}
+
+//       {showReports && (
+//         <ReportModal
+//           reports={reports}
+//           onClose={() => setShowReports(false)}
+//         />
 //       )}
 //     </div>
 //   );
@@ -87,6 +110,7 @@ import {
 import "./forum.css";
 
 const Forum = () => {
+
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -94,53 +118,109 @@ const Forum = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
+  // ✅ PAGINATION
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const pageSize = 3;
+
   const [reports, setReports] = useState([]);
   const [showReports, setShowReports] = useState(false);
 
+
   /* ================= LOAD POSTS ================= */
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await getAllForumPosts({
-        phone: searchPhone || undefined,
-        fromDate: fromDate || undefined,
-        toDate: toDate || undefined,
-      });
-      setItems(res.data?.content || []);
-    } catch (e) {
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [searchPhone, fromDate, toDate]);
+  const load = useCallback(
+    async (pageNo = page) => {
+
+      setLoading(true);
+
+      try {
+
+        const res = await getAllForumPosts({
+
+          page: pageNo,
+          size: pageSize,
+
+          phone: searchPhone || undefined,
+          fromDate: fromDate || undefined,
+          toDate: toDate || undefined,
+        });
+
+        const data = res.data;
+
+        setItems(data?.content || []);
+        setPage(data?.number || 0);
+        setTotalPages(data?.totalPages || 0);
+
+      } catch (e) {
+
+        console.error(e);
+
+        setItems([]);
+        setPage(0);
+        setTotalPages(0);
+
+      } finally {
+        setLoading(false);
+      }
+    },
+    [searchPhone, fromDate, toDate, page]
+  );
+
 
   /* ================= DELETE ================= */
   const handleDelete = async (postId) => {
+
     if (!window.confirm("Delete this post?")) return;
+
     await deleteForumPost(postId);
-    load();
+
+    load(page);
   };
+
 
   /* ================= VIEW REPORTS ================= */
   const handleViewReports = async (postId) => {
+
     try {
       const res = await getForumPostReports(postId);
+
       setReports(res.data || []);
       setShowReports(true);
+
     } catch {
+
       setReports([]);
       setShowReports(true);
     }
   };
 
+
+  /* ================= ON LOAD ================= */
   useEffect(() => {
-    load();
-  }, [load]);
+    load(0);
+  }, []);
+
+
+  /* ================= PAGINATION ================= */
+  const prevPage = () => {
+    if (page > 0) {
+      load(page - 1);
+    }
+  };
+
+  const nextPage = () => {
+    if (page < totalPages - 1) {
+      load(page + 1);
+    }
+  };
+
 
   return (
     <div className="gc-form-section">
+
       <h2>Forum Posts</h2>
 
+      {/* FILTER */}
       <ForumFilter
         searchPhone={searchPhone}
         setSearchPhone={setSearchPhone}
@@ -148,9 +228,11 @@ const Forum = () => {
         setFromDate={setFromDate}
         toDate={toDate}
         setToDate={setToDate}
-        onSearch={load}
+        onSearch={() => load(0)}
       />
 
+
+      {/* TABLE */}
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -161,12 +243,39 @@ const Forum = () => {
         />
       )}
 
+
+      {/* PAGINATION BAR */}
+      <div className="gc-pagination">
+
+        <button
+          onClick={prevPage}
+          disabled={page === 0}
+        >
+          Prev
+        </button>
+
+        <span>
+          Page {page + 1} of {totalPages}
+        </span>
+
+        <button
+          onClick={nextPage}
+          disabled={page === totalPages - 1}
+        >
+          Next
+        </button>
+
+      </div>
+
+
+      {/* REPORT MODAL */}
       {showReports && (
         <ReportModal
           reports={reports}
           onClose={() => setShowReports(false)}
         />
       )}
+
     </div>
   );
 };

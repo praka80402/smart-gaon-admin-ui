@@ -6,10 +6,11 @@ import "./gaonconnect.css";
 
 import Forum from "./components/Forum";
 import Directory from "./components/Directory";
-import Suggestions from "./components/Suggestions";
+import Suggestions from "./components/UserSuggestion/Suggestions";
 import GaonTalent from "./components/gaontalent/GaonTalent";
 import CommunityNewsWrapper from "./components/communityNews/CommunityNewsWrapper";
 import MyVillage from "./components/my-village/MyVilage";
+import AdminProblems from "./components/ReportProblem/Reportproblem";
 
 const GaonConnect = () => {
   const [activePage, setActivePage] = useState("Community Wall");
@@ -49,6 +50,7 @@ const GaonConnect = () => {
       {activePage === "Village Directory" && <Directory />}
       {activePage === "Suggestions" && <Suggestions />}
        {activePage === "My Village" && <MyVillage />}
+       {activePage === "Report Problem" && <AdminProblems />}
     </div>
   );
 };

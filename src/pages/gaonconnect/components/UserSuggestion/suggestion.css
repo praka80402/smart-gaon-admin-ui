@@ -1,0 +1,126 @@
+/* Page */
+.admin-container {
+  padding: 40px;
+  min-height: 100vh;
+  background: #f4f7fb;
+  font-family: Arial, sans-serif;
+}
+
+/* Title */
+.admin-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 25px;
+  color: #2c3e50;
+}
+
+/* Wrapper */
+.table-wrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  overflow-x: auto;
+  padding: 15px;
+}
+
+/* Table */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1000px;
+}
+
+/* Header */
+.admin-table thead {
+  background: #1f2937;
+  color: white;
+}
+
+.admin-table th {
+  padding: 14px 16px;
+  text-align: left;
+}
+
+/* Body */
+.admin-table td {
+  padding: 14px 16px;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Hover */
+.admin-table tbody tr:hover {
+  background: #f1f5f9;
+}
+
+/* Description */
+.desc-cell {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Status */
+.status-select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.status-select:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* Delete */
+.delete-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #b91c1c;
+}
+
+/* Empty */
+.empty-msg {
+  padding: 30px;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* Loading */
+.loading-text {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+}
+
+/* Full description */
+.desc-full {
+  max-width: 300px;
+  white-space: normal;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+/* View button */
+.view-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  margin-top: 4px;
+}
+
+.view-btn:hover {
+  text-decoration: underline;
+}
