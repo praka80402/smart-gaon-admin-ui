@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./problem.css"; // Create this file
+import {api} from "../../services/apiConfig"
 
 export default function AdminProblems() {
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
 
-  const BASE_URL = "http://localhost:9090";
 
   useEffect(() => {
     fetchProblems();
@@ -15,7 +15,7 @@ export default function AdminProblems() {
 
   const fetchProblems = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/admin/problems`);
+      const res = await axios.get(`${api}/api/admin/problems`);
       setProblems(res.data);
     } catch (err) {
       console.error(err);
@@ -28,7 +28,7 @@ export default function AdminProblems() {
   const updateStatus = async (id, status) => {
     try {
       await axios.put(
-        `${BASE_URL}/api/admin/problems/${id}/status`,
+        `${api}/api/admin/problems/${id}/status`,
         { status }
       );
       fetchProblems();
@@ -42,7 +42,7 @@ export default function AdminProblems() {
     if (!window.confirm("Delete this report?")) return;
 
     try {
-      await axios.delete(`${BASE_URL}/api/admin/problems/${id}`);
+      await axios.delete(`${api}/api/admin/problems/${id}`);
       fetchProblems();
     } catch (err) {
       console.error(err);

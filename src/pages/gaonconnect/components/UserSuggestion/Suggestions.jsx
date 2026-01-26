@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./suggestion.css";
+import {api} from "../../services/apiConfig"
+
 
 export default function AdminSuggestions() {
   const [suggestions, setSuggestions] = useState([]);
@@ -9,7 +11,6 @@ export default function AdminSuggestions() {
   // Store which row is expanded
   const [expandedId, setExpandedId] = useState(null);
 
-  const BASE_URL = "http://localhost:9090";
 
   useEffect(() => {
     fetchSuggestions();
@@ -17,7 +18,7 @@ export default function AdminSuggestions() {
 
   const fetchSuggestions = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/admin/suggestions`);
+      const res = await axios.get(`${api}/api/admin/suggestions`);
       setSuggestions(res.data);
     } catch (err) {
       console.error(err);
@@ -30,7 +31,7 @@ export default function AdminSuggestions() {
   const updateStatus = async (id, status) => {
     try {
       await axios.put(
-        `${BASE_URL}/api/admin/suggestions/${id}/status`,
+        `${api}/api/admin/suggestions/${id}/status`,
         { status }
       );
 
@@ -45,7 +46,7 @@ export default function AdminSuggestions() {
     if (!window.confirm("Are you sure you want to delete?")) return;
 
     try {
-      await axios.delete(`${BASE_URL}/api/admin/suggestions/${id}`);
+      await axios.delete(`${api}/api/admin/suggestions/${id}`);
       fetchSuggestions();
     } catch (err) {
       console.error(err);
