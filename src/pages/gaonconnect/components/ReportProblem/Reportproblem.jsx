@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+//import axios from "axios";
 import "./problem.css"; // Create this file
 import {api} from "../../services/apiConfig"
 
@@ -15,7 +15,7 @@ export default function AdminProblems() {
 
   const fetchProblems = async () => {
     try {
-      const res = await axios.get(`${api}/api/admin/problems`);
+      const res = await api.get(`/api/admin/problems`);
       setProblems(res.data);
     } catch (err) {
       console.error(err);
@@ -27,8 +27,8 @@ export default function AdminProblems() {
 
   const updateStatus = async (id, status) => {
     try {
-      await axios.put(
-        `${api}/api/admin/problems/${id}/status`,
+      await api.put(
+        `/api/admin/problems/${id}/status`,
         { status }
       );
       fetchProblems();
@@ -42,7 +42,7 @@ export default function AdminProblems() {
     if (!window.confirm("Delete this report?")) return;
 
     try {
-      await axios.delete(`${api}/api/admin/problems/${id}`);
+      await api.delete(`/api/admin/problems/${id}`);
       fetchProblems();
     } catch (err) {
       console.error(err);

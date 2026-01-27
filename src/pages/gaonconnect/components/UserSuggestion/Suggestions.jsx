@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+//import axios from "axios";
 import "./suggestion.css";
 import {api} from "../../services/apiConfig"
 
@@ -18,7 +18,7 @@ export default function AdminSuggestions() {
 
   const fetchSuggestions = async () => {
     try {
-      const res = await axios.get(`${api}/api/admin/suggestions`);
+      const res = await api.get(`/api/admin/suggestions`);
       setSuggestions(res.data);
     } catch (err) {
       console.error(err);
@@ -30,8 +30,8 @@ export default function AdminSuggestions() {
 
   const updateStatus = async (id, status) => {
     try {
-      await axios.put(
-        `${api}/api/admin/suggestions/${id}/status`,
+      await api.put(
+        `/api/admin/suggestions/${id}/status`,
         { status }
       );
 
@@ -46,7 +46,7 @@ export default function AdminSuggestions() {
     if (!window.confirm("Are you sure you want to delete?")) return;
 
     try {
-      await axios.delete(`${api}/api/admin/suggestions/${id}`);
+      await api.delete(`/api/admin/suggestions/${id}`);
       fetchSuggestions();
     } catch (err) {
       console.error(err);
