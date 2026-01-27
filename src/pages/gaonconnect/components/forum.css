@@ -266,7 +266,7 @@
 
 /* Image Preview Modal */
 
-.gc-image-modal {
+/* .gc-image-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -287,4 +287,259 @@
   max-height: 50%;
   border-radius: 8px;
   box-shadow: 0 0 20px #000;
+} */
+
+
+/* MODAL BACKGROUND */
+/* MODAL */
+/* MODAL BACKGROUND */
+.gc-image-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+  padding: 20px; /* prevent cut */
 }
+
+/* CENTER CONTAINER */
+.gc-gallery {
+  max-width: 400px;   /* mobile width */
+  width: 100%;
+  max-height: 85vh;   /* prevent overflow */
+
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+
+  background: transparent;
+}
+
+/* HIDE SCROLLBAR */
+.gc-gallery::-webkit-scrollbar {
+  display: none;
+}
+.gc-gallery {
+  scrollbar-width: none;
+}
+
+/* EACH IMAGE */
+.gc-gallery-image,
+.gc-gallery-video {
+  min-width: 100%;
+  max-height: 85vh;
+
+  object-fit: contain;
+
+  scroll-snap-align: center;
+}
+/* TABLE VIDEO PREVIEW */
+.gc-table-video {
+  width: 60px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+
+
+/* THUMBNAIL */
+.gc-media-cell {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.gc-table-image {
+  width: 55px;
+  height: 55px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+/* VIEW MORE */
+.gc-view-more {
+  font-size: 12px;
+  color: #1f7a1f;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+
+/* MEDIA CELL */
+.gc-media-cell {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* THUMBNAIL */
+.gc-table-image {
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+/* VIEW MORE */
+.gc-view-more {
+  font-size: 12px;
+  color: #1f7a1f;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+
+/* FILTER BAR */
+.gc-forum-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  flex-wrap: wrap; /* mobile support */
+}
+
+/* INPUT WIDTH FIX */
+.gc-forum-input {
+  width: 100%;   /* adjust if needed */
+  max-width: 18%;
+  height: 40px;
+  padding: 6px 10px;
+}
+
+/* BUTTON */
+.gc-forum-btn {
+  height: 40px;
+  padding: 0 16px;
+  background: #1f7a1f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.gc-filter-btn:hover {
+  opacity: 0.9;
+}
+.gc-view-more {
+  font-size: 12px;     
+  color: #226c9e;
+  cursor: pointer;
+  margin-left: 6px;
+  font-weight: 400;
+}
+
+/* MULTIPLE MEDIA IMAGES */
+/* MEDIA COLUMN */
+/* MEDIA COLUMN */
+.gc-media-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  max-width: 200px;
+}
+
+/* IMAGE STYLE */
+.gc-table-image {
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+/* VIEW MORE */
+.gc-view-more {
+  font-size: 12px;
+  color: #1f7a1f;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+
+/* MEDIA WRAPPER */
+.gc-media-thumb {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+
+/* VIDEO THUMBNAIL */
+.gc-video-thumb {
+   width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* PLAY ICON */
+.gc-play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  background: rgba(0,0,0,0.6);
+  color: white;
+
+  border-radius: 50%;
+  padding: 4px 7px;
+
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* IMAGE THUMB */
+.gc-table-image {
+  width: 80px;
+  height: 80px;
+  /* align-items: center; */
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* MINI CAROUSEL */
+.gc-mini-carousel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* PREVIEW BOX */
+.gc-carousel-preview {
+  width: 80px;
+  height: 80px;
+  cursor: pointer;
+}
+
+/* BUTTON */
+.gc-carousel-btn {
+   font-size: 22px;
+  padding: 2px 6px;
+  background: none;
+  border: none;
+  
+  cursor: pointer;
+  color: #444;
+}
+
+
+

@@ -41,7 +41,7 @@ export default function ViewNews() {
         <thead>
           <tr>
             <th>Headline</th>
-            <th>Body</th>
+            <th>Description</th>
             <th>View</th>
             <th>Actions</th>
           </tr>

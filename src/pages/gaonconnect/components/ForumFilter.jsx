@@ -55,29 +55,34 @@ const ForumFilter = ({
 }) => (
   <div className="gc-filter-row">
 
-    <input
-      placeholder="Search phone"
-      value={searchPhone}
-      onChange={(e) => setSearchPhone(e.target.value)}
-    />
+  <input
+    type="text"
+    placeholder="Search phone"
+    value={searchPhone}
+    onChange={(e) => setSearchPhone(e.target.value)}
+    className="gc-forum-input"
+  />
 
-    {/* FROM DATE */}
-    <input
-      type="date"
-      value={fromDate}
-      onChange={(e) => setFromDate(e.target.value)}
-    />
+  <input
+    type="date"
+    value={fromDate}
+    onChange={(e) => setFromDate(e.target.value)}
+    className="gc-forum-input"
+  />
 
-    {/* TO DATE */}
-    <input
-      type="date"
-      value={toDate}
-      onChange={(e) => setToDate(e.target.value)}
-    />
+  <input
+    type="date"
+    value={toDate}
+    onChange={(e) => setToDate(e.target.value)}
+    className="gc-forum-input"
+  />
 
-    <button onClick={onSearch}>Search</button>
+  <button onClick={onSearch} className="gc-forum-btn">
+    Search
+  </button>
 
-  </div>
+</div>
+
 );
 
 export default ForumFilter;

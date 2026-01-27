@@ -33,7 +33,7 @@ const Dashboard = () => {
     { name: "Shiksha Sahayak", icon: "📘" },
     { name: "Gaon Connect", icon: "🚜" },
     { name: "Seva Bazar", icon: "🛍️" },
-    { name: "Weather", icon: "🌞" },
+    // { name: "Weather", icon: "🌞" },
     { name: "Donation", icon: "💰" },
     { name: "Gaon Saathi", icon: "🎙️" },
   ];
