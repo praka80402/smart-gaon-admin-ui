@@ -14,6 +14,7 @@ import Modal from "../components/Modal";
 import { getUserCount } from "./userService";
 import AdminSuccessStory from "./shikshasahayak/successstory";
 import SchemeAdmin from "./scheme/schemeAdmin";
+import NcertMain from "./shikshasahayak/Shikshsahayak";
 
 const Dashboard = () => {
   const [selectedModule, setSelectedModule] = useState("Dashboard");
@@ -152,7 +153,7 @@ const Dashboard = () => {
       {selectedModule === "User Mgmt" && <UserManagement />}
       {selectedModule === "Gaon Connect" && <GaonConnect />}
       {selectedModule === "Donation" && <DonationAdmin />}
-      {selectedModule === "Shiksha Sahayak" && < AdminSuccessStory/>}
+      {selectedModule === "Shiksha Sahayak" && <NcertMain />}
     </div>
   );
 };
