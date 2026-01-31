@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:9090/api/admin";
+const BASE_URL = "https://smartgaonadmin.duckdns.org/api/admin";
 
 /* ================= GET ================= */
 
