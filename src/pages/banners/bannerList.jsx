@@ -41,10 +41,25 @@ const BannerList = ({ banners, onEdit, onRefresh }) => {
                 </div>
               </td>
 
-              <td>
-                <button onClick={() => onEdit(b)}>Edit</button>
-                <button onClick={() => handleDelete(b.id)}>Delete</button>
-              </td>
+              <td className="actions">
+
+  <button
+    className="icon-btn edit"
+    title="Edit"
+    onClick={() => onEdit(b)}
+  >
+    ✏️
+  </button>
+
+  <button
+    className="icon-btn delete"
+    title="Delete"
+    onClick={() => handleDelete(b.id)}
+  >
+    🗑
+  </button>
+</td>
+
             </tr>
           ))}
         </tbody>

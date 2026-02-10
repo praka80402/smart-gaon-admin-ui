@@ -194,7 +194,7 @@ export default function AddTodayTip({ onSuccess, initialData = null, docId = nul
       <style>{`
         .addtip-wrapper {
           width: 100%;
-          max-width: 520px;
+          max-width: 1035px;
           padding: 25px;
           background: #fff;
           border-radius: 20px;

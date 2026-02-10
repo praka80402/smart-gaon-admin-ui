@@ -385,10 +385,10 @@ const SchemeAdmin = () => {
               <td>{s.category?.name}</td>
               <td className="actions">
                 <button onClick={() => { setSelectedScheme(s); setShowDetailModal(true); }}>
-                  Details
+                  👁️
                 </button>
-                <button onClick={() => handleEdit(s)}>Edit</button>
-                <button onClick={() => handleDelete(s.id)}>Delete</button>
+                <button onClick={() => handleEdit(s)}> ✏️ </button>
+                <button onClick={() => handleDelete(s.id)}> 🗑 </button>
               </td>
             </tr>
           ))}

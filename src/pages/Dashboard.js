@@ -8,22 +8,17 @@ import DonationAdmin from "./donation/DonationAdmin";
 import TodayTipsList from "./today-tips/TodayTipsList";
 import HomeLayoutAdmin from "./home-layout/HomeLayoutAdmin";
 import BannerAdmin from "./banners/bannerAdmin";
-
-
-import Modal from "../components/Modal";
-import { getUserCount } from "./userService";
-import AdminSuccessStory from "./shikshasahayak/successstory";
 import SchemeAdmin from "./scheme/schemeAdmin";
 import NcertMain from "./shikshasahayak/Shikshsahayak";
 
+import Modal from "../components/Modal";
+import { getUserCount } from "./userService";
+
 const Dashboard = () => {
   const [selectedModule, setSelectedModule] = useState("Dashboard");
- const [openSchemeModal, setOpenSchemeModal] = useState(false);
 
   // Modals
-  const [openTipsModal, setOpenTipsModal] = useState(false);
-  const [openHomeLayoutModal, setOpenHomeLayoutModal] = useState(false);
-  const [openBannerModal, setOpenBannerModal] = useState(false);
+  const [activeModal, setActiveModal] = useState(null);
 
   // Stats
   const [totalUsers, setTotalUsers] = useState(0);
@@ -33,9 +28,8 @@ const Dashboard = () => {
     { name: "User Mgmt", icon: "👥" },
     { name: "Shiksha Sahayak", icon: "📘" },
     { name: "Gaon Connect", icon: "🚜" },
-    { name: "Seva Bazar", icon: "🛍️" },
-    // { name: "Weather", icon: "🌞" },
     { name: "Donation", icon: "💰" },
+    { name: "Seva Bazar", icon: "🛍️" },
     { name: "Gaon Saathi", icon: "🎙️" },
   ];
 
@@ -52,6 +46,8 @@ const Dashboard = () => {
     }
   };
 
+  const closeModal = () => setActiveModal(null);
+
   return (
     <div className="dashboard-container">
       {/* LEFT MODULE BUTTONS */}
@@ -65,87 +61,66 @@ const Dashboard = () => {
       {selectedModule === "Dashboard" && (
         <>
           <div className="stats-wrapper">
-            {/* TOTAL USERS */}
-            <div className="stats-card">
-              <p className="stats-title">Total Users</p>
-              <h2 className="stats-value">{totalUsers}</h2>
-            </div>
+            <div className="stats-grid">
+              <div className={`stats-card color-${1}`}>
+                <p className="stats-title">Total Users</p>
+                <h2 className="stats-value">{totalUsers}</h2>
+              </div>
 
-            {/* TODAY TIPS */}
-            <div
-              className="stats-card"
-              onClick={() => setOpenTipsModal(true)}
-              style={{ cursor: "pointer" }}
-            >
-              <h2 className="today-tips-value">Today Tips</h2>
-            </div>
+              <div
+                className="stats-card"
+                onClick={() => setActiveModal("TIPS")}
+              >
+                <h2 className="stats-click">Today Tips</h2>
+              </div>
 
-             <div
-  className="stats-card"
-  onClick={() => setOpenSchemeModal(true)}
-  style={{ cursor: "pointer" }}
->
-  <h2 className="today-tips-value">Schemes</h2>
-</div>
+              <div
+                 className={`stats-card color-${2}`}
+                onClick={() => setActiveModal("SCHEME")}
+              >
+                <h2 className="stats-click">Schemes</h2>
+              </div>
 
+              <div
+                className={`stats-card color-${3}`}
+                onClick={() => setActiveModal("BANNER")}
+              >
+                <h2 className="stats-click">Banners</h2>
+              </div>
 
-   <div
-  className="stats-card"
-  onClick={() => setOpenBannerModal(true)}
-  style={{ cursor: "pointer" }}
->
-  <h2 className="today-tips-value">Banners</h2>
-</div>
+              <div
+                className={`stats-card color-${4}`}
+                onClick={() => setActiveModal("HOME")}
+              >
+                <h2 className="stats-click">Home Layout</h2>
+              </div>
 
-
-
-            {/* HOME LAYOUT */}
-            <div
-              className="stats-card"
-              onClick={() => setOpenHomeLayoutModal(true)}
-              style={{ cursor: "pointer" }}
-            >
-              <h2 className="today-tips-value">Home Layout</h2>
+              <div  className={`stats-card color-${5}`}>
+                <h2 className="stats-click">Others</h2>
+              </div>
             </div>
           </div>
 
-          {/* TODAY TIPS MODAL */}
-          <Modal open={openTipsModal} onClose={() => setOpenTipsModal(false)}>
-            <TodayTipsList onClose={() => setOpenTipsModal(false)} />
+          {/* ================= MODALS ================= */}
+          <Modal  className="home-layout-modal" open={activeModal === "TIPS"} onClose={closeModal}>
+            <TodayTipsList onClose={closeModal} />
+          </Modal>
+
+          <Modal  className="home-layout-modal" open={activeModal === "SCHEME"} onClose={closeModal}>
+            <SchemeAdmin />
+          </Modal>
+
+          <Modal open={activeModal === "BANNER"} onClose={closeModal}>
+            <BannerAdmin />
           </Modal>
 
           <Modal
-  open={openSchemeModal}
-  onClose={() => setOpenSchemeModal(false)}
->
-  <SchemeAdmin />
-</Modal>
-
-   <Modal
-  open={openBannerModal}
-  onClose={() => setOpenBannerModal(false)}
->
-  <BannerAdmin />
-</Modal>
-
-
-
-          {/* HOME LAYOUT MODAL */}
-          <Modal
-            open={openHomeLayoutModal}
+            open={activeModal === "HOME"}
+            onClose={closeModal}
             className="home-layout-modal"
-            onClose={() => setOpenHomeLayoutModal(false)}
           >
             <HomeLayoutAdmin />
           </Modal>
-
-          {/* DASHBOARD INFO */}
-          <div className="section-card">
-            <h2 className="section-heading">Admin Dashboard</h2>
-            <p className="section-info">
-              Monitor activities and manage mobile app content dynamically.
-            </p>
-          </div>
         </>
       )}
 

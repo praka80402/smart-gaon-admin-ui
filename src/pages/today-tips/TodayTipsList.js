@@ -139,7 +139,7 @@ export default function TodayTipsList() {
                   cursor: "pointer",
                 }}
               >
-                ✏️ Edit
+                ✏️ 
               </button>
 
               <button
@@ -152,7 +152,7 @@ export default function TodayTipsList() {
                   cursor: "pointer",
                 }}
               >
-                🗑 Delete
+                🗑 
               </button>
             </div>
           </div>

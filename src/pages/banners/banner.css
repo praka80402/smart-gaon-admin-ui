@@ -16,6 +16,54 @@
   gap: 10px;
   margin-bottom: 20px;
 }
+/* Actions column */
+td.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* Icon buttons */
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 6px;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* Hover animation */
+.icon-btn:hover {
+  transform: scale(1.2);
+}
+
+/* Colors – SAME AS SCHEME */
+.icon-btn.view {
+  color: #2563eb; /* blue */
+}
+
+.icon-btn.edit {
+  color: #16a34a; /* green */
+}
+
+.icon-btn.delete {
+  color: #dc2626; /* red */
+}
+
+.icon-btn.view:hover {
+  color: #1e40af;
+}
+
+.icon-btn.edit:hover {
+  color: #166534;
+}
+
+.icon-btn.delete:hover {
+  color: #991b1b;
+}
+
 
 .banner-tabs button {
   padding: 8px 18px;

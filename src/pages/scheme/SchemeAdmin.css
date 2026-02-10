@@ -200,6 +200,24 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  width: 40px;
+}
+td.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+td.actions button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+}
+
+td.actions button:hover {
+  transform: scale(1.2);
 }
 
 .actions button:nth-child(1) {
