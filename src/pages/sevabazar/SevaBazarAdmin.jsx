@@ -1,0 +1,52 @@
+import React, { useState } from "react";
+import JobAdmin from "./Jobs/JobAdmin";
+
+import "./sevaBazarAdmin.css";
+
+const SevaBazarAdmin = () => {
+
+  const [activeTab, setActiveTab] = useState("jobs");
+
+  return (
+
+    <div className="seva-container">
+
+      <h2>Seva Bazar Management</h2>
+
+      {/* Tabs */}
+      <div className="seva-tabs">
+
+        <button
+          className={activeTab === "jobs" ? "active-tab" : "tab"}
+          onClick={() => setActiveTab("jobs")}
+        >
+          Jobs
+        </button>
+
+        <button
+          className={activeTab === "business" ? "active-tab" : "tab"}
+          onClick={() => setActiveTab("business")}
+        >
+          Business
+        </button>
+
+      </div>
+
+      {/* JOBS TAB */}
+      {activeTab === "jobs" && (
+        <JobAdmin />
+      )}
+
+      {/* BUSINESS TAB */}
+      {activeTab === "business" && (
+        <div className="business-section">
+          <h3>Business Management</h3>
+          <p>Business module coming soon...</p>
+        </div>
+      )}
+
+    </div>
+  );
+};
+
+export default SevaBazarAdmin;

@@ -1,12 +1,12 @@
-.page-container { padding: 25px; background:#f7f7f7; min-height:100vh; }
+/* .page-container { padding: 25px; background:#f7f7f7; min-height:100vh; }
 h1 { font-size:24px; font-weight:bold; margin-bottom:20px; }
 
-/* Tabs */
+
 .tabs { display:flex; border-bottom:2px solid #ccc; margin-bottom:15px; }
 .tab-btn { padding:10px 15px; background:#eee; border:none; cursor:pointer; }
 .tab-btn.active { background:#00A651; color:#fff; }
 
-/* Table */
+
 .card { background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.1); }
 .data-table { width:100%; border-collapse:collapse; margin-top:15px; }
 .data-table th, .data-table td { padding:10px; border-bottom:1px solid #ccc; }
@@ -14,9 +14,177 @@ h1 { font-size:24px; font-weight:bold; margin-bottom:20px; }
 
 .img-col img { width:50px; height:30px; margin-right:5px; border-radius:4px; object-fit:cover; }
 
-/* Buttons */
+
 .edit-btn,.add-btn { padding:5px 12px; border:none; cursor:pointer; color:#fff; border-radius:4px; }
 .edit-btn { background:#1e88e5; }
 .add-btn { background:#00A651; }
 
-.pagination{ display:flex; gap:10px; margin-top:10px; align-items:center; }
+.pagination{ display:flex; gap:10px; margin-top:10px; align-items:center; } */
+
+/* ----------- PAGE LAYOUT ----------- */
+.page-container {
+  padding: 30px;
+  max-width: 1200px;
+  margin: auto;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* ----------- TABS ----------- */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  padding: 8px 18px;
+  border: none;
+  background: #e0e0e0;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.tab-btn.active {
+  background: #1976d2;
+  color: white;
+}
+
+/* ----------- CARD ----------- */
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
+  overflow-x: auto;
+}
+
+/* ----------- TABLE ----------- */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  background: #f5f5f5;
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.data-table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.data-table tr:hover {
+  background: #fafafa;
+}
+
+/* ----------- IMAGE THUMB ----------- */
+.thumb-img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-right: 5px;
+}
+
+/* ----------- BUTTONS ----------- */
+.edit-btn {
+  padding: 6px 12px;
+  border: none;
+  background: #1976d2;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-btn {
+  padding: 6px 12px;
+  border: none;
+  background: #d32f2f;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.save-btn {
+  padding: 8px 16px;
+  border: none;
+  background: #2e7d32;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  padding: 8px 16px;
+  border: none;
+  background: #9e9e9e;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+/* ----------- FORM ----------- */
+.card label {
+  display: block;
+  margin-top: 12px;
+  font-weight: 500;
+}
+
+.card input,
+.card textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+}
+
+.card input:focus,
+.card textarea:focus {
+  border-color: #1976d2;
+}
+
+.dev-cell{
+  min-width:260px;
+}
+
+.dev-mini-card{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:#f5f7fb;
+  padding:8px 10px;
+  border-radius:10px;
+  margin-bottom:10px;
+  transition:0.2s;
+}
+
+.dev-mini-img{
+  width:56px;
+  height:56px;
+  object-fit:cover;
+  border-radius:6px;
+  border:1px solid #ddd;
+}
+
+.dev-mini-title{
+  font-size:13px;
+  font-weight:600;
+  color:#333;
+}
+
+.no-dev{
+  color:#999;
+  font-size:12px;
+}

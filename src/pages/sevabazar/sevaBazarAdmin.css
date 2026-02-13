@@ -1,0 +1,43 @@
+.seva-container {
+  padding: 20px;
+}
+.seva-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 32px;
+  color: #333;
+  font-weight: 600;
+}
+
+
+.seva-tabs {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 8px 20px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  cursor: pointer;
+  border-radius: 20px;   /* Rounded */
+  transition: 0.3s;
+}
+
+.active-tab {
+  padding: 8px 20px;
+  border: 1px solid #007bff;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 20px;   /* Rounded */
+}
+
+
+.business-section {
+  padding: 15px;
+  background: #fafafa;
+  border: 1px solid #ddd;
+}
