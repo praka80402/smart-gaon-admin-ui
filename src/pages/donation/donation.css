@@ -1,418 +1,447 @@
-/* ===============================
-   GLOBAL CONTAINER
-   =============================== */
-
+/* Page container */
 .donation-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-/* ===============================
-   HEADINGS
-   =============================== */
-
+/* Title */
 .donation-title {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 16px;
+  /* text-align: center; */
+  margin-bottom: 25px;
+  color: #2c3e50;
+  font-size: 26px;
+  font-weight: 700;
 }
 
-.donation-subtitle {
-  font-size: 18px;
-  font-weight: 500;
-  margin-bottom: 16px;
-}
-
-/* ===============================
-   TABS
-   =============================== */
-
+/* Tabs wrapper */
 .donation-tabs {
   display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 25px;
 }
 
+/* Tab buttons */
 .donation-tabs button {
-  padding: 8px 16px;
+  padding: 10px 22px;
   border: none;
-  background: #e5e7eb;
-  border-radius: 6px;
+  border-radius: 8px;
+  background: #ecf0f1;
+  color: #2c3e50;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
-  font-weight: 500;
+  transition: all 0.25s ease;
 }
 
+/* Hover */
+.donation-tabs button:hover {
+  background: #d0d7de;
+}
+
+/* Active tab */
 .donation-tabs button.active {
-  background: #2563eb;
-  color: #fff;
+  background: #3498db;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
 }
 
-/* ===============================
-   CREATE PROJECT CARD (CENTERED)
-   =============================== */
+/* Content area spacing */
+.donation-container > div:last-child {
+  margin-top: 15px;
+}
 
-.donation-form-card {
-  max-width: 1100px;
-  margin: 0 auto;                 /* ✅ CENTER */
+/* Card container */
+.donation-card {
+  /* width: 100%; */
+  max-width: 1900px;        /* responsive instead of 1800 */
+  margin: 30px auto;
+  padding: 20px 22px;
   background: #ffffff;
-  padding: 24px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: auto;         /* table scroll on small screens */
+}
+/* .donation-card {
+  max-width: 1800px;
+  margin: 40px auto;
+  padding: 25px 30px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  font-family: Arial, Helvetica, sans-serif;
+} */
+
+/* Heading */
+.donation-card h3 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #2c3e50;
 }
 
-.donation-form-card h3 {
-  
-  margin-bottom: 20px;
-  color: #333;
-  gap: 12px;
-}
-
-/* ===============================
-   FORM
-   =============================== */
-
+/* Form layout */
 .donation-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.donation-form label {
-  font-size: 14px;
-  font-weight: 500;
+  gap: 15px;
 }
 
 /* Inputs */
-.donation-form-card input,
-.donation-form-card textarea,
-.donation-form-card select {
-  width: 90%;                    /* ✅ FIXED */
+.donation-form input,
+.donation-form textarea,
+.donation-form select {
+  width: 100%;
   padding: 10px 12px;
+  border: 1px solid #ccc;
   border-radius: 6px;
-  border: 1px solid #d1d5db;
   font-size: 14px;
+  transition: 0.2s;
 }
 
-.donation-form-card textarea {
-  resize: none;
-  min-height: 120px;
+/* Focus effect */
+.donation-form input:focus,
+.donation-form textarea:focus,
+.donation-form select:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 4px rgba(52,152,219,0.4);
 }
-.donation-form-card input[type="file"] {
-  padding: 6px;
-  border: none;
-}
-/* ===============================
-   FILE INPUT
-   =============================== */
 
-.file-input {
-  border: 1px dashed #cbd5e1;
-  padding: 10px;
-  border-radius: 6px;
+/* Radio box */
+.scope-box {
+  display: flex;
+  gap: 25px;
+  margin-top: 5px;
+}
+
+.scope-box label {
+  font-size: 14px;
   cursor: pointer;
 }
 
-/* ===============================
-   CHECKBOX
-   =============================== */
+/* File input */
+.donation-form input[type="file"] {
+  border: none;
+  padding: 5px;
+}
 
-.donation-form-card label{
-  display: flex;
-  align-items: center;
-  gap: 8px;
-   margin-bottom: 14px;
-  font-size: 14px;
+/* Button */
+.approve {
+  background: #27ae60;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.approve:hover {
+  background: #1f8a4c;
+}
+
+.approve:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+/* Labels */
+.donation-form label {
+  font-weight: 600;
   color: #444;
 }
 
-.donation-form-card input[type="checkbox"] {
-  width: auto;
-  transform: scale(1.1);
-}
-/* ===============================
-   BUTTONS
-   =============================== */
 
-.btn-primary {
-  align-self: flex-start;
-  padding: 10px 18px;
-  background: #22c55e;
-  border: none;
+
+
+.campaign-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.campaign-table th,
+.campaign-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.campaign-table th {
+  background-color: #2c3e50;
   color: white;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
 }
 
-.btn-primary:hover {
-  background: #16a34a;
+.campaign-table tr:nth-child(even) {
+  background-color: #f2f2f2;
 }
 
-.btn-secondary {
+.view-btn {
   padding: 6px 12px;
-  background: #2563eb;
+  background: #27ae60;
   border: none;
   color: white;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-.btn-danger {
-  padding: 6px 12px;
-  background: #2563eb;
-  border: none;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
+.view-btn:hover {
+  background: #219150;
 }
 
-/* ===============================
-   BADGE BUTTON
-   =============================== */
-
-.badge-btn {
-  margin-top: 6px;
-  padding: 6px 14px;
-  background: #7c3aed;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+/* Overlay background */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
 }
 
-/* ===============================
-   TABLE
-   =============================== */
-
-.donation-table-container {
-  margin-top: 24px;
+/* Modal box */
+.modal {
+  background: #ffffff;
+  width: 800px;
+  max-height: 85vh;
+  overflow-y: auto;
+  border-radius: 12px;
+  padding: 25px 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  position: relative;
+  animation: fadeIn 0.25s ease;
 }
 
+/* Smooth open animation */
+@keyframes fadeIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Title */
+.modal h2 {
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+/* Table */
 .donation-table {
   width: 100%;
   border-collapse: collapse;
-  background: #ffffff;
+  margin-top: 15px;
 }
 
 .donation-table th,
 .donation-table td {
-  border: 1px solid #e5e7eb;
+  border: 1px solid #ddd;
   padding: 10px;
-  font-size: 14px;
-  text-align: left;
+  text-align: center;
 }
 
 .donation-table th {
-  background: #f3f4f6;
-  font-weight: 600;
+  background: #34495e;
+  color: white;
 }
 
-/* ===============================
-   DONATION CARDS (MODAL)
-   =============================== */
-
-.donation-card {
-  background: #ffffff;
-  border-left: 4px solid #f59e0b;
-  padding: 12px;
-  border-radius: 6px;
-  margin-bottom: 10px;
+.donation-table tr:nth-child(even) {
+  background: #f4f6f7;
 }
 
-.donation-card.verified {
-  border-left-color: #22c55e;
+/* Buttons */
+.donation-table button {
+  margin: 2px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
 }
 
-.status-pending {
-  color: #f59e0b;
-  font-weight: 600;
+/* Approve */
+.donation-table button:first-child {
+  background: #27ae60;
+  color: white;
 }
 
-.status-verified {
-  color: #22c55e;
-  font-weight: 600;
+.donation-table button:first-child:hover {
+  background: #1e874b;
 }
 
-/* ===============================
-   MODAL (PROJECT & DONATIONS)
-   =============================== */
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;                  /* ✅ FIXED */
+/* Reject */
+.donation-table button:nth-child(2) {
+  background: #e74c3c;
+  color: white;
 }
 
-.modal-card {
-  background: #ffffff;
-  padding: 20px;
-  width: 520px;
-  max-height: 80vh;
-  overflow-y: auto;
-  border-radius: 10px;
+.donation-table button:nth-child(2):hover {
+  background: #c0392b;
 }
 
-td button {
-  margin-right: 6px;
+/* Badge */
+.donation-table button:last-child {
+  background: #8e44ad;
+  color: white;
 }
 
-/* ===============================
-   EDIT PROJECT MODAL
-   =============================== */
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
+.donation-table button:last-child:hover {
+  background: #6c3483;
 }
 
-.modal-card {
-  background: #ffffff;
-  width: 520px;
-  max-width: 90%;
-  padding: 24px;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-/* ---------- Modal Heading ---------- */
-
-.modal-card h3 {
-  margin-bottom: 16px;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-/* ---------- Modal Form ---------- */
-
-.modal-card label {
-  display: block;
-  margin-top: 10px;
-  margin-bottom: 4px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.modal-card input,
-.modal-card textarea {
-  width: 90%;
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  font-size: 14px;
-}
-
-.modal-card textarea {
-  min-height: 100px;
-  resize: none;
-}
-
-/* ---------- Modal Buttons ---------- */
-
-.modal-card button {
-  margin-top: 14px;
-  margin-right: 8px;
-}
-
-.modal-card .btn-primary {
-  background: #2563eb;
-}
-
-.modal-card .btn-primary:hover {
-  background: #1d4ed8;
-}
-
-.modal-card .btn-secondary {
-  background: #6b7280;
-}
-
-.modal-card .btn-secondary:hover {
-  background: #4b5563;
-}
-
-/* ///////////////// */
-
-.media-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
-}
-
-.project-media {
-  width: 100%;
-  height: 140px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-/*  */
-
-.upload-box {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-
-.preview {
-  width: 50px;
-  height: 40px;
-  position: relative;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #ddd;
-}
-
-.preview img,
-.preview video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.preview button {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background: red;
+/* Bottom close button */
+.close-btn {
+  margin-top: 20px;
+  padding: 10px 18px;
+  background: #2c3e50;
   color: white;
   border: none;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-}
-
-.add-btn {
-  width: 90px;
-  height: 90px;
-  border: 2px dashed #999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  cursor: pointer;
   border-radius: 8px;
+  cursor: pointer;
+  float: right;
 }
 
-/* Pagination Bottom */
+.close-btn:hover {
+  background: #1a252f;
+}
 
-.bottom-pagination {
-  margin-top: 20px;
+.modal {
+  position: relative;
+}
+
+/* Perfect top-right close button */
+.modal-close-x {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding-bottom: 20px;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #555;
+  transition: 0.2s;
 }
 
+.modal-close-x:hover {
+  background: #f1f1f1;
+  color: #000;
+}
+
+.table-cover{
+  width:60px;
+  height:45px;
+  object-fit:cover;
+  border-radius:6px;
+}
+
+.table-gallery{
+  display:flex;
+  gap:4px;
+  align-items:center;
+}
+
+.table-gallery img{
+  width:40px;
+  height:35px;
+  object-fit:cover;
+  border-radius:4px;
+}
+
+.table-gallery span{
+  font-size:12px;
+  background:#eee;
+  padding:2px 5px;
+  border-radius:4px;
+}
+
+.action-buttons button{
+  margin-right:4px;
+  padding:5px 8px;
+  border:none;
+  border-radius:4px;
+  cursor:pointer;
+}
+
+.edit-btn{background:#ffc107}
+.delete-btn{background:#dc3545;color:white}
+.view-btn{background:#17a2b8;color:white}
+
+.download-modal{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background:rgba(0,0,0,0.4);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+
+.download-box{
+  background:white;
+  padding:25px;
+  border-radius:10px;
+  text-align:center;
+  min-width:260px;
+}
+
+.download-box button{
+  display:block;
+  width:100%;
+  margin:8px 0;
+  padding:10px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.download-box button:nth-child(2){
+  background:#e74c3c;
+  color:white;
+}
+
+.download-box button:nth-child(3){
+  background:#17a2b8;
+  color:white;
+}
+
+.cancel-btn{
+  background:#777 !important;
+  color:white;
+}
+
+.gallery-preview{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:10px 0;
+}
+
+.gallery-img{
+  width:90px;
+  height:90px;
+  object-fit:cover;
+  border-radius:8px;
+  cursor:pointer;
+  border:2px solid transparent;
+}
+
+.gallery-img:hover{
+  border:2px solid red;
+  opacity:0.7;
+}
