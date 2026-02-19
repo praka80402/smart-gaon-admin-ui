@@ -31,7 +31,7 @@ const JobAdmin = () => {
     try {
 
       const res = await axios.get(
-        `http://localhost:9090/api/admin/jobs?page=${page}&size=${size}`
+        `https://smartgaonadmin.duckdns.org/api/admin/jobs?page=${page}&size=${size}`
       );
 
       const jobsData = res.data.content;
@@ -41,7 +41,7 @@ const JobAdmin = () => {
         jobsData.map(async (job) => {
 
           const countRes = await axios.get(
-            `http://localhost:9090/api/admin/jobs/${job.jobId}/reports/count`
+            `https://smartgaonadmin.duckdns.org/api/admin/jobs/${job.jobId}/reports/count`
           );
 
           return {
@@ -69,7 +69,7 @@ const JobAdmin = () => {
     try {
 
       const res = await axios.get(
-        `http://localhost:9090/api/admin/jobs/${jobId}/reports?page=0&size=10`
+        `https://smartgaonadmin.duckdns.org/api/admin/jobs/${jobId}/reports?page=0&size=10`
       );
 
       setReports(res.data.content);
@@ -93,7 +93,7 @@ const JobAdmin = () => {
     try {
 
       await axios.delete(
-        `http://localhost:9090/api/admin/jobs/${jobId}`
+        `https://smartgaonadmin.duckdns.org/api/admin/jobs/${jobId}`
       );
 
       alert("Job deleted successfully");

@@ -96,7 +96,7 @@ const Dashboard = () => {
               </div>
 
               <div  className={`stats-card color-${5}`}>
-                <h2 className="stats-click">Others</h2>
+                <h2 className="stats-click">More</h2>
               </div>
             </div>
           </div>
