@@ -15,6 +15,7 @@ import Modal from "../components/Modal";
 import { getUserCount } from "./userService";
 
 const Dashboard = () => {
+  const adminRole = localStorage.getItem("adminRole");
   const [selectedModule, setSelectedModule] = useState("Dashboard");
 
   // Modals
@@ -23,17 +24,32 @@ const Dashboard = () => {
   // Stats
   const [totalUsers, setTotalUsers] = useState(0);
 
-  const modules = [
-    { name: "Dashboard", icon: "🏠" },
-    { name: "User Mgmt", icon: "👥" },
-    { name: "Shiksha Sahayak", icon: "📘" },
-    { name: "Gaon Connect", icon: "🚜" },
-    { name: "Donation", icon: "💰" },
-    { name: "Seva Bazar", icon: "🛍️" },
-    { name: "Gaon Saathi", icon: "🎙️" },
-  ];
+  // const modules = [
+  //   { name: "Dashboard", icon: "🏠" },
+  //   { name: "User Mgmt", icon: "👥" },
+  //   { name: "Shiksha Sahayak", icon: "📘" },
+  //   { name: "Gaon Connect", icon: "🚜" },
+  //   { name: "Donation", icon: "💰" },
+  //   { name: "Seva Bazar", icon: "🛍️" },
+  //   { name: "Gaon Saathi", icon: "🎙️" },
+  // ];
+  const modules =
+  adminRole === "ACCOUNT_ADMIN"
+    ? [{ name: "Donation", icon: "💰" }]
+    : [
+        { name: "Dashboard", icon: "🏠" },
+        { name: "User Mgmt", icon: "👥" },
+        { name: "Shiksha Sahayak", icon: "📘" },
+        { name: "Gaon Connect", icon: "🚜" },
+        { name: "Donation", icon: "💰" },
+        { name: "Seva Bazar", icon: "🛍️" },
+        { name: "Gaon Saathi", icon: "🎙️" },
+      ];
 
   useEffect(() => {
+     if (adminRole === "ACCOUNT_ADMIN") {
+    setSelectedModule("Donation");
+  }
     loadUserCount();
   }, []);
 

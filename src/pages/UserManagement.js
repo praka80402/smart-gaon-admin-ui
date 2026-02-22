@@ -10,6 +10,7 @@ import {
   disableUser
 } from "./userService";
 
+
 import "./userManagement.css";
 
 const UserManagement = () => {
@@ -17,8 +18,12 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [admins, setAdmins] = useState([]);
     const adminRole = localStorage.getItem("adminRole");
+    const adminState = localStorage.getItem("adminState");
   const isSuper = adminRole === "SUPER_ADMIN";
   const isState = adminRole === "STATE_ADMIN";
+  const canAddAdmin =
+  adminRole === "SUPER_ADMIN" ||
+  adminRole === "STATE_ADMIN";
   const isDistrict = adminRole === "DISTRICT_ADMIN";
   // const isVillage = adminRole === "VILLAGE_ADMIN";
 
@@ -70,6 +75,15 @@ const canManageUsers = isSuper || isState;
   useEffect(() => {
     setPage(1);
   }, [users]);
+
+ useEffect(() => {
+  if (isState && showModal && adminState) {
+    setAdminForm((prev) => ({
+      ...prev,
+      state: adminState
+    }));
+  }
+}, [isState, showModal, adminState]);
 
   // -------------------- APPLY FILTER ----------------------
   const applyFilters = async () => {
@@ -353,9 +367,15 @@ const canManageUsers = isSuper || isState;
           Admin List
         </button>
 
-        <button className="danger-btn" onClick={() => setShowModal(true)}>
+        {/* <button className="danger-btn" onClick={() => setShowModal(true)}>
           Add Admin
-        </button>
+        </button> */}
+
+        {canAddAdmin && (
+  <button className="danger-btn" onClick={() => setShowModal(true)}>
+    Add Admin
+  </button>
+)}
       </div>
 
       {activeTab === "users" && renderUsers()}
@@ -388,58 +408,8 @@ const canManageUsers = isSuper || isState;
               }
             />
 
-            {/* <label>Role</label>
-            <select
-              name="role"
-              value={adminForm.role}
-              onChange={(e) =>
-              setAdminForm({ ...adminForm, role: e.target.value, district: "", pincode: "" })
-                // setAdminForm({ ...adminForm, role: e.target.value })
-              }
-            >
-              <option value="">Select Role</option>
-              <option value="STATE_ADMIN">State Admin</option>
-              <option value="DISTRICT_ADMIN">District Admin</option>
-            </select>
-
-            {(adminForm.role === "STATE_ADMIN" ||
-              adminForm.role === "DISTRICT_ADMIN") && (
-              <>
-                <label>State</label>
-                <select
-                  name="state"
-                  value={adminForm.state}
-                  onChange={(e) =>
-                    setAdminForm({ ...adminForm, state: e.target.value })
-                  }
-                >
-                  <option value="">Select State</option>
-                  <option value="Bihar">Bihar</option>
-                  <option value="UP">UP</option>
-                  <option value="Maharashtra">Maharashtra</option>
-                  <option value="Jharkhand">Jharkhand</option>
-                  <option value="Gujarat">Gujarat</option>
-                </select>
-              </>
-            )}
-
-            {adminForm.role === "DISTRICT_ADMIN" && (
-              <>
-                <label>District</label>
-                <input
-                  name="district"
-                  value={adminForm.district}
-                  onChange={(e) =>
-                    setAdminForm({
-                      ...adminForm,
-                      district: e.target.value,
-                    })
-                  }
-                />
-              </>
-            )} */}
             
-            <label>Role</label>
+            {/* <label>Role</label>
         <select
 name="role"
 value={adminForm.role}
@@ -462,9 +432,10 @@ pincode: ""
 {(isSuper || isState || isDistrict) && <option value="VILLAGE_ADMIN">Village Admin</option>}
 {isSuper && <option value="ACCOUNT_ADMIN">Account Admin</option>} </select>
 
-{/* STATE */}
+
 {adminForm.role && adminForm.role !== "ACCOUNT_ADMIN" && (
-<> <label>State</label>
+<> 
+<label>State</label>
 <select
 name="state"
 value={adminForm.state}
@@ -475,7 +446,6 @@ setAdminForm({ ...adminForm, state: e.target.value })
 </>
 )}
 
-{/* DISTRICT */}
 {(adminForm.role === "DISTRICT_ADMIN" || adminForm.role === "VILLAGE_ADMIN") && (
 <> <label>District</label>
 <input
@@ -488,7 +458,7 @@ setAdminForm({ ...adminForm, district: e.target.value })
 </>
 )}
 
-{/* PINCODE */}
+
 {adminForm.role === "VILLAGE_ADMIN" && (
 <> <label>Pincode</label>
 <input
@@ -500,31 +470,95 @@ setAdminForm({ ...adminForm, pincode: e.target.value })
 />
 </>
 
+)} */}
+<label>Role</label>
+<select
+  name="role"
+  value={adminForm.role}
+  onChange={(e) => {
+    const selectedRole = e.target.value;
+
+    setAdminForm({
+      ...adminForm,
+      role: selectedRole,
+      state: isState ? adminState : "",   // 🔥 keep state for State Admin
+      district: "",
+      pincode: ""
+    });
+  }}
+>
+  <option value="">Select Role</option>
+
+  {isSuper && <option value="STATE_ADMIN">State Admin</option>}
+  {(isSuper || isState) && (
+    <option value="DISTRICT_ADMIN">District Admin</option>
+  )}
+  {(isSuper || isState || isDistrict) && (
+    <option value="VILLAGE_ADMIN">Village Admin</option>
+  )}
+  {isSuper && <option value="ACCOUNT_ADMIN">Account Admin</option>}
+</select>
+
+{/* STATE */}
+{adminForm.role && adminForm.role !== "ACCOUNT_ADMIN" && (
+  <>
+    <label>State</label>
+    <select
+      name="state"
+      value={adminForm.state}
+      disabled={isState}  
+      onChange={(e) =>
+        setAdminForm({ ...adminForm, state: e.target.value })
+      }
+    >
+      <option value="">Select State</option>
+      <option value="Bihar">Bihar</option>
+      <option value="UP">UP</option>
+      <option value="Maharashtra">Maharashtra</option>
+      <option value="Jharkhand">Jharkhand</option>
+      <option value="Gujarat">Gujarat</option>
+    </select>
+  </>
 )}
+
+{/* DISTRICT */}
+{(adminForm.role === "DISTRICT_ADMIN" ||
+  adminForm.role === "VILLAGE_ADMIN") && (
+  <>
+    <label>District</label>
+    <input
+      name="district"
+      value={adminForm.district}
+      onChange={(e) =>
+        setAdminForm({ ...adminForm, district: e.target.value })
+      }
+    />
+  </>
+)}
+
+{/* PINCODE */}
+{adminForm.role === "VILLAGE_ADMIN" && (
+  <>
+    <label>Pincode</label>
+    <input
+      name="pincode"
+      value={adminForm.pincode || ""}
+      onChange={(e) =>
+        setAdminForm({ ...adminForm, pincode: e.target.value })
+      }
+    />
+  </>
+)}
+
 </div>
 
 
-
-            {/* <div className="modal-actions">
-              <button
-                className="primary-btn"
-                onClick={() => createAdmin(adminForm)}
-              >
-                Save
-              </button>
-              <button
-                className="danger-btn"
-                onClick={() => setShowModal(false)}
-              >
-                Cancel
-              </button>
-            </div> */}
                     <div className="modal-actions">
 
-<button
-className="primary-btn"
-onClick={async () => {
-try {
+             <button
+            className="primary-btn"
+               onClick={async () => {
+        try {
 
 
     // REQUIRED FIELDS

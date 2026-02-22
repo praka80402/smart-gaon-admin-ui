@@ -113,14 +113,22 @@ try {
   localStorage.setItem("adminToken", res.token);
   localStorage.setItem("adminRole", res.role);
   localStorage.setItem("adminEmail", res.email);
+  // localStorage.setItem("isAdminLoggedIn", "true")
 
-  // LOAD LOCATION DATA
-  await loadMyAdminProfile(res.token, res.email);
+   await loadMyAdminProfile(res.token, res.email);
 
-  localStorage.setItem("isAdminLoggedIn", "true");
+   localStorage.setItem("isAdminLoggedIn", "true");
+  // if (res.role !== "ACCOUNT_ADMIN") {
+  //     await loadMyAdminProfile(res.token, res.email);
+  //   }
 
   onLogin();
+  if (res.role === "ACCOUNT_ADMIN") {
+  navigate("/donation/DonationAdmin", { replace: true });
+} else {
   navigate("/dashboard", { replace: true });
+}
+  // navigate("/dashboard", { replace: true });
 
 } catch (err) {
   setError("Invalid email or password");
