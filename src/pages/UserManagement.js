@@ -16,6 +16,13 @@ const UserManagement = () => {
   const [activeTab, setActiveTab] = useState("users");
   const [users, setUsers] = useState([]);
   const [admins, setAdmins] = useState([]);
+    const adminRole = localStorage.getItem("adminRole");
+  const isSuper = adminRole === "SUPER_ADMIN";
+  const isState = adminRole === "STATE_ADMIN";
+  const isDistrict = adminRole === "DISTRICT_ADMIN";
+  // const isVillage = adminRole === "VILLAGE_ADMIN";
+
+const canManageUsers = isSuper || isState;
   const [showModal, setShowModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
@@ -198,7 +205,40 @@ const UserManagement = () => {
                 )}
               </td>
 
-              <td className="action-buttons">
+           <td className="action-buttons">
+  {canManageUsers ? (
+    !u.isDeleted && (
+      <>
+        {u.accountEnabled ? (
+          <button
+            className="danger-btn small"
+            onClick={() => handleDisable(u.id)}
+          >
+            Disable
+          </button>
+        ) : (
+          <button
+            className="primary-btn small"
+            onClick={() => handleEnable(u.id)}
+          >
+            Enable
+          </button>
+        )}
+
+        <button
+          className="remove-btn small"
+          onClick={() => askDeleteUser(u.id)}
+        >
+          Delete
+        </button>
+      </>
+    )
+  ) : (
+    <span style={{ color: "gray", fontWeight: "500" }}>NA</span>
+  )}
+</td>
+
+              {/* <td className="action-buttons">
                 {!u.isDeleted && (
                   <>
                     {u.accountEnabled ? (
@@ -225,7 +265,7 @@ const UserManagement = () => {
                     </button>
                   </>
                 )}
-              </td>
+              </td> */}
             </tr>
           ))}
 
@@ -326,6 +366,8 @@ const UserManagement = () => {
         <div className="modal-overlay">
           <div className="modal-card">
             <h3>Add Admin</h3>
+             
+              <div className="modal-body">
 
             <label>Email</label>
             <input
@@ -346,12 +388,13 @@ const UserManagement = () => {
               }
             />
 
-            <label>Role</label>
+            {/* <label>Role</label>
             <select
               name="role"
               value={adminForm.role}
               onChange={(e) =>
-                setAdminForm({ ...adminForm, role: e.target.value })
+              setAdminForm({ ...adminForm, role: e.target.value, district: "", pincode: "" })
+                // setAdminForm({ ...adminForm, role: e.target.value })
               }
             >
               <option value="">Select Role</option>
@@ -394,9 +437,75 @@ const UserManagement = () => {
                   }
                 />
               </>
-            )}
+            )} */}
+            
+            <label>Role</label>
+        <select
+name="role"
+value={adminForm.role}
+onChange={(e) =>
+setAdminForm({
+...adminForm,
+role: e.target.value,
+state: "",
+district: "",
+pincode: ""
+})
+}
 
-            <div className="modal-actions">
+>
+
+  <option value="">Select Role</option>
+
+{isSuper && <option value="STATE_ADMIN">State Admin</option>}
+{(isSuper || isState) && <option value="DISTRICT_ADMIN">District Admin</option>}
+{(isSuper || isState || isDistrict) && <option value="VILLAGE_ADMIN">Village Admin</option>}
+{isSuper && <option value="ACCOUNT_ADMIN">Account Admin</option>} </select>
+
+{/* STATE */}
+{adminForm.role && adminForm.role !== "ACCOUNT_ADMIN" && (
+<> <label>State</label>
+<select
+name="state"
+value={adminForm.state}
+onChange={(e) =>
+setAdminForm({ ...adminForm, state: e.target.value })
+}
+> <option value="">Select State</option> <option value="Bihar">Bihar</option> <option value="UP">UP</option> <option value="Maharashtra">Maharashtra</option> <option value="Jharkhand">Jharkhand</option> <option value="Gujarat">Gujarat</option> </select>
+</>
+)}
+
+{/* DISTRICT */}
+{(adminForm.role === "DISTRICT_ADMIN" || adminForm.role === "VILLAGE_ADMIN") && (
+<> <label>District</label>
+<input
+name="district"
+value={adminForm.district}
+onChange={(e) =>
+setAdminForm({ ...adminForm, district: e.target.value })
+}
+/>
+</>
+)}
+
+{/* PINCODE */}
+{adminForm.role === "VILLAGE_ADMIN" && (
+<> <label>Pincode</label>
+<input
+name="pincode"
+value={adminForm.pincode || ""}
+onChange={(e) =>
+setAdminForm({ ...adminForm, pincode: e.target.value })
+}
+/>
+</>
+
+)}
+</div>
+
+
+
+            {/* <div className="modal-actions">
               <button
                 className="primary-btn"
                 onClick={() => createAdmin(adminForm)}
@@ -409,7 +518,90 @@ const UserManagement = () => {
               >
                 Cancel
               </button>
-            </div>
+            </div> */}
+                    <div className="modal-actions">
+
+<button
+className="primary-btn"
+onClick={async () => {
+try {
+
+
+    // REQUIRED FIELDS
+    if (!adminForm.email || !adminForm.password || !adminForm.role) {
+      alert("Please fill required fields");
+      return;
+    }
+
+    if (adminForm.role !== "ACCOUNT_ADMIN" && !adminForm.state) {
+      alert("State required");
+      return;
+    }
+
+    if (
+      (adminForm.role === "DISTRICT_ADMIN" || adminForm.role === "VILLAGE_ADMIN") &&
+      !adminForm.district
+    ) {
+      alert("District required");
+      return;
+    }
+
+    if (adminForm.role === "VILLAGE_ADMIN" && !adminForm.pincode) {
+      alert("Pincode required");
+      return;
+    }
+
+    // CREATE ADMIN
+    await createAdmin(adminForm);
+
+    alert("Admin created successfully");
+
+    // CLOSE MODAL & RESET
+    setShowModal(false);
+    setAdminForm({
+      email: "",
+      password: "",
+      role: "",
+      state: "",
+      district: "",
+      pincode: ""
+    });
+
+    // REFRESH ADMIN LIST
+    loadAdmins();
+
+  } catch (err) {
+    alert("Failed to create admin");
+  }
+}}
+
+
+>
+
+Save
+
+
+  </button>
+
+<button
+className="danger-btn"
+onClick={() => setShowModal(false)}
+
+>
+
+
+Cancel
+
+
+  </button>
+
+</div>
+
+
+
+
+
+
           </div>
         </div>
       )}
