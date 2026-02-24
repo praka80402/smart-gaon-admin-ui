@@ -1,206 +1,324 @@
-// // src/pages/gaonconnect/components/Directory.jsx
+
 // import React, { useState, useEffect, useCallback } from "react";
 // import {
 //   getAllDirectoryUsers,
-//   getDirectoryUsersByPincode,
-//   addDirectoryUser,
-//   updateDirectoryUser,
 //   deleteDirectoryUser,
 // } from "../services/directoryService";
 
-// import "../gaonconnect.css";
+// import {
+//   getAllOfficers,
+//   addOfficer,
+//   updateOfficer,
+//   deleteOfficer,
+// } from "../services/officerService";
+
+// import "./directory.css";
 
 // const Directory = () => {
+//   const [activeTab, setActiveTab] = useState("village");
+
+//   const pageSize = 5;
+
+//   /* ================= VILLAGE DIRECTORY ================= */
+
 //   const [users, setUsers] = useState([]);
-//   const [pincodeSearch, setPincodeSearch] = useState("");
+//   const [villagePage, setVillagePage] = useState(1);
 
-//   const [form, setForm] = useState({
-//     id: null,
-//     firstName: "",
-//     lastName: "",
-//     phone: "",
-//     occupation: "",
-//     pincode: "",
-//     district: "",
-//     state: "",
-//     area: "",
-//   });
-
-//   const [showForm, setShowForm] = useState(false);
-
-//   // SAFE: loadUsers wrapped in useCallback
 //   const loadUsers = useCallback(async () => {
 //     try {
 //       const res = await getAllDirectoryUsers();
 //       setUsers(res.data || []);
-//     } catch (err) {
-//       console.error(err);
+//     } catch {
 //       setUsers([]);
 //     }
 //   }, []);
 
-//   // SAFE useEffect
+//   /* ================= GOVERNMENT OFFICERS ================= */
+
+//   const [officers, setOfficers] = useState([]);
+//   const [officerPage, setOfficerPage] = useState(1);
+
+//   const [officerForm, setOfficerForm] = useState({
+//     id: null,
+//     name: "",
+//     department: "",
+//     phone: "",
+//     district: "",
+//     state: "",
+//   });
+
+//   const [showOfficerForm, setShowOfficerForm] = useState(false);
+
+//   const loadOfficers = async () => {
+//     try {
+//       const res = await getAllOfficers();
+//       setOfficers(res.data || []);
+//     } catch {
+//       setOfficers([]);
+//     }
+//   };
+
 //   useEffect(() => {
-//     loadUsers();   // ❌ do NOT return anything
+//     loadUsers();
+//     loadOfficers();
 //   }, [loadUsers]);
 
-//   const resetForm = () =>
-//     setForm({
-//       id: null,
-//       firstName: "",
-//       lastName: "",
-//       phone: "",
-//       occupation: "",
-//       pincode: "",
-//       district: "",
-//       state: "",
-//       area: "",
-//     });
+//   /* ================= PAGINATION LOGIC ================= */
 
-//   const handleSubmit = async () => {
-//     const payload = { ...form };
+//   const villageTotalPages = Math.ceil(users.length / pageSize);
+//   const paginatedVillageUsers = users.slice(
+//     (villagePage - 1) * pageSize,
+//     villagePage * pageSize
+//   );
 
+//   const officerTotalPages = Math.ceil(officers.length / pageSize);
+//   const paginatedOfficers = officers.slice(
+//     (officerPage - 1) * pageSize,
+//     officerPage * pageSize
+//   );
+
+//   /* ================= ACTIONS ================= */
+
+//   const onDeleteUser = async (id) => {
+//     if (!window.confirm("Delete this user?")) return;
+//     await deleteDirectoryUser(id);
+//     loadUsers();
+//   };
+
+//   const handleOfficerSubmit = async () => {
 //     try {
-//       if (form.id) {
-//         await updateDirectoryUser(form.id, payload);
-//         alert("User updated successfully");
+//       if (officerForm.id) {
+//         await updateOfficer(officerForm.id, officerForm);
+//         alert("Officer updated");
 //       } else {
-//         await addDirectoryUser(payload);
-//         alert("User added successfully");
+//         await addOfficer(officerForm);
+//         alert("Officer added");
 //       }
 
-//       resetForm();
-//       setShowForm(false);
-//       loadUsers();
-//     } catch (err) {
-//       console.error(err);
+//       setOfficerForm({
+//         id: null,
+//         name: "",
+//         department: "",
+//         phone: "",
+//         district: "",
+//         state: "",
+//       });
+
+//       setShowOfficerForm(false);
+//       loadOfficers();
+//     } catch {
 //       alert("Operation failed");
 //     }
 //   };
 
-//   const onEdit = (user) => {
-//     setForm(user);
-//     setShowForm(true);
-//   };
-
-//   const onDelete = async (id) => {
-//     if (!window.confirm("Delete this user?")) return;
-
-//     try {
-//       await deleteDirectoryUser(id);
-//       alert("User deleted");
-//       loadUsers();
-//     } catch (err) {
-//       console.error(err);
-//       alert("Delete failed");
-//     }
-//   };
-
-//   const handleSearch = async () => {
-//     if (!pincodeSearch.trim()) {
-//       alert("Enter pincode");
-//       return;
-//     }
-
-//     try {
-//       const res = await getDirectoryUsersByPincode(pincodeSearch.trim());
-//       setUsers(res.data || []);
-//     } catch (err) {
-//       console.error(err);
-//       alert("Search failed");
-//     }
+//   const deleteOfficerHandler = async (id) => {
+//     if (!window.confirm("Delete this officer?")) return;
+//     await deleteOfficer(id);
+//     loadOfficers();
 //   };
 
 //   return (
-//     <div className="gc-form-section">
-//       <h2>Village Directory</h2>
+//     <div className="directory-container">
+//       <h2 className="directory-title">Directory</h2>
 
-//       <div className="gc-filter-row" style={{ marginBottom: "20px" }}>
-//         <input
-//           type="text"
-//           placeholder="Search by pincode"
-//           value={pincodeSearch}
-//           onChange={(e) => setPincodeSearch(e.target.value)}
-//         />
-
-//         <button onClick={handleSearch}>Search</button>
-
-//         <button onClick={loadUsers}>Show All</button>
+//       {/* ================= TABS ================= */}
+//       <div className="directory-tabs">
+//         <button
+//           className={`directory-tab-btn ${
+//             activeTab === "village" ? "active-tab" : ""
+//           }`}
+//           onClick={() => setActiveTab("village")}
+//         >
+//           Village Directory
+//         </button>
 
 //         <button
-//           className="gc-submit"
-//           style={{ marginLeft: "auto" }}
-//           onClick={() => {
-//             resetForm();
-//             setShowForm(true);
-//           }}
+//           className={`directory-tab-btn ${
+//             activeTab === "officer" ? "active-tab" : ""
+//           }`}
+//           onClick={() => setActiveTab("officer")}
 //         >
-//           Add Directory User
+//           Government Officers
 //         </button>
 //       </div>
 
-//       <div className="gc-cart-grid">
-//         {users.length === 0 ? (
-//           <p>No users found</p>
-//         ) : (
-//           users.map((u) => (
-//             <div key={u.id} className="gc-cart">
-//               <h3 className="gc-cart-title">
-//                 {u.firstName} {u.lastName}
-//               </h3>
+//       {/* ================= VILLAGE DIRECTORY ================= */}
+//       {activeTab === "village" && (
+//         <div>
+//           <table className="directory-table">
+//             <thead>
+//               <tr>
+//                 <th>Name</th>
+//                 <th>Phone</th>
+//                 <th>Occupation</th>
+//                 <th>District</th>
+//                 <th>State</th>
+//                 <th>Actions</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {paginatedVillageUsers.map((u) => (
+//                 <tr key={u.id}>
+//                   <td>{u.firstName} {u.lastName}</td>
+//                   <td>{u.phone}</td>
+//                   <td>{u.occupation}</td>
+//                   <td>{u.district}</td>
+//                   <td>{u.state}</td>
+//                   <td>
+//                     <button
+//                       className="table-delete-btn"
+//                       onClick={() => onDeleteUser(u.id)}
+//                     >
+//                       Delete
+//                     </button>
+//                   </td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
 
-//               <p className="gc-cart-desc">{u.occupation || "No occupation"}</p>
+//           <div className="simple-pagination">
+//             <button
+//               disabled={villagePage === 1}
+//               onClick={() => setVillagePage(villagePage - 1)}
+//             >
+//               Prev
+//             </button>
 
-//               <p>📞 {u.phone}</p>
-//               <p>📍 Pincode: {u.pincode}</p>
-//               <p>🏙 District: {u.district}</p>
-//               <p>🌆 State: {u.state}</p>
+//             <span>
+//               Page {villagePage} of {villageTotalPages || 1}
+//             </span>
 
-//               <div className="gc-cart-actions">
-//                 <button className="gc-cart-edit" onClick={() => onEdit(u)}>
-//                   Edit
-//                 </button>
-//                 <button className="gc-cart-delete" onClick={() => onDelete(u.id)}>
-//                   Delete
-//                 </button>
+//             <button
+//               disabled={
+//                 villagePage === villageTotalPages || villageTotalPages === 0
+//               }
+//               onClick={() => setVillagePage(villagePage + 1)}
+//             >
+//               Next
+//             </button>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* ================= GOVERNMENT OFFICERS ================= */}
+//       {activeTab === "officer" && (
+//         <div>
+//           <div className="officer-add-btn-wrapper">
+//             <button
+//               className="add-officer-btn"
+//               onClick={() => {
+//                 setOfficerForm({
+//                   id: null,
+//                   name: "",
+//                   department: "",
+//                   phone: "",
+//                   district: "",
+//                   state: "",
+//                 });
+//                 setShowOfficerForm(true);
+//               }}
+//             >
+//               Add Officer
+//             </button>
+//           </div>
+
+//           <table className="directory-table">
+//             <thead>
+//               <tr>
+//                 <th>Name</th>
+//                 <th>Department</th>
+//                 <th>Phone</th>
+//                 <th>District</th>
+//                 <th>State</th>
+//                 <th>Actions</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {paginatedOfficers.map((o) => (
+//                 <tr key={o.id}>
+//                   <td>{o.name}</td>
+//                   <td>{o.department}</td>
+//                   <td>{o.phone}</td>
+//                   <td>{o.district}</td>
+//                   <td>{o.state}</td>
+//                   <td>
+//                     <button
+//                       className="table-edit-btn"
+//                       onClick={() => {
+//                         setOfficerForm(o);
+//                         setShowOfficerForm(true);
+//                       }}
+//                     >
+//                       Edit
+//                     </button>
+//                     <button
+//                       className="table-delete-btn"
+//                       onClick={() => deleteOfficerHandler(o.id)}
+//                     >
+//                       Delete
+//                     </button>
+//                   </td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+
+//           <div className="simple-pagination">
+//             <button
+//               disabled={officerPage === 1}
+//               onClick={() => setOfficerPage(officerPage - 1)}
+//             >
+//               Prev
+//             </button>
+
+//             <span>
+//               Page {officerPage} of {officerTotalPages || 1}
+//             </span>
+
+//             <button
+//               disabled={
+//                 officerPage === officerTotalPages || officerTotalPages === 0
+//               }
+//               onClick={() => setOfficerPage(officerPage + 1)}
+//             >
+//               Next
+//             </button>
+//           </div>
+
+//           {showOfficerForm && (
+//             <div className="modal-backdrop">
+//               <div className="modal-box">
+//                 <h3>
+//                   {officerForm.id ? "Edit Officer" : "Add Officer"}
+//                 </h3>
+
+//                 {["name", "department", "phone", "district", "state"].map(
+//                   (field) => (
+//                     <input
+//                       key={field}
+//                       type="text"
+//                       placeholder={field}
+//                       value={officerForm[field]}
+//                       onChange={(e) =>
+//                         setOfficerForm({
+//                           ...officerForm,
+//                           [field]: e.target.value,
+//                         })
+//                       }
+//                     />
+//                   )
+//                 )}
+
+//                 <div className="modal-actions">
+//                   <button onClick={handleOfficerSubmit}>Save</button>
+//                   <button onClick={() => setShowOfficerForm(false)}>
+//                     Cancel
+//                   </button>
+//                 </div>
 //               </div>
 //             </div>
-//           ))
-//         )}
-//       </div>
-
-//       {showForm && (
-//         <div className="gc-modal-backdrop">
-//           <div className="gc-modal">
-//             <h3>{form.id ? "Edit User" : "Add User"}</h3>
-
-//             {/* FORM INPUTS */}
-//             {Object.keys(form).map((key) =>
-//               key !== "id" ? (
-//                 <input
-//                   key={key}
-//                   type="text"
-//                   placeholder={key}
-//                   value={form[key]}
-//                   onChange={(e) =>
-//                     setForm({
-//                       ...form,
-//                       [key]: e.target.value,
-//                     })
-//                   }
-//                 />
-//               ) : null
-//             )}
-
-//             <div className="gc-modal-actions">
-//               <button className="gc-submit" onClick={handleSubmit}>
-//                 Save
-//               </button>
-//               <button className="gc-cancel" onClick={() => setShowForm(false)}>
-//                 Cancel
-//               </button>
-//             </div>
-//           </div>
+//           )}
 //         </div>
 //       )}
 //     </div>
@@ -209,285 +327,302 @@
 
 // export default Directory;
 
-// src/pages/gaonconnect/components/Directory.jsx
-// src/pages/gaonconnect/components/Directory.jsx
+
 import React, { useState, useEffect, useCallback } from "react";
 import {
   getAllDirectoryUsers,
-  addDirectoryUser,
-  updateDirectoryUser,
   deleteDirectoryUser,
 } from "../services/directoryService";
 
-import "../gaonconnect.css";
+import {
+  getAllOfficers,
+  addOfficer,
+  updateOfficer,
+  deleteOfficer,
+} from "../services/officerService";
+
+import "./directory.css";
 
 const Directory = () => {
-  const [allUsers, setAllUsers] = useState([]);
+
+  const role = localStorage.getItem("adminRole");
+
+  const canManage =
+    role === "SUPER_ADMIN" || role === "STATE_ADMIN";
+
+  const [activeTab, setActiveTab] = useState("village");
+
+  const pageSize = 5;
+
+  /* ================= VILLAGE DIRECTORY ================= */
+
   const [users, setUsers] = useState([]);
-
-  const [search, setSearch] = useState("");
-
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 6;
-
-  const [form, setForm] = useState({
-    id: null,
-    firstName: "",
-    lastName: "",
-    phone: "",
-    occupation: "",
-    pincode: "",
-    district: "",
-    state: "",
-    area: "",
-  });
-
-  const [viewUser, setViewUser] = useState(null);
-  const [showForm, setShowForm] = useState(false);
+  const [villagePage, setVillagePage] = useState(1);
 
   const loadUsers = useCallback(async () => {
     try {
       const res = await getAllDirectoryUsers();
-      setAllUsers(res.data || []);
       setUsers(res.data || []);
-    } catch (err) {
-      console.error(err);
-      setAllUsers([]);
+    } catch {
       setUsers([]);
     }
   }, []);
 
+  /* ================= GOVERNMENT OFFICERS ================= */
+
+  const [officers, setOfficers] = useState([]);
+  const [officerPage, setOfficerPage] = useState(1);
+
+  const [officerForm, setOfficerForm] = useState({
+    id: null,
+    name: "",
+    department: "",
+    phone: "",
+    district: "",
+    state: "",
+  });
+
+  const [showOfficerForm, setShowOfficerForm] = useState(false);
+
+  const loadOfficers = async () => {
+    try {
+      const res = await getAllOfficers();
+      setOfficers(res.data || []);
+    } catch {
+      setOfficers([]);
+    }
+  };
+
   useEffect(() => {
     loadUsers();
+    loadOfficers();
   }, [loadUsers]);
 
-  // Filter + Search
-  const handleSearch = (text) => {
-    setSearch(text);
-    const query = text.toLowerCase();
+  /* ================= PAGINATION ================= */
 
-    const filtered = allUsers.filter((u) =>
-      `${u.firstName} ${u.lastName}`.toLowerCase().includes(query) ||
-      u.phone?.toLowerCase().includes(query) ||
-      u.occupation?.toLowerCase().includes(query) ||
-      u.pincode?.toLowerCase().includes(query)
-    );
-
-    setUsers(filtered);
-    setCurrentPage(1);
-  };
-
-  // Pagination Calculations
-  const totalPages = Math.ceil(users.length / pageSize);
-  const paginatedUsers = users.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
+  const villageTotalPages = Math.ceil(users.length / pageSize);
+  const paginatedVillageUsers = users.slice(
+    (villagePage - 1) * pageSize,
+    villagePage * pageSize
   );
 
-  const changePage = (pageNum) => {
-    if (pageNum < 1 || pageNum > totalPages) return;
-    setCurrentPage(pageNum);
+  const officerTotalPages = Math.ceil(officers.length / pageSize);
+  const paginatedOfficers = officers.slice(
+    (officerPage - 1) * pageSize,
+    officerPage * pageSize
+  );
+
+  /* ================= ACTIONS ================= */
+
+  const onDeleteUser = async (id) => {
+    if (!canManage) return;
+    if (!window.confirm("Delete this user?")) return;
+    await deleteDirectoryUser(id);
+    loadUsers();
   };
 
-  const resetForm = () =>
-    setForm({
-      id: null,
-      firstName: "",
-      lastName: "",
-      phone: "",
-      occupation: "",
-      pincode: "",
-      district: "",
-      state: "",
-      area: "",
-    });
-
-  const handleSubmit = async () => {
-    const payload = { ...form };
+  const handleOfficerSubmit = async () => {
+    if (!canManage) return;
 
     try {
-      if (form.id) {
-        await updateDirectoryUser(form.id, payload);
-        alert("User updated successfully");
+      if (officerForm.id) {
+        await updateOfficer(officerForm.id, officerForm);
+        alert("Officer updated");
       } else {
-        await addDirectoryUser(payload);
-        alert("User added successfully");
+        await addOfficer(officerForm);
+        alert("Officer added");
       }
 
-      resetForm();
-      setShowForm(false);
-      loadUsers();
-    } catch (err) {
-      console.error(err);
+      setOfficerForm({
+        id: null,
+        name: "",
+        department: "",
+        phone: "",
+        district: "",
+        state: "",
+      });
+
+      setShowOfficerForm(false);
+      loadOfficers();
+    } catch {
       alert("Operation failed");
     }
   };
 
-  const onEdit = (user) => {
-    setForm(user);
-    setShowForm(true);
-  };
-
-  const onDelete = async (id) => {
-    if (!window.confirm("Delete this user?")) return;
-
-    try {
-      await deleteDirectoryUser(id);
-      alert("User deleted");
-      loadUsers();
-    } catch (err) {
-      console.error(err);
-      alert("Delete failed");
-    }
+  const deleteOfficerHandler = async (id) => {
+    if (!canManage) return;
+    if (!window.confirm("Delete this officer?")) return;
+    await deleteOfficer(id);
+    loadOfficers();
   };
 
   return (
-    <div className="gc-form-section">
-      <h2>Village Directory</h2>
+    <div className="directory-container">
+      <h2 className="directory-title">Directory</h2>
 
-      {/* SEARCH + ADD */}
-      <div className="gc-filter-row" style={{ marginBottom: "20px" }}>
-        <input
-          type="text"
-          placeholder="Search name, phone, occupation, pincode"
-          value={search}
-          onChange={(e) => handleSearch(e.target.value)}
-        />
-          <button className="cn-search-btn" onClick={() => handleSearch(search)}>
-    Search
-  </button>
+      {/* ================= TABS ================= */}
+      <div className="directory-tabs">
+        <button
+          className={`directory-tab-btn ${
+            activeTab === "village" ? "active-tab" : ""
+          }`}
+          onClick={() => setActiveTab("village")}
+        >
+          Village Directory
+        </button>
 
         <button
-          className="gc-submit"
-          style={{ marginLeft: "auto" }}
-          onClick={() => {
-            resetForm();
-            setShowForm(true);
-          }}
+          className={`directory-tab-btn ${
+            activeTab === "officer" ? "active-tab" : ""
+          }`}
+          onClick={() => setActiveTab("officer")}
         >
-          Add Directory User
+          Government Officers
         </button>
       </div>
 
-      {/* DIRECTORY TABLE */}
-  <table className="cn-table">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Phone</th>
-      <th>Occupation</th>
-      <th>Area</th>
-      <th>Pincode</th>
-      <th>District</th>
-      <th>State</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
+      {/* ================= VILLAGE DIRECTORY ================= */}
+      {activeTab === "village" && (
+        <div>
+          <table className="directory-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Occupation</th>
+                <th>District</th>
+                <th>State</th>
+                {canManage && <th>Actions</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedVillageUsers.map((u) => (
+                <tr key={u.id}>
+                  <td>{u.firstName} {u.lastName}</td>
+                  <td>{u.phone}</td>
+                  <td>{u.occupation}</td>
+                  <td>{u.district}</td>
+                  <td>{u.state}</td>
 
-  <tbody>
-    {paginatedUsers.length === 0 ? (
-      <tr>
-        <td colSpan="8" style={{ textAlign: "center" }}>
-          No users found
-        </td>
-      </tr>
-    ) : (
-      paginatedUsers.map((u) => (
-        <tr key={u.id}>
-          <td>{u.firstName} {u.lastName}</td>
-          <td>{u.phone}</td>
-          <td>{u.occupation || "N/A"}</td>
-          <td>{u.area || "N/A"}</td>
-          <td>{u.pincode}</td>
-          <td>{u.district}</td>
-          <td>{u.state}</td>
+                  {canManage && (
+                    <td>
+                      <button
+                        className="table-delete-btn"
+                        onClick={() => onDeleteUser(u.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-          {/* ACTION BUTTONS */}
-          <td>
-            <div className="cn-action-buttons">
-              <button className="edit-btn" onClick={() => onEdit(u)}>
-                Edit
-              </button>
+      {/* ================= GOVERNMENT OFFICERS ================= */}
+      {activeTab === "officer" && (
+        <div>
+
+          {canManage && (
+            <div className="officer-add-btn-wrapper">
               <button
-                className="delete-btn"
-                onClick={() => onDelete(u.id)}
+                className="add-officer-btn"
+                onClick={() => {
+                  setOfficerForm({
+                    id: null,
+                    name: "",
+                    department: "",
+                    phone: "",
+                    district: "",
+                    state: "",
+                  });
+                  setShowOfficerForm(true);
+                }}
               >
-                Delete
+                Add Officer
               </button>
             </div>
-          </td>
-        </tr>
-      ))
-    )}
-  </tbody>
-</table>
+          )}
 
+          <table className="directory-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Phone</th>
+                <th>District</th>
+                <th>State</th>
+                {canManage && <th>Actions</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedOfficers.map((o) => (
+                <tr key={o.id}>
+                  <td>{o.name}</td>
+                  <td>{o.department}</td>
+                  <td>{o.phone}</td>
+                  <td>{o.district}</td>
+                  <td>{o.state}</td>
 
-      {/* PAGINATION */}
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button onClick={() => changePage(currentPage - 1)}>Prev</button>
+                  {canManage && (
+                    <td>
+                      <button
+                        className="table-edit-btn"
+                        onClick={() => {
+                          setOfficerForm(o);
+                          setShowOfficerForm(true);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="table-delete-btn"
+                        onClick={() => deleteOfficerHandler(o.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-          {[...Array(totalPages)].map((_, i) => (
-            <button
-              key={i}
-              className={currentPage === i + 1 ? "active" : ""}
-              onClick={() => changePage(i + 1)}
-            >
-              {i + 1}
-            </button>
-          ))}
+          {showOfficerForm && canManage && (
+            <div className="modal-backdrop">
+              <div className="modal-box">
+                <h3>
+                  {officerForm.id ? "Edit Officer" : "Add Officer"}
+                </h3>
 
-          <button onClick={() => changePage(currentPage + 1)}>Next</button>
-        </div>
-      )}
+                {["name", "department", "phone", "district", "state"].map(
+                  (field) => (
+                    <input
+                      key={field}
+                      type="text"
+                      placeholder={field}
+                      value={officerForm[field]}
+                      onChange={(e) =>
+                        setOfficerForm({
+                          ...officerForm,
+                          [field]: e.target.value,
+                        })
+                      }
+                    />
+                  )
+                )}
 
-      {/* VIEW MODAL */}
-      {viewUser && (
-        <div className="cn-modal-backdrop" onClick={() => setViewUser(null)}>
-          <div className="cn-view-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>{viewUser.firstName} {viewUser.lastName}</h3>
-
-            <p><b>Phone:</b> {viewUser.phone}</p>
-            <p><b>Occupation:</b> {viewUser.occupation}</p>
-            <p><b>Area:</b> {viewUser.area}</p>
-            <p><b>Pincode:</b> {viewUser.pincode}</p>
-            <p><b>District:</b> {viewUser.district}</p>
-            <p><b>State:</b> {viewUser.state}</p>
-
-            <button className="close-btn" onClick={() => setViewUser(null)}>
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ADD/EDIT FORM */}
-      {showForm && (
-        <div className="cn-modal-backdrop">
-          <div className="cn-view-modal">
-            <h3>{form.id ? "Edit User" : "Add User"}</h3>
-
-            {Object.keys(form).map((key) =>
-              key !== "id" ? (
-                <input
-                  key={key}
-                  type="text"
-                  placeholder={key}
-                  value={form[key]}
-                  onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                />
-              ) : null
-            )}
-
-            <div className="cn-action-buttons" style={{ marginTop: "15px" }}>
-              <button className="edit-btn" onClick={handleSubmit}>Save</button>
-              <button className="delete-btn" onClick={() => setShowForm(false)}>
-                Cancel
-              </button>
+                <div className="modal-actions">
+                  <button onClick={handleOfficerSubmit}>Save</button>
+                  <button onClick={() => setShowOfficerForm(false)}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
