@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import "./VillageForm.css";
 
-const BASE_URL = "https://smartgaonadmin.duckdns.org/admin";
-
+ const BASE_URL = "https://smartgaonadmin.duckdns.org/admin";
+// const BASE_URL = "http://localhost:9090/admin";
 export default function VillageForm({ data, onClose }) {
 
   const isEdit = !!data?.id;

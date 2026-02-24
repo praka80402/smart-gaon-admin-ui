@@ -2,7 +2,8 @@ import axios from "axios";
 import { loaderStore } from "../../../loaderStore";
 
 export const api = axios.create({
-  baseURL: "https://smartgaonadmin.duckdns.org",
+   baseURL: "https://smartgaonadmin.duckdns.org",
+    // baseURL: "http://localhost:9090",
 });
 
 api.interceptors.request.use(
@@ -12,11 +13,11 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    loaderStore.show(); // ✅ SHOW loader
+    loaderStore.show(); 
     return config;
   },
   (error) => {
-    loaderStore.hide(); // safety
+    loaderStore.hide(); 
     return Promise.reject(error);
   }
 );

@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  // baseURL: "http://localhost:9090",
- baseURL: " https://smartgaonadmin.duckdns.org"
+  //  baseURL: "http://localhost:9090",
+  baseURL: " https://smartgaonadmin.duckdns.org"
 });
 
 api.interceptors.request.use((config) => {

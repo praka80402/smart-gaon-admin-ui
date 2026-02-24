@@ -1,0 +1,136 @@
+/* =========================================
+   MODAL STYLING
+========================================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* z-index: 9999; */
+}
+
+.modal-box {
+  background: white;
+  /* width: 100%;
+  max-width: 220px; */
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  font-weight: bold;
+  color: black;
+  cursor: pointer;
+}
+
+/* =========================================
+   ADD / EDIT FORM
+========================================= */
+
+.tip-form-container {
+  width: 100%;
+}
+
+.tip-form-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 20px;
+}
+
+.tip-form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.tip-form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.tip-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  background: #ffffff;
+  transition: 0.2s ease;
+}
+
+.tip-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.tip-textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.tip-upload-box {
+  border: 2px dashed #2563eb;
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+  color: #2563eb;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  background: #f8fafc;
+}
+
+.tip-upload-box:hover {
+  background: #eef2ff;
+}
+
+.tip-hidden-input {
+  display: none;
+}
+
+.tip-preview-img {
+  margin-top: 12px;
+  width: 100%;
+  max-width: 220px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.tip-save-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tip-save-btn:hover {
+  background: #1e40af;
+}
+
+.tip-save-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}

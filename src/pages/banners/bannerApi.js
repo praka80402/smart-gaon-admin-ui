@@ -1,8 +1,8 @@
 // import axios from "axios";
 import {api} from "../gaonconnect/services/apiConfig";
 
-//const API_URL = "http://localhost:9090/api/admin/banners";
-const API_URL = "https://smartgaonadmin.duckdns.org/api/admin/banners";
+// const API_URL = "http://localhost:9090/api/admin/banners";
+ const API_URL = "https://smartgaonadmin.duckdns.org/api/admin/banners";
 // baseURL: "https://smartgaonadmin.duckdns.org/api",
 
 export const getBanners = () => api.get(API_URL);
