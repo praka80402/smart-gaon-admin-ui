@@ -436,8 +436,10 @@ export default function Competitions() {
   const [searchText, setSearchText] = useState("");
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 7;
+  const pageSize = 5;
 
+  const [participantsPage, setParticipantsPage] = useState(1);
+const participantsPageSize = 5;
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -507,11 +509,25 @@ export default function Competitions() {
   /* ================= PARTICIPANTS ================= */
 
   const loadParticipants = async (competitionId, competitionName) => {
-    const res = await getCompetitionEntries(competitionId);
-    setSelectedCompetition({ id: competitionId, name: competitionName });
-    setParticipants(res.data);
+  try {
+    // Open modal first
+    setSelectedCompetition({
+      id: competitionId,
+      name: competitionName,
+    });
+
+    setParticipants([]);      // clear old data
     setParticipantsModal(true);
-  };
+
+    const res = await getCompetitionEntries(competitionId);
+
+    setParticipants(res?.data || []);
+  } catch (error) {
+    console.error("Error loading participants:", error);
+    alert("Failed to load participants");
+    setParticipantsModal(false);
+  }
+};
 
   /* ================= SAVE COMPETITION ================= */
 
@@ -558,7 +574,18 @@ export default function Competitions() {
   const indexOfFirst = indexOfLast - pageSize;
   const currentRows = filteredCompetitions.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(filteredCompetitions.length / pageSize);
+const indexOfLastParticipant = participantsPage * participantsPageSize;
+const indexOfFirstParticipant =
+  indexOfLastParticipant - participantsPageSize;
 
+const currentParticipants = participants.slice(
+  indexOfFirstParticipant,
+  indexOfLastParticipant
+);
+
+const totalParticipantPages = Math.ceil(
+  participants.length / participantsPageSize
+);
   /* ================= UI ================= */
 
   return (
@@ -638,6 +665,35 @@ export default function Competitions() {
           ))}
         </tbody>
       </table>
+
+      {/* 👇 ADD PAGINATION HERE */}
+{totalPages > 1 && (
+  <div className="comp-pagination">
+    <button
+      disabled={currentPage === 1}
+      onClick={() => setCurrentPage((p) => p - 1)}
+    >
+      Prev
+    </button>
+
+    {[...Array(totalPages)].map((_, i) => (
+      <button
+        key={i}
+        className={currentPage === i + 1 ? "comp-active-page" : ""}
+        onClick={() => setCurrentPage(i + 1)}
+      >
+        {i + 1}
+      </button>
+    ))}
+
+    <button
+      disabled={currentPage === totalPages}
+      onClick={() => setCurrentPage((p) => p + 1)}
+    >
+      Next
+    </button>
+  </div>
+)}
 
       {/* CREATE MODAL */}
       {modal && canCreate && (
@@ -724,6 +780,8 @@ export default function Competitions() {
 
             </div>
 
+            
+
             <div className="comp-modal-footer">
               <button
                 className="comp-save-btn"
@@ -734,8 +792,109 @@ export default function Competitions() {
             </div>
 
           </div>
+
+
         </div>
       )}
+
+{/* PARTICIPANTS MODAL */}
+{participantsModal && (
+  <div className="comp-modal-backdrop">
+    <div className="comp-modal comp-modal-lg">
+
+      <span
+        className="comp-modal-close"
+        onClick={() => setParticipantsModal(false)}
+      >
+        ✕
+      </span>
+
+      <div className="comp-modal-header">
+        Participants — {selectedCompetition?.name}
+      </div>
+
+      <div className="comp-modal-body">
+
+        <table className="comp-table" style={{ marginTop: "10px" }}>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Village</th>
+              <th>Category</th>
+              <th>Likes</th>
+              <th>Comments</th>
+              <th>Reference</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {participants.length === 0 ? (
+              <tr>
+                <td colSpan="7" style={{ textAlign: "center" }}>
+                  No participants found
+                </td>
+              </tr>
+            ) : (
+              participants.map((p) => (
+                <tr key={p.id}>
+                  <td>{p.name}</td>
+                  <td>{p.phone}</td>
+                  <td>{p.villageOrArea}</td>
+                  <td>{p.category}</td>
+                  <td>{p.likes}</td>
+                  <td>{p.comments}</td>
+                  <td>{p.referenceNumber}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+          
+        </table>
+        {totalParticipantPages > 1 && (
+          <div className="comp-pagination">
+            <button
+              disabled={participantsPage === 1}
+              onClick={() =>
+                setParticipantsPage((p) => p - 1)
+              }
+            >
+              Prev
+            </button>
+
+            {[...Array(totalParticipantPages)].map((_, i) => (
+              <button
+                key={i}
+                className={
+                  participantsPage === i + 1
+                    ? "comp-active-page"
+                    : ""
+                }
+                onClick={() => setParticipantsPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              disabled={
+                participantsPage === totalParticipantPages
+              }
+              onClick={() =>
+                setParticipantsPage((p) => p + 1)
+              }
+            >
+              Next
+            </button>
+          </div>
+        )}
+
+      </div>
+
+    </div>
+  </div>
+)}
+
     </>
   );
 }

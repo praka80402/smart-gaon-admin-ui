@@ -1,6 +1,4 @@
-/* ======================
-   ROOT
-====================== */
+/* 
 .ss-admin {
   max-width: 1100px;
   margin: 30px auto;
@@ -17,12 +15,10 @@
   font-weight: 600;
 }
 
-/* ======================
-   TABS
-====================== */
+
 .ss-tabs {
 display: flex;
-  justify-content: center;   /* Center horizontally */
+  justify-content: center;   
   align-items: center;
   gap: 15px;
   margin-bottom: 25px;
@@ -48,17 +44,6 @@ display: flex;
   color: #fff;
 }
 
-/* ======================
-   FORM
-====================== */
-/* .ss-form {
-  max-width: 1000px;
-  margin: auto;
-   align-items: center;
-  background: #f9f9f9;
-  padding: 20px;
-  border-radius: 6px;
-} */
 .ss-form {
   max-width: 1000px;
   margin: auto;
@@ -77,7 +62,7 @@ display: flex;
   margin-bottom: 15px;
 }
 
-/* 🔥 Same width for everything */
+
 .ss-form input,
 .ss-form textarea,
 .ss-form select,
@@ -119,42 +104,51 @@ display: flex;
 }
 
 
-/* ======================
-   TABLE
-====================== */
+
 .ss-table-wrapper {
+  width: 100%;
   overflow-x: auto;
 }
 
 .ss-table {
   width: 100%;
+   min-width: 1000px;
   border-collapse: collapse;
-  margin-top: 10px;
+  table-layout: fixed;
+  background: #fff;
 }
 
-.ss-table th,
-.ss-table td {
-  border: 1px solid #ddd;
+.ss-table th {
+  background-color: #f4f6f9;
+  font-weight: 600;
+  font-size: 14px;
   padding: 10px;
+  border: 1px solid #ddd;
   text-align: left;
-  vertical-align: top;
 }
+
+.ss-table td {
+  padding: 8px 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  vertical-align: middle;
+  text-align: left;
+  word-break: break-word;
+}
+
+
 
 .ss-table th {
   background: #f1f1f1;
   font-weight: 600;
 }
 
+
 .story-cell {
   max-width: 300px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+
 }
 
-/* ======================
-   BUTTONS
-====================== */
 .ss-table button {
   padding: 6px 10px;
   margin-right: 6px;
@@ -177,9 +171,6 @@ display: flex;
   color: #000;
 }
 
-/* ======================
-   LINKS
-====================== */
 .ss-table a {
   color: #007bff;
   text-decoration: none;
@@ -189,9 +180,7 @@ display: flex;
   text-decoration: underline;
 }
 
-/* ======================
-   RESPONSIVE
-====================== */
+
 @media (max-width: 768px) {
   .ss-tabs {
     flex-direction: column;
@@ -206,9 +195,7 @@ display: flex;
   }
 }
 
-/* ======================
-   IMAGE MODAL (FIXED)
-====================== */
+
 
 .ss-modal-overlay {
   position: fixed !important;
@@ -257,3 +244,267 @@ display: flex;
   border-radius: 4px !important;
 }
 
+.story-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;        
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+  max-height: calc(1.4em * 3);  
+}
+
+.story-text.expanded {
+  -webkit-line-clamp: unset;
+  max-height: none;
+  overflow: visible;
+}
+
+.view-more-btn {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 14px;
+  color: #007bff;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+
+.action-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+
+.action-cell button {
+  padding: 6px 12px;
+  font-size: 13px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  min-width: 70px;
+  transition: 0.2s ease;
+}
+
+.edit-btn {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.edit-btn:hover {
+  background-color: #e0a800;
+}
+
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+ */
+
+ /* .admin-container {
+  padding: 40px;
+  min-height: 100vh;
+  background: #f4f7fb;
+  font-family: Arial, sans-serif;
+} */
+
+.admin-container {
+  padding: 30px;
+}
+
+.admin-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 25px;
+  color: #2c3e50;
+   text-align: center; 
+}
+
+/* Tabs */
+.tab-buttons {
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+/* Normal Tab */
+.tab-buttons button {
+  padding: 8px 22px;
+  border-radius: 25px;
+  border: 1px solid #2563eb;
+  background: #e0e7ff;      /* Light color */
+  color: #1e3a8a;           /* Dark blue text */
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+/* Hover Effect */
+.tab-buttons button:hover {
+  background: #c7d2fe;
+}
+
+/* Active Tab */
+.active-tab {
+  background: #2563eb !important;  /* Strong blue */
+  color: white !important;
+  border-color: #2563eb;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+}
+
+/* Form */
+.form-card {
+
+   width: 600px;              /* 🔥 smaller width */
+  margin: 30px auto;         /* 🔥 center horizontally */
+  padding: 25px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  /* background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px; */
+}
+
+.form-card input,
+.form-card select,
+.form-card textarea {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.primary-btn {
+  background: #2563eb;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Table */
+.table-wrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  overflow-x: auto;
+  padding: 15px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1100px;
+}
+
+.admin-table thead {
+  background: #435877;
+  color: white;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-table tbody tr:hover {
+  background: #f1f5f9;
+}
+
+/* Description */
+.desc-cell {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.desc-full {
+  max-width: 300px;
+  white-space: normal;
+}
+
+.view-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+/* Buttons */
+.edit-btn {
+  background: #facc15;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.view-image-btn {
+  background: #facc15;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content img {
+  max-width: 400px;
+  border-radius: 10px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);   /* Dark background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-img {
+  max-width: 90%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 12px;
+}

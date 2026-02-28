@@ -477,7 +477,7 @@ const Directory = () => {
           }`}
           onClick={() => setActiveTab("officer")}
         >
-          Government Officers
+        Government Officials
         </button>
       </div>
 
@@ -518,6 +518,27 @@ const Directory = () => {
               ))}
             </tbody>
           </table>
+          <div className="pagination-wrapper">
+  <button
+    disabled={villagePage === 1}
+    onClick={() => setVillagePage((prev) => prev - 1)}
+  >
+    Previous
+  </button>
+
+  <span>
+    Page {villagePage} of {villageTotalPages || 1}
+  </span>
+
+  <button
+    disabled={
+      villagePage === villageTotalPages || villageTotalPages === 0
+    }
+    onClick={() => setVillagePage((prev) => prev + 1)}
+  >
+    Next
+  </button>
+</div>
         </div>
       )}
 
@@ -550,7 +571,7 @@ const Directory = () => {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Department</th>
+                <th>Designation</th>
                 <th>Phone</th>
                 <th>District</th>
                 <th>State</th>
@@ -589,6 +610,29 @@ const Directory = () => {
               ))}
             </tbody>
           </table>
+          <div className="pagination-wrapper">
+  <button
+    disabled={officerPage === 1}
+    onClick={() => setOfficerPage((prev) => prev - 1)}
+  >
+    Previous
+  </button>
+
+  <span>
+    Page {officerPage} of {officerTotalPages || 1}
+  </span>
+
+  <button
+    disabled={
+      officerPage === officerTotalPages || officerTotalPages === 0
+    }
+    onClick={() => setOfficerPage((prev) => prev + 1)}
+  >
+    Next
+  </button>
+</div>
+
+          
 
           {showOfficerForm && canManage && (
             <div className="modal-backdrop">
@@ -597,7 +641,7 @@ const Directory = () => {
                   {officerForm.id ? "Edit Officer" : "Add Officer"}
                 </h3>
 
-                {["name", "department", "phone", "district", "state"].map(
+                {["Name", "Designation", "Phone", "District", "State"].map(
                   (field) => (
                     <input
                       key={field}

@@ -1,10 +1,18 @@
 /* =========================
    MAIN CONTAINER
 ========================= */
+.user-container{
+  background-color: #e8f7fa;
+ 
+    padding-top: 30px;   /* Space below header */
+  /* background: #eaf3f6;  */
+  min-height: 100vh;
+}
 .um-container {
   width: 90%;
   max-width: 1100px;
-  margin: 30px auto;
+  /* margin-top: 90px; */
+  margin: 0 auto;
   padding: 20px;
   background: #fff;
   border-radius: 12px;

@@ -11,6 +11,12 @@
 // import "./SchemeAdmin.css";
 
 // const SchemeAdmin = () => {
+
+//     const role = localStorage.getItem("adminRole");
+
+//   const canManage =
+//     role === "SUPER_ADMIN" || role === "STATE_ADMIN";
+
 //   const [schemes, setSchemes] = useState([]);
 //   const [categories, setCategories] = useState([]);
 
@@ -313,6 +319,14 @@ const SchemeAdmin = () => {
   const [showSchemeModal, setShowSchemeModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [expandedTitles, setExpandedTitles] = useState({});
+
+  const toggleTitle = (id) => {
+    setExpandedTitles((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   const [editingScheme, setEditingScheme] = useState(null);
   const [selectedScheme, setSelectedScheme] = useState(null);
@@ -338,12 +352,12 @@ const SchemeAdmin = () => {
 
   const loadSchemes = async () => {
     const res = await getAllSchemes();
-    setSchemes(res.data);
+    setSchemes(res.data || []);
   };
 
   const loadCategories = async () => {
     const res = await getCategories();
-    setCategories(res.data);
+    setCategories(res.data || []);
   };
 
   const handleChange = (e) => {
@@ -376,8 +390,12 @@ const SchemeAdmin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!canManage) return;
+
+    if (formData.schemeType === "STATE" && !formData.state) {
+      alert("Please select a state");
+      return;
+    }
 
     const data = new FormData();
     Object.entries(formData).forEach(([k, v]) => v && data.append(k, v));
@@ -443,6 +461,7 @@ const SchemeAdmin = () => {
       </div>
 
       {/* TABLE */}
+      
       <table className="scheme-table">
         <thead>
           <tr>
@@ -455,33 +474,73 @@ const SchemeAdmin = () => {
         </thead>
 
         <tbody>
-          {schemes.map((s) => (
-            <tr key={s.id}>
-              <td>{s.title}</td>
-              <td>{s.schemeType}</td>
-              <td>{s.state || "-"}</td>
-              <td>{s.category?.name}</td>
+  {schemes.map((s) => (
+    <tr key={s.id}>
+      <td>
+        {expandedTitles[s.id]
+          ? s.title
+          : s.title.split(" ").slice(0, 4).join(" ") +
+            (s.title.split(" ").length > 4 ? "..." : "")}
 
-              {canManage && (
-                <td className="actions">
-                  <button onClick={() => { setSelectedScheme(s); setShowDetailModal(true); }}>
-                    👁️
-                  </button>
-                  <button onClick={() => handleEdit(s)}>✏️</button>
-                  <button onClick={() => handleDelete(s.id)}>🗑</button>
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
+        {s.title.split(" ").length > 4 && (
+          <span
+            onClick={() => toggleTitle(s.id)}
+            style={{
+              color: "blue",
+              cursor: "pointer",
+              marginLeft: "6px",
+              fontSize: "13px",
+            }}
+          >
+            {expandedTitles[s.id] ? "View Less" : "View More"}
+          </span>
+        )}
+      </td>
+
+      <td>{s.schemeType}</td>
+      <td>{s.state || "-"}</td>
+      <td>{s.category?.name}</td>
+
+     
+
+      {canManage && (
+  <td className="scheme-actions">
+    <button
+      className="scheme-view"
+      onClick={() => {
+        setSelectedScheme(s);
+        setShowDetailModal(true);
+      }}
+    >
+      View
+    </button>
+
+    <button
+      className="scheme-edit"
+      onClick={() => handleEdit(s)}
+    >
+      Edit
+    </button>
+
+    <button
+      className="scheme-delete"
+      onClick={() => handleDelete(s.id)}
+    >
+      Delete
+    </button>
+  </td>
+)}
+    </tr>
+  ))}
+</tbody>
       </table>
+      
 
       {/* DETAILS MODAL (VIEW FOR ALL) */}
-      {showDetailModal && selectedScheme && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <button className="close-btn" onClick={() => setShowDetailModal(false)}>✕</button>
-
+      {/* {showDetailModal && selectedScheme && (
+        <div className="create-category-modal">
+          <div className="create-category-modal-box">
+            <button className="create-category-close-btn" onClick={() => setShowDetailModal(false)}>✕</button>
             <h3>{selectedScheme.title}</h3>
             <p><b>Type:</b> {selectedScheme.schemeType}</p>
             <p><b>State:</b> {selectedScheme.state || "N/A"}</p>
@@ -489,6 +548,164 @@ const SchemeAdmin = () => {
             <p><b>Description:</b> {selectedScheme.detail}</p>
             <p><b>Benefits:</b> {selectedScheme.benefits}</p>
             <p><b>Eligibility:</b> {selectedScheme.eligibility}</p>
+          </div>
+        </div>
+      )} */}
+      {showDetailModal && selectedScheme && (
+  <div className="scheme-details-overlay">
+    <div className="scheme-details-modal">
+      <button
+        className="scheme-modal-close"
+        onClick={() => setShowDetailModal(false)}
+      >
+        ✕
+      </button>
+
+      <h3>{selectedScheme.title}</h3>
+
+      <div className="details-content">
+        <p><strong>Type:</strong> {selectedScheme.schemeType}</p>
+        <p><strong>State:</strong> {selectedScheme.state || "N/A"}</p>
+        <p><strong>Category:</strong> {selectedScheme.category?.name}</p>
+        <p><strong>Description:</strong> {selectedScheme.detail}</p>
+        <p><strong>Benefits:</strong> {selectedScheme.benefits}</p>
+        <p><strong>Eligibility:</strong> {selectedScheme.eligibility}</p>
+      </div>
+    </div>
+  </div>
+)}
+
+      {/* CREATE / EDIT MODAL (ONLY FOR SUPER + STATE) */}
+      {/* {canManage && showSchemeModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <button className="close-btn" onClick={() => setShowSchemeModal(false)}>✕</button>
+            <h3>{editingScheme ? "Edit Scheme" : "Create Scheme"}</h3>
+
+            <form onSubmit={handleSubmit}>
+              <select name="schemeType" value={formData.schemeType} onChange={handleChange}>
+                <option value="CENTRAL">Central</option>
+                <option value="STATE">State</option>
+              </select>
+
+              <select name="categoryId" value={formData.categoryId} onChange={handleChange} required>
+                <option value="">Select Category</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+
+              {formData.schemeType === "STATE" && (
+                <select name="state" value={formData.state} onChange={handleChange} required>
+                  <option value="">Select State</option>
+                  <option value="BIHAR">Bihar</option>
+                  <option value="UTTAR_PRADESH">Uttar Pradesh</option>
+                  <option value="GUJARAT">Gujarat</option>
+                  <option value="MAHARASHTRA">Maharashtra</option>
+                  <option value="JHARKHAND">Jharkhand</option>
+                </select>
+              )}
+
+              <input name="title" value={formData.title} onChange={handleChange} placeholder="Title" required />
+              <textarea name="detail" value={formData.detail} onChange={handleChange} placeholder="Description" />
+              <textarea name="benefits" value={formData.benefits} onChange={handleChange} placeholder="Benefits" />
+              <textarea name="eligibility" value={formData.eligibility} onChange={handleChange} placeholder="Eligibility" />
+              <input name="schemeUrl" value={formData.schemeUrl} onChange={handleChange} placeholder="URL" />
+              <input type="file" name="image" onChange={handleChange} />
+
+              <button type="submit">Save</button>
+            </form>
+          </div>
+        </div>
+      )} */}
+
+      {canManage && showSchemeModal && (
+  <div className="scheme-form-overlay">
+    <div className="scheme-form-modal">
+      <button
+        className="scheme-modal-close"
+        onClick={() => setShowSchemeModal(false)}
+      >
+        ✕
+      </button>
+
+      <h3>{editingScheme ? "Edit Scheme" : "Create Scheme"}</h3>
+
+      <form onSubmit={handleSubmit} className="scheme-form">
+        <div className="form-grid">
+
+          <select name="schemeType" value={formData.schemeType} onChange={handleChange}>
+            <option value="CENTRAL">Central</option>
+            <option value="STATE">State</option>
+          </select>
+
+          <select name="categoryId" value={formData.categoryId} onChange={handleChange} required>
+            <option value="">Select Category</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+
+          {formData.schemeType === "STATE" && (
+            <select name="state" value={formData.state} onChange={handleChange} required>
+              <option value="">Select State</option>
+              <option value="BIHAR">Bihar</option>
+              <option value="UTTAR_PRADESH">Uttar Pradesh</option>
+              <option value="GUJARAT">Gujarat</option>
+              <option value="MAHARASHTRA">Maharashtra</option>
+              <option value="JHARKHAND">Jharkhand</option>
+            </select>
+          )}
+
+          <input name="title" value={formData.title} onChange={handleChange} placeholder="Title" required />
+
+          <textarea name="detail" value={formData.detail} onChange={handleChange} placeholder="Description" />
+          <textarea name="benefits" value={formData.benefits} onChange={handleChange} placeholder="Benefits" />
+          <textarea name="eligibility" value={formData.eligibility} onChange={handleChange} placeholder="Eligibility" />
+
+          <input name="schemeUrl" value={formData.schemeUrl} onChange={handleChange} placeholder="URL" />
+          <input type="file" name="image" onChange={handleChange} />
+
+        </div>
+
+        <div className="form-footer">
+          <button type="submit">
+            
+            {editingScheme ? "Update Scheme" : "Save Scheme"}
+
+          </button>
+         
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
+      {/* CREATE CATEGORY MODAL (ONLY FOR SUPER + STATE) */}
+      {canManage && showCategoryModal && (
+        <div className="scheme-modal">
+          <div className="scheme-modal-box">
+            <button className="scheme-close-btn" onClick={() => setShowCategoryModal(false)}>✕</button>
+            <h3>Create Category</h3>
+
+            <input
+              placeholder="Category name"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+            />
+
+            <button
+              onClick={async () => {
+                if (!newCategory.trim()) return;
+                await createCategory(newCategory);
+                alert("Category created");
+                setNewCategory("");
+                loadCategories();
+                setShowCategoryModal(false);
+              }}
+            >
+              Add Category
+            </button>
           </div>
         </div>
       )}

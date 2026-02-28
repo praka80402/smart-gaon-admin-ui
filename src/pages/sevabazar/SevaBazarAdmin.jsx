@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import JobAdmin from "./Jobs/JobAdmin";
 
 import "./sevaBazarAdmin.css";
+import BusinessAdmin from "./business/BusinessAdmin";
 
 const SevaBazarAdmin = () => {
 
@@ -39,10 +40,11 @@ const SevaBazarAdmin = () => {
 
       {/* BUSINESS TAB */}
       {activeTab === "business" && (
-        <div className="business-section">
-          <h3>Business Management</h3>
-          <p>Business module coming soon...</p>
-        </div>
+        <BusinessAdmin/>
+        // <div className="business-section">
+        //   <h3>Business Management</h3>
+        //   {/* <p>Business module coming soon...</p> */}
+        // </div>
       )}
 
     </div>

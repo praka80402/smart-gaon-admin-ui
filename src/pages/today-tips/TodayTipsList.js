@@ -550,21 +550,36 @@ export default function TodayTipsList() {
                 </div>
 
                 {canEdit && (
-                  <div className="tip-actions">
-                    <button
-                      className="edit-btn"
-                      onClick={() => handleEdit(tip)}
-                    >
-                      Edit
-                    </button>
+                  // <div className="tip-actions">
+                  //   <button
+                  //     className="edit-btn"
+                  //     onClick={() => handleEdit(tip)}
+                  //   >
+                  //     Edit
+                  //   </button>
 
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDelete(tip.id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  //   <button
+                  //     className="delete-btn"
+                  //     onClick={() => handleDelete(tip.id)}
+                  //   >
+                  //     Delete
+                  //   </button>
+                  // </div>
+                  <div className="todaytips-actions">
+  <button
+    className="todaytips-edit"
+    onClick={() => handleEdit(tip)}
+  >
+    Edit
+  </button>
+
+  <button
+    className="todaytips-delete"
+    onClick={() => handleDelete(tip.id)}
+  >
+    Delete
+  </button>
+</div>
                 )}
 
               </div>

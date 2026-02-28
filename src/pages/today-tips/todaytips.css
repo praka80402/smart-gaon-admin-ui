@@ -272,12 +272,40 @@
 }
 
 /* ACTION BUTTONS */
-.tip-actions {
+.todaytips-actions {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
+.todaytips-edit,
+.todaytips-delete {
+  padding: 6px 14px;     /* Same size */
+  font-size: 13px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  min-width: 70px;       /* Equal width */
+}
+.todaytips-edit {
+  background-color: #2ecc71;
+  color: white;
+}
 
+.todaytips-edit:hover {
+  background-color: #27ae60;
+}
+
+/* DELETE - RED */
+.todaytips-delete {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.todaytips-delete:hover {
+  background-color: #c0392b;
+}
+/* 
 .edit-btn {
   padding: 6px 14px;
   border-radius: 8px;
@@ -287,9 +315,9 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-}
+} */
 
-.edit-btn:hover {
+/* .edit-btn:hover {
   background: var(--primary);
   color: white;
 }
@@ -307,7 +335,7 @@
 
 .delete-btn:hover {
   background: #fafafa;
-}
+} */
 /* INLINE FORM CARD */
 
 .inline-modal {

@@ -27,7 +27,7 @@ const NcertMain = () => {
           <div
             key={tab}
             className={`ncert-sub-item ${
-              activePage === tab ? "active" : ""
+               activePage === tab ? "ncert-active-tab" : ""
             }`}
             onClick={() => setActivePage(tab)}
           >

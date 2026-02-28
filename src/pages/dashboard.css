@@ -1,6 +1,7 @@
 .dashboard-container {
   padding: 20px;
-  background: #f4f6fb;
+  /* background: #e8f7fa; */
+
   min-height: 100vh;
 }
 
@@ -11,7 +12,7 @@
 }
 
 .stats-card {
-  background: white;
+  background: rgb(255, 255, 255);
   padding: 20px;
   width: 200px;
   border-radius: 12px;
@@ -19,8 +20,9 @@
 }
 
 .stats-title {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .stats-value {
@@ -102,7 +104,7 @@
 }
 
 .stats-title {
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 600;
   opacity: 0.8;
   margin-bottom: 8px;
@@ -174,4 +176,20 @@
   .stats-card {
     height: 140px;
   }
+
+
+
+  
+}
+
+.dashboard-title {
+  margin-bottom: 25px;
+  
+}
+
+.dashboard-title h1 {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 600;
+  color: #1f2937;
 }

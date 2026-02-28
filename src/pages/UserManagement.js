@@ -349,6 +349,8 @@ const canManageUsers = isSuper || isState;
   );
 
   return (
+     <div className="user-container">
+
     <div className="um-container">
       <h2>User & Admin Management</h2>
 
@@ -662,6 +664,7 @@ Cancel
         </div>
       )}
     </div>
+     </div>
   );
 };
 

@@ -13,9 +13,12 @@
   z-index: 1000;
 }
 
+
+
 /* Main content */
 .content-area {
-  margin-top: 60px; /* space under header */
-  background: #f5f7f9;
+  /* margin-top: 90px;  */
+  /* background: #f5f7f9; */
+  background:  #e8f7fa;;
   min-height: calc(100vh - 70px);
 }
