@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./businessAdmin.css";
 
-const BASE_URL = "http://localhost:9090/api/admin/business";
+ const BASE_URL = "https://smartgaonadmin.duckdns.org/api/admin/business";
+//const BASE_URL = "http://localhost:9090/api/admin/business";
 
 const BusinessAdmin = () => {
 
