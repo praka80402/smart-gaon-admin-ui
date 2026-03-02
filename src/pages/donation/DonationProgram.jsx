@@ -106,6 +106,7 @@ export default function ProgramList() {
 
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState(null);
 
   // MODALS
   const [editProgram, setEditProgram] = useState(null);
@@ -204,7 +205,39 @@ export default function ProgramList() {
               <tr key={p.id}>
 
                 <td>{p.title}</td>
-                <td>{p.description}</td>
+                {/* <td>{p.description}</td> */}
+                <td>
+  {(() => {
+    const words = p.description ? p.description.split(" ") : [];
+    const isExpanded = expandedId === p.id;
+
+    const shortText = words.slice(0, 3).join(" ");
+
+    return (
+      <>
+        {isExpanded ? p.description : shortText}
+        {words.length > 3 && (
+          <button
+            onClick={() =>
+              setExpandedId(isExpanded ? null : p.id)
+            }
+            style={{
+              marginLeft: "6px",
+              background: "none",
+              border: "none",
+              color: "#0d6efd",
+              cursor: "pointer",
+              fontWeight: "500"
+            }}
+          >
+            {isExpanded ? "View Less" : "View More"}
+          </button>
+        )}
+      </>
+    );
+  })()}
+</td>
+
                 <td>{p.state === "ALL" ? "All India" : p.state}</td>
                 <td>{p.district || "-"}</td>
                 <td>{p.village || "-"}</td>
@@ -240,7 +273,7 @@ export default function ProgramList() {
                 <td className="action-buttons">
                   <button className="edit-btn" onClick={()=>handleEdit(p)}>Edit</button>
                   <button className="delete-btn" onClick={()=>handleDelete(p.id)}>Delete</button>
-                  <button className="view-btn" onClick={()=>handleDonations(p)}>Donations</button>
+                  <button className="donation-btn" onClick={()=>handleDonations(p)}>Donations</button>
                 </td>
 
               </tr>

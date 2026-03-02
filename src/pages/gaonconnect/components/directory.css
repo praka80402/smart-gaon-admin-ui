@@ -34,12 +34,36 @@
 .directory-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
   background: white;
   border-radius: 8px;
   overflow: hidden;
 }
+.directory-table thead {
+  background-color: #f5f5f5;
+}
+
+.directory-table th,
+.directory-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;      /* Center alignment */
+  vertical-align: middle;  /* Vertical center */
+  word-wrap: break-word;
+}
+
+.directory-table th,
+.directory-table td {
+  width: 16.6%;
+}
+
+.directory-table td:last-child,
+.directory-table th:last-child {
+  text-align: center; /* Only action column centered */
+}
 
 .directory-table th {
+  font-weight: 600;
   background: #1f7a1f;
   color: white;
   padding: 12px;

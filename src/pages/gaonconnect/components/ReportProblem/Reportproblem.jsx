@@ -184,11 +184,20 @@ export default function AdminProblems() {
 
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
+
+    const [page, setPage] = useState(1);
+  const pageSize = 5;
 
   useEffect(() => {
     fetchProblems();
   }, []);
+
+useEffect(() => {
+    setPage(1);
+  }, [problems]);
+
 
   const fetchProblems = async () => {
     try {
@@ -243,6 +252,13 @@ export default function AdminProblems() {
     setExpandedId(expandedId === id ? null : id);
   };
 
+  const totalPages = Math.ceil(problems.length / pageSize);
+
+  const paginatedProblems = problems.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -270,8 +286,9 @@ export default function AdminProblems() {
           </thead>
 
           <tbody>
-            {problems.map((item) => {
+            {/* {problems.map((item) => { */}
 
+            {paginatedProblems.map((item) => {
               const expanded = expandedId === item.reportId;
 
               return (
@@ -315,8 +332,24 @@ export default function AdminProblems() {
                   <td>
                     <div className="media-box">
                       {item.mediaAttachments?.map((url, i) => (
+  <img
+    key={i}
+    src={url}
+    alt="media"
+    style={{
+      width: "60px",
+      height: "60px",
+      objectFit: "cover",
+      cursor: "pointer",
+      borderRadius: "6px",
+      marginRight: "5px"
+    }}
+    onClick={() => setSelectedImage(url)}
+  />
+))}
+                      {/* {item.mediaAttachments?.map((url, i) => (
                         <img key={i} src={url} alt="media" />
-                      ))}
+                      ))} */}
                     </div>
                   </td>
 
@@ -335,7 +368,8 @@ export default function AdminProblems() {
               );
             })}
 
-            {problems.length === 0 && (
+            {/* {problems.length === 0 && ( */}
+              {paginatedProblems.length === 0 && (
               <tr>
                 <td colSpan={canManage ? "8" : "7"} className="empty">
                   No reports found
@@ -346,6 +380,80 @@ export default function AdminProblems() {
           </tbody>
 
         </table>
+
+        {totalPages > 1 && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "20px",
+              marginTop: "20px"
+            }}
+          >
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+              style={{
+                padding: "6px 14px",
+                backgroundColor: "#6c757d",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer"
+              }}
+            >
+              Prev
+            </button>
+
+            <span>Page {page} of {totalPages}</span>
+
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage(page + 1)}
+              style={{
+                padding: "6px 14px",
+                backgroundColor: "#0d6efd",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer"
+              }}
+            >
+              Next
+            </button>
+          </div>
+        )}
+
+        {/* ------------------ */}
+{selectedImage && (
+  <div
+    onClick={() => setSelectedImage(null)}   // Click outside closes
+    style={{
+      position: "fixed",
+      inset: 0,
+      backgroundColor: "rgba(0,0,0,0.8)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 9999,
+      cursor: "pointer"
+    }}
+  >
+    <img
+      src={selectedImage}
+      alt="Full View"
+      style={{
+        maxWidth: "90%",
+        maxHeight: "90%",
+        borderRadius: "8px",
+        cursor: "default"
+      }}
+      onClick={(e) => e.stopPropagation()}  // Prevent closing when clicking image
+    />
+  </div>
+)}
+
 
       </div>
     </div>

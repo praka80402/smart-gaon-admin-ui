@@ -495,12 +495,25 @@ export default function Engagement() {
                 <td>
                   <b>{u.reportCount ?? 0}</b>
                   {u.reportCount > 0 && (
+                    // <button
+                    //   className="gc-btn-view"
+                    //   onClick={() => handleViewReports(u.id)}
+                    // >
+                    //   View
+                    // </button>
                     <button
-                      className="gc-btn-view"
-                      onClick={() => handleViewReports(u.id)}
-                    >
-                      View
-                    </button>
+  onClick={() => handleViewReports(u.id)}
+  style={{
+    backgroundColor: "#6c757d",
+    color: "white",
+    border: "none",
+    padding: "6px 14px",
+    borderRadius: "4px",
+    cursor: "pointer"
+  }}
+>
+  View
+</button>
                   )}
                 </td>
 

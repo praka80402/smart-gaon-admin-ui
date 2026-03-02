@@ -243,12 +243,20 @@ export default function ViewEvents() {
               <td>{(it.description || "").slice(0, 80)}...</td>
 
               <td className="cn-center">
+               
                 <button
-                  className="view-btn"
-                  onClick={() => setViewItem(it)}
-                >
-                  View
-                </button>
+  style={{
+    backgroundColor: "#6c757d",
+    color: "white",
+    border: "none",
+    padding: "6px 12px",
+    borderRadius: "4px",
+    cursor: "pointer"
+  }}
+  onClick={() => setViewItem(it)}
+>
+  View
+</button>
               </td>
 
               {canManage && (
@@ -356,7 +364,7 @@ export default function ViewEvents() {
       )}
 
       {/* VIEW MODAL */}
-      {viewItem && (
+      {/* {viewItem && (
         <div
           className="cn-modal-backdrop"
           onClick={() => setViewItem(null)}
@@ -389,11 +397,93 @@ export default function ViewEvents() {
               onClick={() => setViewItem(null)}
             >
               Close
-            </button>
+            </button> */}
 
-          </div>
+          {/* </div> */}
+        {/* </div> */}
+      {/* )} */}
+
+      {/* VIEW MODAL */}
+{viewItem && (
+  <div
+    onClick={() => setViewItem(null)}
+    style={{
+      position: "fixed",
+      inset: 0,
+      backgroundColor: "rgba(0,0,0,0.6)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 9999
+    }}
+  >
+    <div
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        background: "white",
+        width: "70%",
+        maxWidth: "600px",
+        maxHeight: "80vh",
+        overflowY: "auto",
+        padding: "25px",
+        borderRadius: "8px",
+        position: "relative"
+      }}
+    >
+      {/* Circular Grey Close Button */}
+      <button
+        onClick={() => setViewItem(null)}
+        style={{
+          position: "absolute",
+          top: "12px",
+          right: "12px",
+          backgroundColor: "#6c757d",
+          color: "white",
+          border: "none",
+          width: "35px",
+          height: "35px",
+          borderRadius: "50%",
+          cursor: "pointer",
+          fontSize: "16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}
+      >
+        ✕
+      </button>
+
+      <h3>{viewItem.title}</h3>
+      <p>{viewItem.description}</p>
+
+      {viewItem.imageUrls?.length > 0 && (
+        <div style={{ textAlign: "center" }}>
+          {viewItem.imageUrls.map((img, i) => (
+            <img
+              key={i}
+              src={img}
+              alt=""
+              style={{
+                width: "250px",
+                maxWidth: "100%",
+                marginTop: "15px",
+                borderRadius: "8px"
+              }}
+            />
+          ))}
         </div>
       )}
+
+      {viewItem.videoUrl && (
+        <video
+          controls
+          src={viewItem.videoUrl}
+          style={{ width: "100%", marginTop: "15px" }}
+        />
+      )}
+    </div>
+  </div>
+)}
 
     </div>
   );

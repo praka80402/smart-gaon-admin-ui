@@ -108,7 +108,7 @@ export default function ProjectList() {
 
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-
+const [expandedId, setExpandedId] = useState(null);
   const [editProject, setEditProject] = useState(null);
   const [donationProject, setDonationProject] = useState(null);
 
@@ -205,7 +205,40 @@ export default function ProjectList() {
               <tr key={p.id}>
 
                 <td>{p.title}</td>
-                <td>{p.description}</td>
+                {/* <td>{p.description}</td> */}
+                 
+                 <td>
+  {(() => {
+    const words = p.description ? p.description.split(" ") : [];
+    const isExpanded = expandedId === p.id;
+    const shortText = words.slice(0, 3).join(" ");
+
+    return (
+      <>
+        {isExpanded ? p.description : shortText}
+
+        {words.length > 3 && (
+          <button
+            onClick={() =>
+              setExpandedId(isExpanded ? null : p.id)
+            }
+            style={{
+              marginLeft: "6px",
+              background: "none",
+              border: "none",
+              color: "#0d6efd",
+              cursor: "pointer",
+              fontWeight: "500"
+            }}
+          >
+            {isExpanded ? "View Less" : "View More"}
+          </button>
+        )}
+      </>
+    );
+  })()}
+</td>
+
                 <td>{p.state === "ALL" ? "All India" : p.state}</td>
                 <td>{p.district || "-"}</td>
                 <td>{p.village || "-"}</td>

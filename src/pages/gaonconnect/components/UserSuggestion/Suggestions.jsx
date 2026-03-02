@@ -181,9 +181,16 @@ export default function AdminSuggestions() {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
 
+  const [page, setPage] = useState(1);
+const pageSize = 5;
+
   useEffect(() => {
     fetchSuggestions();
   }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [suggestions]);
 
   const fetchSuggestions = async () => {
     try {
@@ -239,9 +246,18 @@ export default function AdminSuggestions() {
     setExpandedId(expandedId === id ? null : id);
   };
 
+  const totalPages = Math.ceil(suggestions.length / pageSize);
+
+const paginatedSuggestions = suggestions.slice(
+  (page - 1) * pageSize,
+  page * pageSize
+);
+
   if (loading) {
     return <div className="loading-text">Loading...</div>;
   }
+
+
 
   return (
     <div className="admin-container">
@@ -265,8 +281,8 @@ export default function AdminSuggestions() {
           </thead>
 
           <tbody>
-            {suggestions.map((item) => {
-
+            {/* {suggestions.map((item) => { */}
+           {paginatedSuggestions.map((item) => {
               const isExpanded = expandedId === item.id;
 
               return (
@@ -324,7 +340,8 @@ export default function AdminSuggestions() {
               );
             })}
 
-            {suggestions.length === 0 && (
+            {/* {suggestions.length === 0 && ( */}
+             {paginatedSuggestions.length === 0 && (
               <tr>
                 <td colSpan={canManage ? "7" : "6"} className="empty-msg">
                   No suggestions found
@@ -335,6 +352,52 @@ export default function AdminSuggestions() {
           </tbody>
 
         </table>
+
+
+        {totalPages > 1 && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "20px",
+              marginTop: "20px"
+            }}
+          >
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+              style={{
+                padding: "6px 14px",
+                backgroundColor: "#6c757d",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer"
+              }}
+            >
+              Prev
+            </button>
+
+            <span>Page {page} of {totalPages}</span>
+
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage(page + 1)}
+              style={{
+                padding: "6px 14px",
+                backgroundColor: "#0d6efd",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer"
+              }}
+            >
+              Next
+            </button>
+          </div>
+        )}
+
 
       </div>
     </div>

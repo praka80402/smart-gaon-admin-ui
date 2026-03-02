@@ -1,0 +1,73 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+}
+
+.container {
+  padding: 20px;
+}
+
+.top-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.top-tabs button {
+  padding: 10px 20px;
+  border: none;
+  background: #e2e8f0;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.active-tab {
+  background: #2563eb;
+  color: white;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+}
+
+.toggle-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.toggle-buttons button {
+  padding: 8px 15px;
+  border: none;
+  background: #e2e8f0;
+  cursor: pointer;
+}
+
+.active-toggle {
+  background: #16a34a;
+  color: white;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+input, textarea, select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.submit-btn {
+  background: #2563eb;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+}

@@ -452,7 +452,7 @@ display: flex;
 
 /* Buttons */
 .edit-btn {
-  background: #facc15;
+  background: #28a745;
   border: none;
   padding: 6px 12px;
   border-radius: 6px;
@@ -470,7 +470,7 @@ display: flex;
 }
 
 .view-image-btn {
-  background: #facc15;
+  background: #6c757d;
   border: none;
   padding: 6px 12px;
   border-radius: 6px;

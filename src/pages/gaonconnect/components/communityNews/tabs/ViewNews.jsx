@@ -244,12 +244,25 @@ export default function ViewNews() {
               </td>
 
               <td className="cn-center">
-                <button
+                {/* <button
                   className="view-btn"
                   onClick={() => setViewItem(it)}
                 >
                   View
-                </button>
+                </button> */}
+                <button
+  style={{
+    backgroundColor: "#6c757d",
+    color: "white",
+    border: "none",
+    padding: "6px 12px",
+    borderRadius: "4px",
+    cursor: "pointer"
+  }}
+  onClick={() => setViewItem(it)}
+>
+  View
+</button>
               </td>
 
               {canManage && (
