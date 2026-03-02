@@ -179,15 +179,7 @@ const Header = ({ onLogout }) => {
 
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // useEffect(() => {
-  //   setAdminInfo({
-  //     name: localStorage.getItem("adminName"),
-  //     role: localStorage.getItem("adminRole"),
-  //     state: localStorage.getItem("adminState"),
-  //     district: localStorage.getItem("adminDistrict"),
-  //   });
-  // },
-  //  []);
+  
 
   useEffect(() => {
   const loadAdmin = () => {
@@ -231,18 +223,30 @@ const getInitial = () => {
   };
  
 
-  // const getInitial = () =>
-  //   adminInfo.name ? adminInfo.name.charAt(0).toUpperCase() : "A";
 
-  const menuItems = [
-    { name: "Dashboard", path: "/dashboard" },
-    { name: "User Mgmt", path: "/users" },
-    { name: "Shiksha Sahayak", path: "/shiksha" },
-    { name: "Gaon Connect", path: "/gaon-connect" },
-    { name: "Donation", path: "/donation" },
-    { name: "Seva Bazar", path: "/seva-bazar" },
-    { name: "Gaon Saathi", path: "/gaon-saathi" },
-  ];
+  // const menuItems = [
+  //   { name: "Dashboard", path: "/dashboard" },
+  //   { name: "User Mgmt", path: "/users" },
+  //   { name: "Shiksha Sahayak", path: "/shiksha" },
+  //   { name: "Gaon Connect", path: "/gaon-connect" },
+  //   { name: "Donation", path: "/donation" },
+  //   { name: "Seva Bazar", path: "/seva-bazar" },
+  //   { name: "Gaon Saathi", path: "/gaon-saathi" },
+  // ];
+  const allMenuItems = [
+  { name: "Dashboard", path: "/dashboard" },
+  { name: "User Mgmt", path: "/users" },
+  { name: "Shiksha Sahayak", path: "/shiksha" },
+  { name: "Gaon Connect", path: "/gaon-connect" },
+  { name: "Donation", path: "/donation" },
+  { name: "Seva Bazar", path: "/seva-bazar" },
+  { name: "Gaon Saathi", path: "/gaon-saathi" },
+];
+
+const menuItems =
+  adminInfo.role === "ACCOUNT_ADMIN"
+    ? [{ name: "Donation", path: "/donation" }]
+    : allMenuItems;
 
   return (
     <header className="header-bar">
