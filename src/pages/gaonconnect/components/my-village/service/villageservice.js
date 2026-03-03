@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// const BASE_URL = "https://smartgaonadmin.duckdns.org/api/admin/villages";
-const BASE_URL = "http://localhost:9090/admin/villages";
+const BASE_URL = "https://smartgaonadmin.duckdns.org/admin/villages";
+// const BASE_URL = "http://localhost:9090/admin/villages";
 
 const authHeader = () => {
   const token = localStorage.getItem("adminToken");
@@ -40,7 +40,8 @@ export const createVillage = (formData) =>
 // ================= UPDATE =================
 export const updateVillage = (id, data) =>
   axios.put(
-    `http://localhost:9090/admin/villages/${id}`,
+    `https://smartgaonadmin.duckdns.org/admin/villages/${id}`,
+    // `http://localhost:9090/admin/villages/${id}`,
     data,
     {
       headers: {

@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:9090/admin/development";
+// const BASE_URL = "http://localhost:9090/admin/development";
+const BASE_URL = "https://smartgaonadmin.duckdns.org/admin/development";
 
 const authHeader = () => {
   const token = localStorage.getItem("adminToken");

@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:9090/admin/village-development";
+// const BASE_URL = "http://localhost:9090/admin/village-development";
+const BASE_URL = "https://smartgaonadmin.duckdns.org/admin/village-development";
 
 const authHeader = () => ({
   Authorization: "Bearer " + localStorage.getItem("adminToken"),
@@ -48,26 +49,38 @@ export const getVillageDevelopments = async (villageId) => {
 };
 
 // ================= UPDATE PROGRESS =================
-export const updateVillageDevelopment = async (
-  id,
-  progress,
-  remarks
-) => {
+// export const updateVillageDevelopment = async (
+//   id,
+//   progress,
+//   remarks
+// ) => {
+//   const res = await axios.put(
+//     `${BASE_URL}/${id}`,
+//     null,
+//     {
+//       headers: authHeader(),
+//       params: {
+//         progress,
+//         remarks
+//       }
+//     }
+//   );
+//   return res.data;
+// };
+
+export const updateVillageDevelopment = async (id, formData) => {
   const res = await axios.put(
     `${BASE_URL}/${id}`,
-    null,
+    formData,
     {
-      headers: authHeader(),
-      params: {
-        progress,
-        remarks
+      headers: {
+        ...authHeader(),
+        "Content-Type": "multipart/form-data",
       }
     }
   );
   return res.data;
 };
-
-
 
 // ================= DELETE =================
 export const deleteVillageDevelopment = async (id) => {

@@ -438,7 +438,7 @@ const handleUpdate = async () => {
                   setForm({ ...form, smartGaon: e.target.checked })
                 }
               />
-              Is Smart Gaon
+              Smart Gaon
             </label>
 
             <button onClick={handleUpdate}>Update Village</button>
