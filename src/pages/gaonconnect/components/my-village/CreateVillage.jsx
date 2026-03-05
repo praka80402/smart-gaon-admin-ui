@@ -215,15 +215,18 @@ export default function CreateVillage() {
           />
 
           {/* Smart Gaon Checkbox */}
-          <div className="checkbox-group">
-            <input
-              type="checkbox"
-              name="smartGaon"
-              checked={form.smartGaon}
-              onChange={handleChange}
-            />
-            <label>Is this Smart Gaon?</label>
-          </div>
+         {/* Smart Gaon Checkbox */}
+<div className="checkbox-group">
+  <label className="checkbox-label">
+    <input
+      type="checkbox"
+      name="smartGaon"
+      checked={form.smartGaon}
+      onChange={handleChange}
+    />
+    <span>Smart Gaon?</span>
+  </label>
+</div>
 
           {/* Image Upload */}
           <input

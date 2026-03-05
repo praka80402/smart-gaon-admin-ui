@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { getVillageDevelopments } from "../service/villageDevelopmentService";
 import "./villageview.css";
+import ProjectDetail from "./ProjectDetail";
 
 export default function VillageView({ village }) {
 
   const [developments, setDevelopments] = useState([]);
   const [loading, setLoading] = useState(true);
+   const [phase, setPhase] = useState(1);
+ const images = village.images || [];
+ const [selectedProject, setSelectedProject] = useState(null);
 
   useEffect(() => {
     loadDevelopments();
@@ -21,9 +25,47 @@ setDevelopments(data?.data ?? data ?? []);
       setLoading(false);
     }
   };
+  
 
+  const availablePhases = [
+  ...new Set(
+    developments.map((d) => d.development.phaseNumber)
+  )
+].sort((a, b) => a - b);
+
+ useEffect(() => {
+    if (availablePhases.length > 0) {
+      setPhase(availablePhases[0]);
+    }
+  }, [developments]);
+
+  const phaseProjects = developments.filter(
+    (d) => d.development.phaseNumber === phase
+  );
+
+  if (selectedProject) {
+    return (
+      <ProjectDetail
+        project={selectedProject}
+        onBack={() => setSelectedProject(null)}
+      />
+    );
+  }
   return (
     <div className="village-view">
+
+{images.length > 0 && (
+  <div className="image-scroll">
+    {images.map((img, index) => (
+      <img
+        key={index}
+        src={img}
+        alt="village"
+        className="scroll-img"
+      />
+    ))}
+  </div>
+)}
 
       <h2 className="view-title">{village.name}</h2>
 
@@ -37,41 +79,86 @@ setDevelopments(data?.data ?? data ?? []);
       <hr />
 
       <h3 className="dev-heading">Development Projects</h3>
+        
+        <div className="phase-tabs">
+  {availablePhases.map((p) => (
+    <button
+      key={p}
+      className={`phase-tab ${phase === p ? "active" : ""}`}
+      onClick={() => setPhase(p)}
+    >
+      Phase {p}
+    </button>
+  ))}
+</div>
 
       {loading && <p>Loading developments...</p>}
 
-      {!loading && developments.length === 0 && (
-        <p>No development assigned yet.</p>
+
+    
+
+    {!loading && developments.map((item) => {
+
+  const dev = item.development;
+
+
+
+  return (
+    <div key={item.id} className="dev-card" onClick={() => setSelectedProject(item)}>
+
+      {/* Title + Phase */}
+      <h4 className="dev-title">
+        Phase {dev.phaseNumber} - {dev.master?.title || "Development"}
+      </h4>
+
+      {/* Master Image */}
+      {dev.master?.imageUrl && (
+        <img
+          src={dev.master.imageUrl}
+          alt="development"
+          className="dev-main-image"
+        />
       )}
 
-      {!loading && developments.map((item) => (
-        <div key={item.id} className="dev-card">
+      {/* Status */}
+      <p className="status">
+        {item.progressPercent === 100
+          ? "✅ Completed"
+          : "🚧 Ongoing"}
+      </p>
 
-          <h4>
-            Phase {item.development.phaseNumber} - {item.development.title}
-          </h4>
+      {/* Progress Bar */}
+      <div className="progress-bar">
+        <div
+          className="progress-fill"
+          style={{ width: `${item.progressPercent}%` }}
+        />
+      </div>
 
-          <p className="status">
-            {item.progressPercent === 100
-              ? "✅ Completed"
-              : "🚧 Ongoing"}
-          </p>
+      <p className="percent">{item.progressPercent}%</p>
 
-          <div className="progress-bar">
-            <div
-              className="progress-fill"
-              style={{ width: `${item.progressPercent}%` }}
+      {/* Remarks */}
+      {item.remarks && (
+        <p className="remarks">{item.remarks}</p>
+      )}
+
+      {/* Progress Images */}
+      {item.images && item.images.length > 0 && (
+        <div className="progress-images">
+          {item.images.map((img, index) => (
+            <img
+              key={index}
+              src={img}
+              alt="progress"
+              className="progress-img"
             />
-          </div>
-
-          <p className="percent">{item.progressPercent}%</p>
-
-          {item.remarks && (
-            <p className="remarks">{item.remarks}</p>
-          )}
-
+          ))}
         </div>
-      ))}
+      )}
+
+    </div>
+  );
+})}
 
     </div>
   );

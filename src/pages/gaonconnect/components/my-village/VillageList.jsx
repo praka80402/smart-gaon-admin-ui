@@ -368,7 +368,7 @@ const handleUpdate = async () => {
     <div className="village-list-container">
       <h2>All Villages</h2>
 
-      {villages.map((v) => (
+      {/* {villages.map((v) => (
         <div key={v.id} className="village-card">
           <h3>
             {v.name}{" "}
@@ -381,7 +381,48 @@ const handleUpdate = async () => {
           <button onClick={() => handleEdit(v)}>Edit</button>
           <button onClick={() => handleDelete(v.id)}>Delete</button>
         </div>
-      ))}
+      
+      ))} */}
+      <table className="village-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Village Name</th>
+      <th>City</th>
+      <th>State</th>
+      <th>Smart Gaon</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {villages.map((v) => (
+      <tr key={v.id}>
+        <td>{v.id}</td>
+        <td>{v.name}</td>
+        <td>{v.city}</td>
+        <td>{v.state}</td>
+        <td>
+          {v.smartGaon ? (
+            <span className="smart-badge">SMART</span>
+          ) : (
+            "No"
+          )}
+        </td>
+
+        <td>
+          <button onClick={() => handleView(v)}>View</button>
+          <button onClick={() => handleEdit(v)}>Edit</button>
+          <button onClick={() => handleDelete(v.id)}>Delete</button>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+
+
+
 
       {/* ================= MODAL ================= */}
       {selectedVillage && (
@@ -429,6 +470,27 @@ const handleUpdate = async () => {
               }
               placeholder="Description"
             />
+                {/* Existing Images */}
+{form.imageFiles && (
+  <div className="image-preview-grid">
+    {form.imageFiles.split(",").map((img, i) => (
+      <img
+        key={i}
+        src={img}
+        alt="village"
+        className="preview-img"
+      />
+    ))}
+  </div>
+)}
+
+{/* Upload New Images */}
+<input
+  type="file"
+  multiple
+  onChange={(e) => setNewImages(Array.from(e.target.files))}
+/>
+
 
             <label>
               <input
@@ -666,19 +728,22 @@ const handleUpdate = async () => {
                   <option value="3">Phase 3</option>
                 </select>
 
-                {projects.map((p) => (
-                  <div key={p.id}>
-                    <input
-                      type="radio"
-                      name="project"
-                      checked={
-                        selectedProject?.id === p.id
-                      }
-                      onChange={() => setSelectedProject(p)}
-                    />
-                    {p.title}
-                  </div>
-                ))}
+              {projects.length === 0 && (
+  <p style={{ marginTop: "10px" }}>No projects found</p>
+)}
+
+{projects.map((p) => (
+  <div key={p.id} style={{ marginTop: "6px" }}>
+    <input
+      type="radio"
+      name="project"
+      checked={selectedProject?.id === p.id}
+      onChange={() => setSelectedProject(p)}
+    />
+
+    {p.master?.title || "Development"}
+  </div>
+))}
 
                 <input
                   value={progress}

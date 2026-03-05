@@ -1,0 +1,213 @@
+.wrapper {
+  padding: 30px;
+}
+
+.phase-select {
+  margin-bottom: 20px;
+  padding: 6px;
+}
+
+.dev-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.dev-table th,
+.dev-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.dev-table th {
+  background-color: #2c3e50;
+  color: white;
+}
+
+.dev-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.edit-btn {
+  background: orange;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background: red;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+/* Modal */
+
+/* Overlay */
+.development-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+}
+
+/* Modal Box */
+.development-modal {
+  background: #ffffff;
+  width: 600px;
+  max-width: 90%;
+  max-height: 85vh;
+ position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+
+  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+}
+
+/* Image Modal */
+.development-image-modal {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.development-image-modal img {
+  max-width: 500px;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* Header */
+.development-modal-header {
+  background: #3cb371;   /* same green tone */
+  color: white;
+  padding: 18px 24px;    /* header me proper spacing */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+/* Body */
+.development-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-group.full {
+  grid-column: span 2;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* Footer */
+.development-modal-footer {
+  padding: 15px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #eee;
+}
+
+/* Close Button */
+.development-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: #04181a;
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Buttons */
+.save-btn {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: #7f8c8d;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.desc-cell {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.desc-cell {
+  max-width: 300px;
+}
+
+.view-more {
+  color: #3498db;
+  cursor: pointer;
+  font-weight: 500;
+  margin-left: 5px;
+}
+
+.view-more:hover {
+  text-decoration: underline;
+}

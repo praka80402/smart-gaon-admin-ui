@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const BASE_URL = "http://localhost:9090/admin/village-development";
-const BASE_URL = "https://smartgaonadmin.duckdns.org/admin/village-development";
+ const BASE_URL = "https://smartgaonadmin.duckdns.org/admin/village-development";
 
 const authHeader = () => ({
   Authorization: "Bearer " + localStorage.getItem("adminToken"),

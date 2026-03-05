@@ -221,3 +221,64 @@
     transform: scale(1);
   }
 }
+
+.village-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.village-table th,
+.village-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.village-table th {
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+.village-table tr:hover {
+  background: #f9fafb;
+}
+
+.smart-badge {
+  background: #10b981;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/* Action column buttons */
+.village-table td:last-child {
+  display: flex;
+  gap: 8px;
+}
+
+/* Common button style */
+.village-table button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  color: white;
+}
+
+/* View - Grey */
+.village-table button:nth-child(1) {
+  background: #6b7280;
+}
+
+/* Edit - Green */
+.village-table button:nth-child(2) {
+  background: #22c55e;
+}
+
+/* Delete - Red */
+.village-table button:nth-child(3) {
+  background: #ef4444;
+}
