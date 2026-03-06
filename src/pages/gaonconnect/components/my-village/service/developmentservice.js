@@ -1,61 +1,14 @@
-// import axios from "axios";
 
-//  const BASE_URL = "http://localhost:9090/admin/development";
-// // const BASE_URL = "https://smartgaonadmin.duckdns.org/admin/development";
-
-// const authHeader = () => {
-//   const token = localStorage.getItem("adminToken");
-//   return {
-//     Authorization: "Bearer " + token,
-//   };
-// };
-
-// export const createDevelopment = (formData) =>
-//   axios.post(BASE_URL, formData, {
-//     headers: {
-//       ...authHeader(),
-//       "Content-Type": "multipart/form-data",
-//     },
-//   });
-
-// export const getAllDevelopment = () =>
-//   axios.get(BASE_URL, { headers: authHeader() });
-
-// export const getByPhase = (phaseNumber) =>
-//   axios.get(`${BASE_URL}/phase/${phaseNumber}`, {
-//     headers: authHeader(),
-//   });
-
-// export const deleteDevelopment = (id) =>
-//   axios.delete(`${BASE_URL}/${id}`, {
-//     headers: authHeader(),
-//   });
-
-//   export const updateDevelopment = (id, formData) =>
-//   axios.put(`${BASE_URL}/${id}`, formData, {
-//     headers: {
-//       ...authHeader(),
-//       "Content-Type": "multipart/form-data",
-//     },
-//   });
 // ----------------------------------------------------------
 
 import axios from "axios";
+import { BASE_URL, authHeader } from "./config";
 
-// const BASE_URL = "http://localhost:9090/admin/development";
-const BASE_URL = "https://smartgaonadmin.duckdns.org/admin/development"
-
-const authHeader = () => {
-  const token = localStorage.getItem("adminToken");
-  return {
-    Authorization: "Bearer " + token,
-  };
-};
-
+const API = `${BASE_URL}/admin/development`;
 /* ========= MASTER ========= */
 
 export const createMaster = (formData) =>
-  axios.post(`${BASE_URL}/master`, formData, {
+  axios.post(`${API}/master`, formData, {
     headers: {
       ...authHeader(),
       "Content-Type": "multipart/form-data",
@@ -63,14 +16,14 @@ export const createMaster = (formData) =>
   });
 
 export const getAllMasters = () =>
-  axios.get(`${BASE_URL}/master`, {
+  axios.get(`${API}/master`, {
     headers: authHeader(),
   });
 
 /* ========= DEVELOPMENT ========= */
 
 export const createDevelopment = (formData) =>
-  axios.post(BASE_URL, formData, {
+  axios.post(API, formData, {
     headers: {
       ...authHeader(),
       "Content-Type": "multipart/form-data",
@@ -78,20 +31,20 @@ export const createDevelopment = (formData) =>
   });
 
 export const getAllDevelopment = () =>
-  axios.get(BASE_URL, { headers: authHeader() });
+  axios.get(API, { headers: authHeader() });
 
 export const getByPhase = (phase) =>
-  axios.get(`${BASE_URL}/phase/${phase}`, {
+  axios.get(`${API}/phase/${phase}`, {
     headers: authHeader(),
   });
 
 export const getProjectById = (id) =>
-  axios.get(`${BASE_URL}/${id}`, {
+  axios.get(`${API}/${id}`, {
     headers: authHeader(),
   });
 
 export const updateDevelopment = (id, formData) =>
-  axios.put(`${BASE_URL}/${id}`, formData, {
+  axios.put(`${API}/${id}`, formData, {
     headers: {
       ...authHeader(),
       "Content-Type": "multipart/form-data",
@@ -99,6 +52,6 @@ export const updateDevelopment = (id, formData) =>
   });
 
 export const deleteDevelopment = (id) =>
-  axios.delete(`${BASE_URL}/${id}`, {
+  axios.delete(`${API}/${id}`, {
     headers: authHeader(),
   });

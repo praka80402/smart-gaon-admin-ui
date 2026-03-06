@@ -529,7 +529,7 @@ const handleUpdate = async () => {
     }}
   >
     <div style={{ fontWeight: "600" }}>
-      Phase {item.development.phaseNumber} – {item.development.title}
+     Phase {item.development.phaseNumber} – {item.development.master?.title || "Development"}
     </div>
 
     <div>Progress: {item.progressPercent}%</div>

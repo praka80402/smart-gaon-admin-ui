@@ -1,11 +1,7 @@
 import axios from "axios";
+import { BASE_URL, authHeader } from "./config";
 
-// const BASE_URL = "http://localhost:9090/admin/village-development";
- const BASE_URL = "https://smartgaonadmin.duckdns.org/admin/village-development";
-
-const authHeader = () => ({
-  Authorization: "Bearer " + localStorage.getItem("adminToken"),
-});
+const API = `${BASE_URL}/admin/village-development`;
 
 // ================= ASSIGN DEVELOPMENT =================
 export const assignDevelopmentToVillage = async ({
@@ -27,7 +23,7 @@ export const assignDevelopmentToVillage = async ({
     images.forEach(img => formData.append("images", img));
   }
 
-  const res = await axios.post(BASE_URL, formData, {
+  const res = await axios.post(API, formData, {
     headers: {
       ...authHeader(),
       "Content-Type": "multipart/form-data",
@@ -40,7 +36,7 @@ export const assignDevelopmentToVillage = async ({
 // ================= GET BY VILLAGE =================
 export const getVillageDevelopments = async (villageId) => {
   const res = await axios.get(
-    `${BASE_URL}/village/${villageId}`,
+    `${API}/village/${villageId}`,
     {
       headers: authHeader(),
     }
@@ -49,28 +45,11 @@ export const getVillageDevelopments = async (villageId) => {
 };
 
 // ================= UPDATE PROGRESS =================
-// export const updateVillageDevelopment = async (
-//   id,
-//   progress,
-//   remarks
-// ) => {
-//   const res = await axios.put(
-//     `${BASE_URL}/${id}`,
-//     null,
-//     {
-//       headers: authHeader(),
-//       params: {
-//         progress,
-//         remarks
-//       }
-//     }
-//   );
-//   return res.data;
-// };
+
 
 export const updateVillageDevelopment = async (id, formData) => {
   const res = await axios.put(
-    `${BASE_URL}/${id}`,
+    `${API}/${id}`,
     formData,
     {
       headers: {
@@ -85,7 +64,7 @@ export const updateVillageDevelopment = async (id, formData) => {
 // ================= DELETE =================
 export const deleteVillageDevelopment = async (id) => {
   await axios.delete(
-    `${BASE_URL}/${id}`,
+    `${API}/${id}`,
     {
       headers: authHeader(),
     }
