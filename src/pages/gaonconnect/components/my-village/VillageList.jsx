@@ -861,7 +861,7 @@ export default function VillageList() {
         <thead>
 
           <tr>
-            <th>ID</th>
+            {/* <th>ID</th> */}
             <th>Village</th>
             <th>City</th>
             <th>State</th>
@@ -877,7 +877,7 @@ export default function VillageList() {
           {filteredVillages.map(v => (
             <tr key={v.id}>
 
-              <td>{v.id}</td>
+              {/* <td>{v.id}</td> */}
               <td>{v.name}</td>
               <td>{v.city}</td>
               <td>{v.state}</td>
@@ -958,7 +958,7 @@ export default function VillageList() {
               placeholder="Description"
             />
 
-            <label>
+            {/* <label>
 
               <input
                 type="checkbox"
@@ -970,9 +970,35 @@ export default function VillageList() {
 
               Smart Gaon
 
-            </label>
+            </label> */}
+            <label
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    marginTop: "10px",
+    fontWeight: "500",
+    cursor: "pointer"
+  }}
+>
+  <input
+    type="checkbox"
+    checked={form.smartGaon || false}
+    onChange={(e)=>
+      setForm({...form, smartGaon: e.target.checked})
+    }
+    style={{
+      width: "16px",
+      height: "16px",
+      cursor: "pointer"
+    }}
+  />
 
-            <button onClick={handleUpdate}>
+  Smart Gaon
+</label>
+
+          
+              <button onClick={handleUpdate}>
               Update Village
             </button>
 
@@ -995,25 +1021,35 @@ export default function VillageList() {
 
                     Progress: {item.progressPercent}%
 
+                    <br/>
+
                     <button
-                      onClick={()=>{
-
-                        setEditDev(item);
-
-                        setEditProgress(item.progressPercent);
-                        setEditRemarks(item.remarks || "");
-
-                        setExistingImages(item.galleryImages || []);
-                        setExistingReports(item.reports || []);
-                        setVideoUrl(item.videoUrl || "");
-
-                      }}
-                    >
-                      Edit
-                    </button>
+  style={{
+    backgroundColor: "#28a745",
+    color: "white",
+    border: "none",
+    padding: "6px 12px",
+    borderRadius: "5px",
+    cursor: "pointer",
+    marginTop: "5px"
+  }}
+  onClick={()=>{
+    setEditDev(item);
+    setEditProgress(item.progressPercent);
+    setEditRemarks(item.remarks || "");
+    setExistingImages(item.galleryImages || []);
+    setExistingReports(item.reports || []);
+    setVideoUrl(item.videoUrl || "");
+  }}
+>
+  Edit
+</button>
 
                   </div>
                 ))}
+
+
+              
 
               
                 {/* EDIT DEVELOPMENT */}
