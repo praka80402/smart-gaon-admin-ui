@@ -31,7 +31,7 @@ export default function DevelopmentMain() {
           Create Project
         </button>
 
-        <button
+        {/* <button
           onClick={() => setActiveTab("list")}
           style={{
             padding: "10px 20px",
@@ -43,11 +43,11 @@ export default function DevelopmentMain() {
           }}
         >
           Project List
-        </button>
+        </button> */}
       </div>
 
       {activeTab === "create" && <CreateDevelopment />}
-      {activeTab === "list" && <DevelopmentList />}
+      {/* {activeTab === "list" && <DevelopmentList />} */}
 
     </div>
   );

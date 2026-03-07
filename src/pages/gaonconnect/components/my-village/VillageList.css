@@ -282,3 +282,22 @@
 .village-table button:nth-child(3) {
   background: #ef4444;
 }
+
+.village-tabs{
+display:flex;
+gap:10px;
+margin-bottom:20px;
+}
+
+.village-tabs button{
+padding:8px 16px;
+border:none;
+background:#e5e7eb;
+cursor:pointer;
+border-radius:6px;
+}
+
+.active-tab{
+background:#2563eb;
+color:white;
+}

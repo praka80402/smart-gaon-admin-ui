@@ -1,8 +1,31 @@
+
+// import { useEffect, useState } from "react";
+// import { getProjectById } from "../service/developmentservice";
 // import "./projectdetail.css";
 
 // export default function ProjectDetail({ project, onBack }) {
 
-//   const dev = project.development;
+//   const [data, setData] = useState(null);
+
+//   useEffect(() => {
+//     loadProject();
+//   }, []);
+
+//   const loadProject = async () => {
+//     try {
+
+//       const res = await getProjectById(project.development.id);
+
+//       setData(res.data);
+
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+
+//   if (!data) {
+//     return <p>Loading project...</p>;
+//   }
 
 //   return (
 //     <div className="project-page">
@@ -11,30 +34,30 @@
 //         ← Back
 //       </button>
 
-//       <h1>{dev.master?.title}</h1>
+//       <h1>{data.master?.title}</h1>
 
 //       <p className="phase">
-//         Phase {dev.phaseNumber}
+//         Phase {data.phaseNumber}
 //       </p>
 
-//       {dev.master?.imageUrl && (
+//       {data.master?.imageUrl && (
 //         <img
-//           src={dev.master.imageUrl}
+//           src={data.master.imageUrl}
 //           className="main-image"
 //         />
 //       )}
 
 //       <p className="description">
-//         {dev.description}
+//         {data.description}
 //       </p>
 
 //       <div className="meta">
 
-//         <p><strong>Status:</strong> {dev.status}</p>
+//         <p><strong>Status:</strong> {data.status}</p>
 
-//         <p><strong>Start:</strong> {dev.startDate}</p>
+//         <p><strong>Start:</strong> {data.startDate}</p>
 
-//         <p><strong>End:</strong> {dev.endDate}</p>
+//         <p><strong>End:</strong> {data.endDate}</p>
 
 //         <p>
 //           <strong>Progress:</strong>
@@ -56,16 +79,13 @@
 
 //       <div className="gallery">
 
-        
-//          {project.images?.map((img, i) => (
-//   <img
-//     key={img.id || i}
-//     src={img.imageUrl}
-//     alt="development"
-//     className="gallery-img"
-//   />
-// ))}
-        
+//         {data.images?.map((img) => (
+//           <img
+//             key={img.id}
+//             src={img.imageUrl}
+//             className="gallery-img"
+//           />
+//         ))}
 
 //       </div>
 
@@ -74,27 +94,65 @@
 // }
 
 import { useEffect, useState } from "react";
+
 import { getProjectById } from "../service/developmentservice";
+
+import {
+  getDevelopmentImages,
+  getDevelopmentVideo,
+  getDevelopmentReports
+} from "../service/villageDevelopmentService";
+
 import "./projectdetail.css";
 
 export default function ProjectDetail({ project, onBack }) {
 
   const [data, setData] = useState(null);
 
+  const [images, setImages] = useState([]);
+  const [video, setVideo] = useState("");
+  const [reports, setReports] = useState([]);
+
   useEffect(() => {
+
     loadProject();
+    loadMedia();
+
   }, []);
 
   const loadProject = async () => {
+
     try {
 
       const res = await getProjectById(project.development.id);
-
       setData(res.data);
 
     } catch (err) {
+
       console.error(err);
+
     }
+
+  };
+
+  const loadMedia = async () => {
+
+    try {
+
+      const img = await getDevelopmentImages(project.id);
+      const vid = await getDevelopmentVideo(project.id);
+      const rep = await getDevelopmentReports(project.id);
+
+      setImages(img || []);
+      setVideo(vid || "");
+      setReports(rep || []);
+
+    } catch (err) {
+
+      console.error(err);
+
+    }
+
   };
 
   if (!data) {
@@ -102,6 +160,7 @@ export default function ProjectDetail({ project, onBack }) {
   }
 
   return (
+
     <div className="project-page">
 
       <button className="back-btn" onClick={onBack}>
@@ -115,10 +174,13 @@ export default function ProjectDetail({ project, onBack }) {
       </p>
 
       {data.master?.imageUrl && (
+
         <img
           src={data.master.imageUrl}
+          alt="development"
           className="main-image"
         />
+
       )}
 
       <p className="description">
@@ -127,42 +189,117 @@ export default function ProjectDetail({ project, onBack }) {
 
       <div className="meta">
 
-        <p><strong>Status:</strong> {data.status}</p>
-
-        <p><strong>Start:</strong> {data.startDate}</p>
-
-        <p><strong>End:</strong> {data.endDate}</p>
+        <p>
+          <strong>Status:</strong> {data.status}
+        </p>
 
         <p>
-          <strong>Progress:</strong>
-          {project.progressPercent}%
+          <strong>Start:</strong> {data.startDate}
+        </p>
+
+        <p>
+          <strong>End:</strong> {data.endDate}
+        </p>
+
+        <p>
+          <strong>Progress:</strong> {project.progressPercent}%
         </p>
 
       </div>
 
       <div className="progress-bar">
+
         <div
           className="progress-fill"
-          style={{
-            width: `${project.progressPercent}%`
-          }}
+          style={{ width: `${project.progressPercent}%` }}
         />
-      </div>
-
-      <h3>Gallery Images</h3>
-
-      <div className="gallery">
-
-        {data.images?.map((img) => (
-          <img
-            key={img.id}
-            src={img.imageUrl}
-            className="gallery-img"
-          />
-        ))}
 
       </div>
+
+      {/* ================= MEDIA & GALLERY ================= */}
+
+      <h2 className="section-title">
+        Media & Gallery
+      </h2>
+
+      {/* ================= GALLERY ================= */}
+
+      {images.length > 0 && (
+
+        <>
+          <h3 className="sub-title">Gallery</h3>
+
+          <div className="gallery">
+
+            {images.map((img, index) => (
+
+              <img
+                key={index}
+                src={img}
+                alt="gallery"
+                className="gallery-img"
+              />
+
+            ))}
+
+          </div>
+        </>
+
+      )}
+
+      {/* ================= VIDEO ================= */}
+
+      {video && (
+
+        <>
+          <h3 className="sub-title">Media</h3>
+
+          <div
+            className="video-container"
+            onClick={() => window.open(video, "_blank")}
+          >
+
+            <img
+              src={`https://img.youtube.com/vi/${video.split("v=")[1]}/0.jpg`}
+              alt="youtube"
+              className="video-thumb"
+            />
+
+          </div>
+        </>
+
+      )}
+
+      {/* ================= REPORTS ================= */}
+
+      {reports.length > 0 && (
+
+        <>
+          <h3 className="sub-title">Reports</h3>
+
+          <div className="reports">
+
+            {reports.map((rep, index) => (
+
+              <a
+                key={index}
+                href={rep}
+                target="_blank"
+                rel="noreferrer"
+                className="report-link"
+              >
+                📄 Report {index + 1}
+              </a>
+
+            ))}
+
+          </div>
+        </>
+
+      )}
 
     </div>
+
   );
+
 }

@@ -3,72 +3,125 @@ import { BASE_URL, authHeader } from "./config";
 
 const API = `${BASE_URL}/admin/village-development`;
 
-// ================= ASSIGN DEVELOPMENT =================
-export const assignDevelopmentToVillage = async ({
-  villageId,
-  developmentId,
-  progress,
-  remarks,
-  images
-}) => {
+/* ================= ASSIGN DEVELOPMENT ================= */
 
-  const formData = new FormData();
+export const assignDevelopmentToVillage = async (villageId, formData) => {
 
-  formData.append("villageId", villageId);
-  formData.append("developmentId", developmentId);
-  formData.append("progress", progress);
-  formData.append("remarks", remarks || "");
-
-  if (images) {
-    images.forEach(img => formData.append("images", img));
-  }
-
-  const res = await axios.post(API, formData, {
-    headers: {
-      ...authHeader(),
-      "Content-Type": "multipart/form-data",
-    },
-  });
-
-  return res.data;
-};
-
-// ================= GET BY VILLAGE =================
-export const getVillageDevelopments = async (villageId) => {
-  const res = await axios.get(
+  const res = await axios.post(
     `${API}/village/${villageId}`,
-    {
-      headers: authHeader(),
-    }
-  );
-  return res.data;
-};
-
-// ================= UPDATE PROGRESS =================
-
-
-export const updateVillageDevelopment = async (id, formData) => {
-  const res = await axios.put(
-    `${API}/${id}`,
     formData,
     {
       headers: {
         ...authHeader(),
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "multipart/form-data"
       }
     }
   );
+
   return res.data;
+
 };
 
-// ================= DELETE =================
-export const deleteVillageDevelopment = async (id) => {
-  await axios.delete(
-    `${API}/${id}`,
+
+/* ================= GET BY VILLAGE ================= */
+
+export const getVillageDevelopments = async (villageId) => {
+
+  const res = await axios.get(
+    `${API}/village/${villageId}`,
     {
-      headers: authHeader(),
+      headers: authHeader()
     }
   );
 
-  
+  return res.data;
+
+};
+
+
+/* ================= GET GALLERY IMAGES ================= */
+
+export const getDevelopmentImages = async (id) => {
+
+  const res = await axios.get(
+    `${API}/${id}/images`,
+    {
+      headers: authHeader()
+    }
+  );
+
+  return res.data;
+
+};
+
+
+/* ================= GET VIDEO ================= */
+
+export const getDevelopmentVideo = async (id) => {
+
+  const res = await axios.get(
+    `${API}/${id}/video`,
+    {
+      headers: authHeader()
+    }
+  );
+
+  return res.data;
+
+};
+
+
+/* ================= GET REPORTS ================= */
+
+export const getDevelopmentReports = async (id) => {
+
+  const res = await axios.get(
+    `${API}/${id}/reports`,
+    {
+      headers: authHeader()
+    }
+  );
+
+  return res.data;
+
+};
+
+
+/* ================= UPDATE DEVELOPMENT ================= */
+
+export const updateVillageDevelopment = async (
+  villageId,
+  developmentId,
+  formData
+) => {
+
+  const res = await axios.put(
+    `${API}/village/${villageId}/${developmentId}`,
+    formData,
+    {
+      headers: {
+        ...authHeader(),
+        "Content-Type": "multipart/form-data"
+      }
+    }
+  );
+
+  return res.data;
+
+};
+
+
+/* ================= DELETE DEVELOPMENT ================= */
+
+export const deleteVillageDevelopment = async (id) => {
+
+  const res = await axios.delete(
+    `${API}/${id}`,
+    {
+      headers: authHeader()
+    }
+  );
+
+  return res.data;
+
 };

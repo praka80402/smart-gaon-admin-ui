@@ -179,3 +179,42 @@
   color: white;
   border-color: #2c7be5;
 }
+/* ------------------- */
+
+.progress-images{
+display:flex;
+gap:8px;
+margin-top:10px;
+flex-wrap:wrap;
+}
+
+.progress-img{
+width:80px;
+height:80px;
+object-fit:cover;
+border-radius:6px;
+}
+
+.video-thumb{
+margin-top:10px;
+width:200px;
+cursor:pointer;
+}
+
+.video-thumb img{
+width:100%;
+border-radius:8px;
+}
+
+.report-section{
+margin-top:10px;
+display:flex;
+flex-direction:column;
+gap:4px;
+}
+
+.report-link{
+color:#2563eb;
+text-decoration:none;
+font-size:14px;
+}
