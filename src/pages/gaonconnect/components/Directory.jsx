@@ -641,7 +641,8 @@ const Directory = () => {
                   {officerForm.id ? "Edit Officer" : "Add Officer"}
                 </h3>
 
-                {["Name", "Designation", "Phone", "District", "State"].map(
+                {/* {["Name", "Designation", "Phone", "District", "State"]
+                .map(
                   (field) => (
                     <input
                       key={field}
@@ -656,7 +657,27 @@ const Directory = () => {
                       }
                     />
                   )
-                )}
+                )} */}
+                  {[
+        { label: "Name", key: "name" },
+        { label: "Designation", key: "department" },
+        { label: "Phone", key: "phone" },
+        { label: "District", key: "district" },
+        { label: "State", key: "state" }
+      ].map((field) => (
+        <input
+          key={field.key}
+          type="text"
+          placeholder={field.label}
+          value={officerForm[field.key] || ""}
+          onChange={(e) =>
+            setOfficerForm({
+              ...officerForm,
+              [field.key]: e.target.value,
+            })
+          }
+        />
+      ))}
 
                 <div className="modal-actions">
                   <button onClick={handleOfficerSubmit}>Save</button>
