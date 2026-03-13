@@ -81,6 +81,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { createBanner, updateBanner } from "./bannerApi";
 import "./banner.css";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db } from "../../firebase";
+
 
 const BannerForm = ({ selectedBanner, onSuccess }) => {
   const [banner, setBanner] = useState({
@@ -157,6 +160,13 @@ const BannerForm = ({ selectedBanner, onSuccess }) => {
   } else {
     await createBanner(formData);
     alert("Banner created successfully ✅");
+
+      await addDoc(collection(db, "notifications"), {
+    title: "New Event Banner",
+    message: banner.bannerTitle,
+    type: "banner",
+    createdAt: serverTimestamp(),
+  });
   }
 
     // selectedBanner

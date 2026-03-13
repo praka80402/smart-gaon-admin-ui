@@ -1,6 +1,6 @@
 /* === Modern Dashboard Theme === */
 
-/* :root {
+:root {
   --primary: #4caf50;
   --primary-dark: #388e3c;
   --bg-light: #f5f7fa;
@@ -130,7 +130,7 @@
 
 .btn-primary:hover {
   background: var(--primary-dark);
-} */
+}
 
 /* === Modern Dashboard Theme === */
 
@@ -151,7 +151,7 @@
    TODAY TIPS MAIN SCREEN
 ========================================= */
 
-:root {
+/* :root {
   --primary: #2563eb;
   --primary-dark: #1e40af;
   --danger: #e53935;
@@ -163,18 +163,18 @@
   --shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
 }
 
-/* PAGE */
+
 .tips-page {
   background: var(--bg-main);
   padding: 40px;
   min-height: 100vh;
   font-family: "Inter", sans-serif;
 
-  max-width: 850px;   /* 👈 ADD THIS */
-  margin: 0 auto;     /* 👈 ADD THIS (center it) */
+  max-width: 850px;   
+  margin: 0 auto;    
 }
 
-/* HEADER */
+
 .tips-header {
   display: flex;
   justify-content: space-between;
@@ -188,7 +188,7 @@
   color: var(--text-dark);
 }
 
-/* ADD BUTTON */
+
 .btn-add {
   padding: 10px 20px;
   border-radius: var(--radius);
@@ -204,7 +204,7 @@
   background: var(--primary-dark);
 }
 
-/* DATE INPUT */
+
 .input {
   width: 200px;
   padding: 10px 12px;
@@ -215,7 +215,7 @@
   margin-bottom: 25px;
 }
 
-/* TIP CARD */
+
 .tip-card {
   background: var(--card-bg);
   border-radius: var(--radius);
@@ -271,7 +271,7 @@
   color: var(--text-light);
 }
 
-/* ACTION BUTTONS */
+
 .todaytips-actions {
   display: flex;
   flex-direction: column;
@@ -279,13 +279,13 @@
 }
 .todaytips-edit,
 .todaytips-delete {
-  padding: 6px 14px;     /* Same size */
+  padding: 6px 14px;     
   font-size: 13px;
   border-radius: 6px;
   border: none;
   cursor: pointer;
   font-weight: 600;
-  min-width: 70px;       /* Equal width */
+  min-width: 70px;       
 }
 .todaytips-edit {
   background-color: #2ecc71;
@@ -296,7 +296,7 @@
   background-color: #27ae60;
 }
 
-/* DELETE - RED */
+
 .todaytips-delete {
   background-color: #e74c3c;
   color: white;
@@ -305,38 +305,7 @@
 .todaytips-delete:hover {
   background-color: #c0392b;
 }
-/* 
-.edit-btn {
-  padding: 6px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--primary);
-  background: white;
-  color: var(--primary);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-} */
 
-/* .edit-btn:hover {
-  background: var(--primary);
-  color: white;
-}
-
-.delete-btn {
-  padding: 6px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--danger);
-  background: white;
-  color: var(--danger);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.delete-btn:hover {
-  background: #fafafa;
-} */
-/* INLINE FORM CARD */
 
 .inline-modal {
   margin-bottom: 30px;
@@ -358,4 +327,4 @@
   background: none;
   font-size: 20px;
   cursor: pointer;
-}
+} */

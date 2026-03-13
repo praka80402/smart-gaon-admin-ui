@@ -224,15 +224,7 @@ const getInitial = () => {
  
 
 
-  // const menuItems = [
-  //   { name: "Dashboard", path: "/dashboard" },
-  //   { name: "User Mgmt", path: "/users" },
-  //   { name: "Shiksha Sahayak", path: "/shiksha" },
-  //   { name: "Gaon Connect", path: "/gaon-connect" },
-  //   { name: "Donation", path: "/donation" },
-  //   { name: "Seva Bazar", path: "/seva-bazar" },
-  //   { name: "Gaon Saathi", path: "/gaon-saathi" },
-  // ];
+ 
   const allMenuItems = [
   { name: "Dashboard", path: "/dashboard" },
   { name: "User Mgmt", path: "/users" },
@@ -286,13 +278,45 @@ const menuItems =
 
         {showDropdown && (
           <div className="dropdown">
-            <div className="dropdown-name">{adminInfo.name}</div>
-            <div className="dropdown-role">{getRoleText()}</div>
-            <div className="dropdown-divider"></div>
-            <div className="dropdown-item" onClick={onLogout}>
-              Logout
-            </div>
-          </div>
+  <div className="dropdown-name">{adminInfo.name}</div>
+  <div className="dropdown-role">{getRoleText()}</div>
+
+  <div className="dropdown-divider"></div>
+
+  {/* <div
+    className="dropdown-item"
+    onClick={() => {
+      window.location.href = "/profilepage";
+    }}
+  >
+    Profile
+  </div> */}
+
+  <div
+  className="dropdown-item"
+  onClick={() => {
+    navigate("/profilepage");
+    setShowDropdown(false);
+  }}
+>
+  Profile
+</div>
+
+  <div className="dropdown-item" onClick={onLogout}>
+    Logout
+  </div>
+</div>
+          // <div className="dropdown">
+          //   <div className="dropdown-name">{adminInfo.name}</div>
+          //   <div className="dropdown-role">{getRoleText()}</div>
+
+          //   <div className="dropdown-divider"></div>
+          //   <div className="dropdown-item" onClick={onLogout}>
+          //     Logout
+          //   </div>
+   
+
+          // </div>
         )}
       </div>
     </header>

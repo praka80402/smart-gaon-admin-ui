@@ -98,6 +98,7 @@ import SevaBazarAdmin from "./pages/sevabazar/SevaBazarAdmin";
 // import GaonSaathi from "./pages/gaonsaathi/GaonSaathi";
 
 import "./App.css";
+import ProfilePage from "./components/profilepage";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -199,6 +200,11 @@ function App() {
               isLoggedIn ? <GaonSaathi /> : <Navigate to="/login" />
             }
           /> */}
+
+<Route
+  path="/profilepage"
+  element={isLoggedIn ? <ProfilePage /> : <Navigate to="/login" />}
+/>
 
         </Routes>
       </main>

@@ -1,48 +1,19 @@
 // import React, { useState, useEffect } from "react";
 // import "./dashboard.css";
 
-// import ModuleButtons from "./components/ModuleButtons";
-// import UserManagement from "./UserManagement";
-// import GaonConnect from "./gaonconnect/GaonConnect";
-// import DonationAdmin from "./donation/DonationAdmin";
 // import TodayTipsList from "./today-tips/TodayTipsList";
 // import HomeLayoutAdmin from "./home-layout/HomeLayoutAdmin";
 // import BannerAdmin from "./banners/bannerAdmin";
 // import SchemeAdmin from "./scheme/schemeAdmin";
-// import NcertMain from "./shikshasahayak/Shikshsahayak";
 
-// import Modal from "../components/Modal";
+//  import Modal from "../components/Modal";
 // import { getUserCount } from "./userService";
-// import SevaBazarAdmin from "./sevabazar/SevaBazarAdmin";
 
 // const Dashboard = () => {
-//   const adminRole = localStorage.getItem("adminRole");
-//   const [selectedModule, setSelectedModule] = useState("Dashboard");
-
-//   // Modals
 //   const [activeModal, setActiveModal] = useState(null);
-
-//   // Stats
 //   const [totalUsers, setTotalUsers] = useState(0);
 
- 
-//   const modules =
-//   adminRole === "ACCOUNT_ADMIN"
-//     ? [{ name: "Donation", icon: "💰" }]
-//     : [
-//         { name: "Dashboard", icon: "🏠" },
-//         { name: "User Mgmt", icon: "👥" },
-//         { name: "Shiksha Sahayak", icon: "📘" },
-//         { name: "Gaon Connect", icon: "🚜" },
-//         { name: "Donation", icon: "💰" },
-//         { name: "Seva Bazar", icon: "🛍️" },
-//         { name: "Gaon Saathi", icon: "🎙️" },
-//       ];
-
 //   useEffect(() => {
-//      if (adminRole === "ACCOUNT_ADMIN") {
-//     setSelectedModule("Donation");
-//   }
 //     loadUserCount();
 //   }, []);
 
@@ -59,92 +30,80 @@
 
 //   return (
 //     <div className="dashboard-container">
-//       {/* LEFT MODULE BUTTONS */}
-//       <ModuleButtons
-//         modules={modules}
-//         selectedModule={selectedModule}
-//         setSelectedModule={setSelectedModule}
-//       />
 
-//       {/* ================= DASHBOARD ================= */}
-//       {selectedModule === "Dashboard" && (
-//         <>
-//           <div className="stats-wrapper">
-//             <div className="stats-grid">
-//               <div className={`stats-card color-${1}`}>
-//                 <p className="stats-title">Total Users</p>
-//                 <h2 className="stats-value">{totalUsers}</h2>
-//               </div>
+//       <div className="dashboard-title">
+//         <h1>Admin Dashboard</h1>
+//       </div>
 
-//               <div
-//                 className="stats-card"
-//                 onClick={() => setActiveModal("TIPS")}
-//               >
-//                 <h2 className="stats-click">Today Tips</h2>
-//               </div>
+//       {/* ================= DASHBOARD ONLY ================= */}
+//       <div className="stats-wrapper">
+//         <div className="stats-grid">
 
-//               <div
-//                  className={`stats-card color-${2}`}
-//                 onClick={() => setActiveModal("SCHEME")}
-//               >
-//                 <h2 className="stats-click">Schemes</h2>
-//               </div>
-
-//               <div
-//                 className={`stats-card color-${3}`}
-//                 onClick={() => setActiveModal("BANNER")}
-//               >
-//                 <h2 className="stats-click">Banners</h2>
-//               </div>
-
-//               <div
-//                 className={`stats-card color-${4}`}
-//                 onClick={() => setActiveModal("HOME")}
-//               >
-//                 <h2 className="stats-click">Home Layout</h2>
-//               </div>
-
-//               <div  className={`stats-card color-${5}`}>
-//                 <h2 className="stats-click">More</h2>
-//               </div>
-//             </div>
+//           <div className="stats-card color-1">
+//             {/* <h2 className="stats-value">{totalUsers}</h2> */}
+//             <p className="stats-title">{totalUsers} <br/>Total Users</p>
+            
 //           </div>
 
-//           {/* ================= MODALS ================= */}
-//           <Modal  className="home-layout-modal" open={activeModal === "TIPS"} onClose={closeModal}>
-//             <TodayTipsList onClose={closeModal} />
-//           </Modal>
-
-//           <Modal  className="home-layout-modal" open={activeModal === "SCHEME"} onClose={closeModal}>
-//             <SchemeAdmin />
-//           </Modal>
-
-//           <Modal open={activeModal === "BANNER"} onClose={closeModal}>
-//             <BannerAdmin />
-//           </Modal>
-
-//           <Modal
-//             open={activeModal === "HOME"}
-//             onClose={closeModal}
-//             className="home-layout-modal"
+//           <div
+//             className="stats-card"
+//             onClick={() => setActiveModal("TIPS")}
 //           >
-//             <HomeLayoutAdmin />
-//           </Modal>
-//         </>
-//       )}
+//             <h2 className="stats-click">Today Tips</h2>
+//           </div>
 
-//       {/* ================= OTHER MODULES ================= */}
-//       {selectedModule === "User Mgmt" && <UserManagement />}
-//       {selectedModule === "Gaon Connect" && <GaonConnect />}
-//       {selectedModule === "Donation" && <DonationAdmin />}
-//       {selectedModule === "Shiksha Sahayak" && <NcertMain />}
-//       {selectedModule === "Seva Bazar" && <SevaBazarAdmin/>}
+//           <div
+//             className="stats-card color-2"
+//             onClick={() => setActiveModal("SCHEME")}
+//           >
+//             <h2 className="stats-click">Schemes</h2>
+//           </div>
+
+//           <div
+//             className="stats-card color-3"
+//             onClick={() => setActiveModal("BANNER")}
+//           >
+//             <h2 className="stats-click">Banners</h2>
+//           </div>
+
+//           <div
+//             className="stats-card color-4"
+//             onClick={() => setActiveModal("HOME")}
+//           >
+//             <h2 className="stats-click">Home Layout</h2>
+//           </div>
+
+//           <div  className={`stats-card color-${5}`}>
+//                 <h2 className="stats-click">More</h2>
+//             </div>
+         
+
+//         </div>
+//       </div>
+
+//       {/* ================= MODALS ================= */}
+
+//       <Modal open={activeModal === "TIPS"} onClose={closeModal}>
+//         <TodayTipsList onClose={closeModal} />
+//       </Modal>
+
+//       <Modal open={activeModal === "SCHEME"} onClose={closeModal}>
+//         <SchemeAdmin />
+//       </Modal>
+
+//       <Modal open={activeModal === "BANNER"} onClose={closeModal}>
+//         <BannerAdmin />
+//       </Modal>
+
+//       <Modal open={activeModal === "HOME"} onClose={closeModal}>
+//         <HomeLayoutAdmin />
+//       </Modal>
+
 //     </div>
 //   );
 // };
 
 // export default Dashboard;
-
 
 import React, { useState, useEffect } from "react";
 import "./dashboard.css";
@@ -153,12 +112,10 @@ import TodayTipsList from "./today-tips/TodayTipsList";
 import HomeLayoutAdmin from "./home-layout/HomeLayoutAdmin";
 import BannerAdmin from "./banners/bannerAdmin";
 import SchemeAdmin from "./scheme/schemeAdmin";
-
-import Modal from "../components/Modal";
 import { getUserCount } from "./userService";
 
 const Dashboard = () => {
-  const [activeModal, setActiveModal] = useState(null);
+  const [activeSection, setActiveSection] = useState(null); // null = show dashboard cards
   const [totalUsers, setTotalUsers] = useState(0);
 
   useEffect(() => {
@@ -174,79 +131,74 @@ const Dashboard = () => {
     }
   };
 
-  const closeModal = () => setActiveModal(null);
+  // ── If a section is active, render it full page with a Back button ──
+  if (activeSection) {
+    return (
+      <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+        <button
+          onClick={() => setActiveSection(null)}
+          style={{
+            marginBottom: "16px",
+            padding: "8px 18px",
+            backgroundColor: "#1976d2",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontWeight: "600",
+            fontSize: "14px",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          ← 
+        </button>
 
+        {activeSection === "TIPS"   && <TodayTipsList />}
+        {activeSection === "SCHEME" && <SchemeAdmin />}
+        {activeSection === "BANNER" && <BannerAdmin />}
+        {activeSection === "HOME"   && <HomeLayoutAdmin />}
+      </div>
+    );
+  }
+
+  // ── Default: show dashboard cards ──
   return (
     <div className="dashboard-container">
-
       <div className="dashboard-title">
         <h1>Admin Dashboard</h1>
       </div>
 
-      {/* ================= DASHBOARD ONLY ================= */}
       <div className="stats-wrapper">
         <div className="stats-grid">
 
           <div className="stats-card color-1">
-            {/* <h2 className="stats-value">{totalUsers}</h2> */}
-            <p className="stats-title">{totalUsers} <br/>Total Users</p>
-            
+            <p className="stats-title">{totalUsers} <br /> Total Users</p>
           </div>
 
-          <div
-            className="stats-card"
-            onClick={() => setActiveModal("TIPS")}
-          >
+          <div className="stats-card" onClick={() => setActiveSection("TIPS")}>
             <h2 className="stats-click">Today Tips</h2>
           </div>
 
-          <div
-            className="stats-card color-2"
-            onClick={() => setActiveModal("SCHEME")}
-          >
+          <div className="stats-card color-2" onClick={() => setActiveSection("SCHEME")}>
             <h2 className="stats-click">Schemes</h2>
           </div>
 
-          <div
-            className="stats-card color-3"
-            onClick={() => setActiveModal("BANNER")}
-          >
+          <div className="stats-card color-3" onClick={() => setActiveSection("BANNER")}>
             <h2 className="stats-click">Banners</h2>
           </div>
 
-          <div
-            className="stats-card color-4"
-            onClick={() => setActiveModal("HOME")}
-          >
+          <div className="stats-card color-4" onClick={() => setActiveSection("HOME")}>
             <h2 className="stats-click">Home Layout</h2>
           </div>
 
-          <div  className={`stats-card color-${5}`}>
-                <h2 className="stats-click">More</h2>
-            </div>
-         
+          <div className="stats-card color-5">
+            <h2 className="stats-click">More</h2>
+          </div>
 
         </div>
       </div>
-
-      {/* ================= MODALS ================= */}
-
-      <Modal open={activeModal === "TIPS"} onClose={closeModal}>
-        <TodayTipsList onClose={closeModal} />
-      </Modal>
-
-      <Modal open={activeModal === "SCHEME"} onClose={closeModal}>
-        <SchemeAdmin />
-      </Modal>
-
-      <Modal open={activeModal === "BANNER"} onClose={closeModal}>
-        <BannerAdmin />
-      </Modal>
-
-      <Modal open={activeModal === "HOME"} onClose={closeModal}>
-        <HomeLayoutAdmin />
-      </Modal>
-
     </div>
   );
 };
