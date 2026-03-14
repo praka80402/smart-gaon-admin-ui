@@ -1,38 +1,62 @@
-/* Wrapper */
+/* ══════════════════════════════════
+   WRAPPER & TABLE
+══════════════════════════════════ */
+
 .bm-wrapper {
   width: 100%;
   overflow-x: auto;
 }
 
-/* Table */
 .bm-table {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
-}
-
-.bm-table th,
-.bm-table td {
-  padding: 14px;
-  text-align: center;
-  vertical-align: middle;
-  border-bottom: 1px solid #e5e5e5;
+  font-size: 0.9rem;
 }
 
 .bm-table th {
   background: #f5f6fa;
   font-weight: 600;
+  color: #374151;
+  padding: 14px 16px;
+  text-align: center;
+  border-bottom: 2px solid #e5e7eb;
+  white-space: nowrap;
 }
 
-/* View More */
+.bm-table td {
+  padding: 12px 16px;
+  text-align: center;
+  vertical-align: middle;
+  border-bottom: 1px solid #e5e7eb;
+  color: #111827;
+}
+
+.bm-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* ══════════════════════════════════
+   BANNER TITLE — VIEW MORE
+══════════════════════════════════ */
+
 .bm-view-more {
-  color: #007bff;
+  display: inline-block;
   margin-left: 6px;
+  color: #1d4ed8;
+  font-size: 0.8rem;
   cursor: pointer;
-  font-size: 13px;
+  font-weight: 500;
 }
 
-/* Media */
+.bm-view-more:hover {
+  text-decoration: underline;
+}
+
+/* ══════════════════════════════════
+   IMAGE CAROUSEL (in table)
+══════════════════════════════════ */
+
 .bm-media-cell {
   text-align: center;
 }
@@ -41,7 +65,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
+}
+
+.bm-preview {
+  cursor: pointer;
 }
 
 .bm-table-img {
@@ -49,21 +77,40 @@
   height: 60px;
   object-fit: cover;
   border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  transition: transform 0.2s;
+}
+
+.bm-table-img:hover {
+  transform: scale(1.05);
 }
 
 .bm-carousel-btn {
   border: none;
-  background: none;
+  background: #e5e7eb;
+  color: #374151;
   font-size: 18px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  padding: 0;
 }
 
-/* Actions */
+.bm-carousel-btn:hover {
+  background: #d1d5db;
+}
+
+/* ══════════════════════════════════
+   ACTION BUTTONS
+══════════════════════════════════ */
+
 .bm-actions {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
+  white-space: nowrap;
 }
 
 .bm-btn {
@@ -71,43 +118,52 @@
   border-radius: 6px;
   border: none;
   cursor: pointer;
-  font-size: 14px;
-  color: white;
-}
-
-.bm-edit {
-  background-color: #1e88e5;
-}
-
-.bm-delete {
-  background-color: #f9a825;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #fff;
+  transition: opacity 0.2s, transform 0.1s;
+  margin: 0 4px;
 }
 
 .bm-btn:hover {
   opacity: 0.85;
 }
 
-/* Modal background */
+.bm-btn:active {
+  transform: scale(0.96);
+}
+
+.bm-edit {
+  background-color: #1d4ed8;
+}
+
+.bm-delete {
+  background-color: #ef4444;
+}
+
+/* ══════════════════════════════════
+   IMAGE PREVIEW MODAL
+══════════════════════════════════ */
+
 .bm-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 2000;
 }
 
-/* Modal container */
 .bm-preview-container {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 20px;
   max-width: 90vw;
   max-height: 90vh;
 }
 
-/* FIXED IMAGE SIZE */
 .bm-modal-image {
   max-width: 70vw;
   max-height: 80vh;
@@ -115,15 +171,21 @@
   height: auto;
   object-fit: contain;
   border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
-/* Navigation buttons */
 .bm-modal-btn {
   font-size: 40px;
-  background: none;
+  background: rgba(255, 255, 255, 0.15);
   border: none;
-  color: white;
+  color: #fff;
   cursor: pointer;
-  padding: 10px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  line-height: 1;
+}
+
+.bm-modal-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
 }

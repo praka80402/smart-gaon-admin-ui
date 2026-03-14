@@ -41,10 +41,7 @@ const SevaBazarAdmin = () => {
       {/* BUSINESS TAB */}
       {activeTab === "business" && (
         <BusinessAdmin/>
-        // <div className="business-section">
-        //   <h3>Business Management</h3>
-        //   {/* <p>Business module coming soon...</p> */}
-        // </div>
+       
       )}
 
     </div>

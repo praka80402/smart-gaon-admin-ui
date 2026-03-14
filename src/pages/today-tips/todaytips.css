@@ -1,5 +1,5 @@
 /* === Modern Dashboard Theme === */
-
+/* 
 :root {
   --primary: #4caf50;
   --primary-dark: #388e3c;
@@ -130,7 +130,7 @@
 
 .btn-primary:hover {
   background: var(--primary-dark);
-}
+} */
 
 /* === Modern Dashboard Theme === */
 
@@ -328,3 +328,238 @@
   font-size: 20px;
   cursor: pointer;
 } */
+
+
+
+/* ── MODAL OVERLAY ── */
+.todaytips-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.todaytips-modal-wrapper {
+  position: relative;
+  background: #f4f6f9;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 780px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+/* ── PAGE (inner scroll area) ── */
+.todaytips-page {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ── HEADER ── */
+.todaytips-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.todaytips-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+/* ── MODAL CLOSE BUTTON (top-right of wrapper) ── */
+.todaytips-modal-close-btn {
+   background: transparent;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.todaytips-modal-close-btn:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* ── ADD TIP BUTTON ── */
+.todaytips-add-btn {
+  padding: 8px 16px;
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.todaytips-add-btn:hover {
+  background: #4f46e5;
+}
+
+/* ── DATE INPUT ── */
+.todaytips-date-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #dde1ea;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 18px;
+  background: #fff;
+  color: #333;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.todaytips-date-input:focus {
+  border-color: #6366f1;
+}
+
+/* ── TIP CARD ── */
+.todaytips-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 18px;
+  background: #fff;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+  transition: box-shadow 0.2s;
+}
+
+.todaytips-card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.11);
+}
+
+.todaytips-card-content {
+  flex: 1;
+}
+
+.todaytips-card-content h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.todaytips-card-content .tip-category {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6366f1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 6px;
+}
+
+.todaytips-card-content .tip-desc {
+  font-size: 13px;
+  color: #444;
+  margin: 0 0 6px;
+  line-height: 1.5;
+}
+
+.todaytips-card-content .tip-date {
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+}
+
+/* ── CARD ACTION BUTTONS ── */
+.todaytips-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 16px;
+}
+
+.todaytips-edit-btn,
+.todaytips-delete-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.todaytips-edit-btn {
+  background: #22c55e;
+  color: #fff;
+}
+
+.todaytips-delete-btn {
+  background: #ef4444;
+  color: #fff;
+}
+
+.todaytips-edit-btn:hover,
+.todaytips-delete-btn:hover {
+  opacity: 0.85;
+}
+
+/* ── INNER ADD/EDIT FORM MODAL ── */
+.todaytips-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.todaytips-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.todaytips-modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  color: #1a1a2e;
+}
+
+.todaytips-close {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: #888;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.todaytips-close:hover {
+  color: #ef4444;
+}
+
+/* ── EMPTY STATE ── */
+.todaytips-empty {
+  text-align: center;
+  color: #aaa;
+  font-size: 14px;
+  padding: 30px 0;
+}

@@ -1,38 +1,27 @@
-// import "./Modal.css";
-
-// export default function Modal({ open, onClose, children ,className = ""}) {
-//   if (!open) return null;
-
-//   return (
-//     <div className="modal-overlay" onClick={onClose}>
-//       <div
-//        className={`modal-content ${className}`}
-//         onClick={(e) => e.stopPropagation()}
-//       >
-//         <button className="modal-close" onClick={onClose}>✖</button>
-//         {children}
-//       </div>
-//     </div>
-//   );
-// }
-
+import React, { useEffect } from "react";
 import "./Modal.css";
-import ReactDOM from "react-dom";
 
-export default function Modal({ open, onClose, children, className = "" }) {
+const Modal = ({ open, onClose, children }) => {
+  // Close on Escape key
+  useEffect(() => {
+    if (!open) return;
+    const handleKey = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [open, onClose]);
+
   if (!open) return null;
 
-  return ReactDOM.createPortal(
+  return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className={`modal-content ${className}`}
-        onClick={(e) => e.stopPropagation()}
-        style={{ overflow: "visible" }}
+        className="modal-box"
+        onClick={(e) => e.stopPropagation()} // prevent overlay click from closing
       >
-        <button className="modal-close" onClick={onClose}>✖</button>
         {children}
       </div>
-    </div>,
-    document.body
+    </div>
   );
-}
+};
+
+export default Modal;

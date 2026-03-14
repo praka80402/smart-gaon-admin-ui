@@ -41,10 +41,14 @@
 
 .todaytip-form-title {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 100;
   color: #111827;
   margin-bottom: 20px;
 }
+
+/* .tip-form-title {
+  text-align: center;
+} */
 
 .todaytip-form-group {
   display: flex;
@@ -110,24 +114,24 @@
   border: 1px solid #e5e7eb;
 }
 
-.todaytip-save-btn {
+.tip-save-btn {
   width: 100%;
   margin-top: 20px;
   padding: 12px;
   border-radius: 8px;
   border: none;
-  background: #2563eb;
+  background: #6366f1;
   color: white;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
 
-.todaytip-save-btn:hover {
-  background: #1e40af;
+.tip-save-btn:hover {
+  background: #4f46e5;
 }
 
-.todaytip-save-btn:disabled {
+.tip-save-btn:disabled {
   background: #9ca3af;
   cursor: not-allowed;
 }

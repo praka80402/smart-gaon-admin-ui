@@ -1,6 +1,5 @@
 // import React, { useEffect, useState } from "react";
 // import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-
 // import { api } from "../../pages/gaonconnect/services/apiConfig";
 // import "./homeLayoutAdmin.css";
 
@@ -13,11 +12,18 @@
 // });
 
 // const HomeLayoutAdmin = () => {
+
+//   // ✅ GET ROLE
+//   const role = localStorage.getItem("adminRole");
+
+//   // ✅ ONLY SUPER + STATE CAN MANAGE
+//   const canManage =
+//     role === "SUPER_ADMIN" || role === "STATE_ADMIN";
+
 //   const [sections, setSections] = useState([]);
 //   const [saving, setSaving] = useState(false);
 //   const [loading, setLoading] = useState(true);
 
-//   // add section state
 //   const [newKey, setNewKey] = useState("");
 //   const [newTitle, setNewTitle] = useState("");
 
@@ -34,7 +40,14 @@
 //       );
 
 //       const data = res.data || [];
-//       setSections([...data].sort((a, b) => a.order - b.order));
+
+//       setSections(
+//         [...data].sort(
+//           (a, b) =>
+//             (a.displayOrder || a.order) -
+//             (b.displayOrder || b.order)
+//         )
+//       );
 //     } catch (err) {
 //       console.error("Failed to load layout", err);
 //       alert("Failed to load layout or unauthorized");
@@ -45,6 +58,8 @@
 
 //   /* ================= ADD SECTION ================= */
 //   const addSection = () => {
+//     if (!canManage) return;
+
 //     if (!newKey.trim() || !newTitle.trim()) {
 //       alert("Section key and title are required");
 //       return;
@@ -71,6 +86,7 @@
 
 //   /* ================= DRAG ================= */
 //   const onDragEnd = (result) => {
+//     if (!canManage) return;
 //     if (!result.destination) return;
 
 //     const items = Array.from(sections);
@@ -87,6 +103,8 @@
 
 //   /* ================= TOGGLE ================= */
 //   const toggleVisible = (id) => {
+//     if (!canManage) return;
+
 //     setSections((prev) =>
 //       prev.map((s) =>
 //         s.id === id ? { ...s, visible: !s.visible } : s
@@ -96,7 +114,10 @@
 
 //   /* ================= SAVE ================= */
 //   const saveLayout = async () => {
+//     if (!canManage) return;
+
 //     setSaving(true);
+
 //     try {
 //       await api.post(
 //         `${API_BASE}/home-layout`,
@@ -124,28 +145,29 @@
 
 //   return (
 //     <div className="home-layout-admin">
+
 //       {/* HEADER */}
 //       <div className="hla-header">
 //         <h2>🏠 Home Screen Layout</h2>
-//         <p>
-//           Drag to reorder, toggle visibility, or add new services dynamically.
-//         </p>
+//         <p>Drag to reorder and toggle visibility.</p>
 //       </div>
 
-//       {/* ADD SECTION */}
-//       <div className="hla-add">
-//         <input
-//           placeholder="section key (e.g. gov_schemes)"
-//           value={newKey}
-//           onChange={(e) => setNewKey(e.target.value)}
-//         />
-//         <input
-//           placeholder="Title (e.g. Government Schemes)"
-//           value={newTitle}
-//           onChange={(e) => setNewTitle(e.target.value)}
-//         />
-//         <button onClick={addSection}>Add</button>
-//       </div>
+//       {/* ADD SECTION (ONLY SUPER + STATE) */}
+//       {canManage && (
+//         <div className="hla-add">
+//           <input
+//             placeholder="section key (e.g. gov_schemes)"
+//             value={newKey}
+//             onChange={(e) => setNewKey(e.target.value)}
+//           />
+//           <input
+//             placeholder="Title (e.g. Government Schemes)"
+//             value={newTitle}
+//             onChange={(e) => setNewTitle(e.target.value)}
+//           />
+//           <button onClick={addSection}>Add</button>
+//         </div>
+//       )}
 
 //       {/* LIST */}
 //       <div className="hla-list">
@@ -158,12 +180,13 @@
 //                     key={section.id}
 //                     draggableId={section.id}
 //                     index={index}
+//                     isDragDisabled={!canManage}
 //                   >
 //                     {(provided) => (
 //                       <div
 //                         ref={provided.innerRef}
 //                         {...provided.draggableProps}
-//                         {...provided.dragHandleProps}
+//                         {...(canManage ? provided.dragHandleProps : {})}
 //                         className="hla-card"
 //                         style={provided.draggableProps.style}
 //                       >
@@ -176,6 +199,7 @@
 //                           <input
 //                             type="checkbox"
 //                             checked={section.visible}
+//                             disabled={!canManage}
 //                             onChange={() => toggleVisible(section.id)}
 //                           />
 //                           <span>Visible</span>
@@ -191,16 +215,19 @@
 //         </DragDropContext>
 //       </div>
 
-//       {/* FOOTER */}
-//       <div className="hla-footer">
-//         <button
-//           className="hla-save-btn"
-//           onClick={saveLayout}
-//           disabled={saving}
-//         >
-//           {saving ? "Saving..." : "Save Layout"}
-//         </button>
-//       </div>
+//       {/* SAVE BUTTON (ONLY SUPER + STATE) */}
+//       {canManage && (
+//         <div className="hla-footer">
+//           <button
+//             className="hla-save-btn"
+//             onClick={saveLayout}
+//             disabled={saving}
+//           >
+//             {saving ? "Saving..." : "Save Layout"}
+//           </button>
+//         </div>
+//       )}
+
 //     </div>
 //   );
 // };
@@ -221,19 +248,17 @@ const authHeader = () => ({
   },
 });
 
-const HomeLayoutAdmin = () => {
-
-  // ✅ GET ROLE
+/* ─────────────────────────────────────────
+   HomeLayoutAdmin — controlled by Dashboard
+   Props: onClose  (called by Cancel / ✕)
+───────────────────────────────────────── */
+const HomeLayoutAdmin = ({ onClose }) => {
   const role = localStorage.getItem("adminRole");
-
-  // ✅ ONLY SUPER + STATE CAN MANAGE
-  const canManage =
-    role === "SUPER_ADMIN" || role === "STATE_ADMIN";
+  const canManage = role === "SUPER_ADMIN" || role === "STATE_ADMIN";
 
   const [sections, setSections] = useState([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
-
   const [newKey, setNewKey] = useState("");
   const [newTitle, setNewTitle] = useState("");
 
@@ -241,21 +266,14 @@ const HomeLayoutAdmin = () => {
     loadLayout();
   }, []);
 
-  /* ================= LOAD ================= */
+  /* ── LOAD ── */
   const loadLayout = async () => {
     try {
-      const res = await api.get(
-        `${API_BASE}/home-layout`,
-        authHeader()
-      );
-
+      const res = await api.get(`${API_BASE}/home-layout`, authHeader());
       const data = res.data || [];
-
       setSections(
         [...data].sort(
-          (a, b) =>
-            (a.displayOrder || a.order) -
-            (b.displayOrder || b.order)
+          (a, b) => (a.displayOrder || a.order) - (b.displayOrder || b.order)
         )
       );
     } catch (err) {
@@ -266,68 +284,46 @@ const HomeLayoutAdmin = () => {
     }
   };
 
-  /* ================= ADD SECTION ================= */
+  /* ── ADD ── */
   const addSection = () => {
     if (!canManage) return;
-
     if (!newKey.trim() || !newTitle.trim()) {
       alert("Section key and title are required");
       return;
     }
-
     if (sections.some((s) => s.id === newKey.trim())) {
       alert("Section key already exists");
       return;
     }
-
     setSections((prev) => [
       ...prev,
-      {
-        id: newKey.trim(),
-        title: newTitle.trim(),
-        visible: false,
-        order: prev.length + 1,
-      },
+      { id: newKey.trim(), title: newTitle.trim(), visible: false, order: prev.length + 1 },
     ]);
-
     setNewKey("");
     setNewTitle("");
   };
 
-  /* ================= DRAG ================= */
+  /* ── DRAG ── */
   const onDragEnd = (result) => {
-    if (!canManage) return;
-    if (!result.destination) return;
-
+    if (!canManage || !result.destination) return;
     const items = Array.from(sections);
     const [moved] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, moved);
-
-    setSections(
-      items.map((item, index) => ({
-        ...item,
-        order: index + 1,
-      }))
-    );
+    setSections(items.map((item, index) => ({ ...item, order: index + 1 })));
   };
 
-  /* ================= TOGGLE ================= */
+  /* ── TOGGLE ── */
   const toggleVisible = (id) => {
     if (!canManage) return;
-
     setSections((prev) =>
-      prev.map((s) =>
-        s.id === id ? { ...s, visible: !s.visible } : s
-      )
+      prev.map((s) => (s.id === id ? { ...s, visible: !s.visible } : s))
     );
   };
 
-  /* ================= SAVE ================= */
+  /* ── SAVE ── */
   const saveLayout = async () => {
     if (!canManage) return;
-
     setSaving(true);
-
     try {
       await api.post(
         `${API_BASE}/home-layout`,
@@ -339,7 +335,6 @@ const HomeLayoutAdmin = () => {
         })),
         authHeader()
       );
-
       alert("Home layout saved successfully");
     } catch (err) {
       console.error("Save failed", err);
@@ -350,23 +345,35 @@ const HomeLayoutAdmin = () => {
   };
 
   if (loading) {
-    return <p style={{ padding: 20 }}>Loading layout...</p>;
+    return (
+      <div className="hla-loading">
+        <span className="hla-spinner" />
+        <p>Loading layout…</p>
+      </div>
+    );
   }
 
   return (
-    <div className="home-layout-admin">
+    <div className="hla-panel">
 
-      {/* HEADER */}
-      <div className="hla-header">
-        <h2>🏠 Home Screen Layout</h2>
-        <p>Drag to reorder and toggle visibility.</p>
+      {/* ── HEADER ── */}
+      <div className="hla-modal-header">
+        <div>
+          <h2>🏠 Home Screen Layout</h2>
+          <p>Drag to reorder · toggle visibility</p>
+        </div>
+        {onClose && (
+          <button className="hla-close-btn" onClick={onClose} aria-label="Close">
+            ✕
+          </button>
+        )}
       </div>
 
-      {/* ADD SECTION (ONLY SUPER + STATE) */}
+      {/* ── ADD SECTION ── */}
       {canManage && (
         <div className="hla-add">
           <input
-            placeholder="section key (e.g. gov_schemes)"
+            placeholder="Section key (e.g. gov_schemes)"
             value={newKey}
             onChange={(e) => setNewKey(e.target.value)}
           />
@@ -375,11 +382,11 @@ const HomeLayoutAdmin = () => {
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
           />
-          <button onClick={addSection}>Add</button>
+          <button onClick={addSection}>+ Add</button>
         </div>
       )}
 
-      {/* LIST */}
+      {/* ── DRAG LIST ── */}
       <div className="hla-list">
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="sections">
@@ -392,14 +399,16 @@ const HomeLayoutAdmin = () => {
                     index={index}
                     isDragDisabled={!canManage}
                   >
-                    {(provided) => (
+                    {(provided, snapshot) => (
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...(canManage ? provided.dragHandleProps : {})}
-                        className="hla-card"
+                        className={`hla-card${snapshot.isDragging ? " hla-card--dragging" : ""}`}
                         style={provided.draggableProps.style}
                       >
+                        {canManage && <span className="hla-drag-icon">⠿</span>}
+
                         <div className="hla-left">
                           <strong>{section.title}</strong>
                           <span className="hla-key">{section.id}</span>
@@ -412,7 +421,10 @@ const HomeLayoutAdmin = () => {
                             disabled={!canManage}
                             onChange={() => toggleVisible(section.id)}
                           />
-                          <span>Visible</span>
+                          <span className="hla-slider" />
+                          <span className="hla-toggle-label">
+                            {section.visible ? "Visible" : "Hidden"}
+                          </span>
                         </label>
                       </div>
                     )}
@@ -425,15 +437,16 @@ const HomeLayoutAdmin = () => {
         </DragDropContext>
       </div>
 
-      {/* SAVE BUTTON (ONLY SUPER + STATE) */}
+      {/* ── FOOTER ── */}
       {canManage && (
         <div className="hla-footer">
-          <button
-            className="hla-save-btn"
-            onClick={saveLayout}
-            disabled={saving}
-          >
-            {saving ? "Saving..." : "Save Layout"}
+          {onClose && (
+            <button className="hla-cancel-btn" onClick={onClose}>
+              Cancel
+            </button>
+          )}
+          <button className="hla-save-btn" onClick={saveLayout} disabled={saving}>
+            {saving ? "Saving…" : "Save Layout"}
           </button>
         </div>
       )}
@@ -443,3 +456,4 @@ const HomeLayoutAdmin = () => {
 };
 
 export default HomeLayoutAdmin;
+

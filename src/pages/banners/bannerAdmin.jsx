@@ -5,13 +5,24 @@
 // import "./banner.css";
 
 // const BannerAdmin = () => {
-//   const [activeTab, setActiveTab] = useState("create"); // create | list
+
+//   /* ================= ROLE CONTROL ================= */
+//   const role = localStorage.getItem("adminRole");
+
+//   const canManageBanner =
+//     role === "SUPER_ADMIN" || role === "STATE_ADMIN";
+
+//   /* ================= STATES ================= */
+//   const [activeTab, setActiveTab] = useState(
+//     canManageBanner ? "create" : "list"
+//   );
+
 //   const [banners, setBanners] = useState([]);
 //   const [selectedBanner, setSelectedBanner] = useState(null);
 
 //   const loadBanners = async () => {
 //     const res = await getBanners();
-//     setBanners(res.data);
+//     setBanners(res.data || []);
 //     setSelectedBanner(null);
 //   };
 
@@ -24,14 +35,18 @@
 
 //       <h2>Banner Management</h2>
 
-//       {/* TABS */}
+//       {/* ================= TABS ================= */}
 //       <div className="banner-tabs">
-//         <button
-//           className={activeTab === "create" ? "active" : ""}
-//           onClick={() => setActiveTab("create")}
-//         >
-//           Create Banner
-//         </button>
+
+//         {/* 🔒 Create Tab Only For SUPER + STATE */}
+//         {canManageBanner && (
+//           <button
+//             className={activeTab === "create" ? "active" : ""}
+//             onClick={() => setActiveTab("create")}
+//           >
+//             Create Banner
+//           </button>
+//         )}
 
 //         <button
 //           className={activeTab === "list" ? "active" : ""}
@@ -39,10 +54,13 @@
 //         >
 //           Banner List
 //         </button>
+
 //       </div>
 
-//       {/* TAB CONTENT */}
-//       {activeTab === "create" && (
+//       {/* ================= TAB CONTENT ================= */}
+
+//       {/* 🔒 Create Form Only For SUPER + STATE */}
+//       {activeTab === "create" && canManageBanner && (
 //         <BannerForm
 //           selectedBanner={selectedBanner}
 //           onSuccess={() => {
@@ -52,10 +70,13 @@
 //         />
 //       )}
 
+//       {/* Banner List (All Can View) */}
 //       {activeTab === "list" && (
 //         <BannerList
 //           banners={banners}
+//           canManage={canManageBanner}  // 🔥 Pass control
 //           onEdit={(banner) => {
+//             if (!canManageBanner) return;
 //             setSelectedBanner(banner);
 //             setActiveTab("create");
 //           }}
@@ -75,7 +96,7 @@ import BannerList from "./bannerList";
 import { getBanners } from "./bannerApi";
 import "./banner.css";
 
-const BannerAdmin = () => {
+const BannerAdmin = ({ isOpen = true, onClose = () => {} }) => {
 
   /* ================= ROLE CONTROL ================= */
   const role = localStorage.getItem("adminRole");
@@ -101,60 +122,77 @@ const BannerAdmin = () => {
     loadBanners();
   }, []);
 
+  // Close on Escape key
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  if (!isOpen) return null;
+
   return (
-    <div className="banner-admin">
+    // Overlay (click outside to close)
+    <div className="bm-overlay" onClick={onClose}>
 
-      <h2>Banner Management</h2>
+      {/* Modal Box (stop click from closing) */}
+      <div className="bm-box" onClick={(e) => e.stopPropagation()}>
 
-      {/* ================= TABS ================= */}
-      <div className="banner-tabs">
+        {/* ── Header ── */}
+        <div className="bm-header">
+          <h2>Banner Management</h2>
+          <button className="bm-close" onClick={onClose}>✕</button>
+        </div>
 
-        {/* 🔒 Create Tab Only For SUPER + STATE */}
-        {canManageBanner && (
+        {/* ── Tabs ── */}
+        <div className="banner-tabs">
+          {canManageBanner && (
+            <button
+              className={activeTab === "create" ? "active" : ""}
+              onClick={() => setActiveTab("create")}
+            >
+              Create Banner
+            </button>
+          )}
+
           <button
-            className={activeTab === "create" ? "active" : ""}
-            onClick={() => setActiveTab("create")}
+            className={activeTab === "list" ? "active" : ""}
+            onClick={() => setActiveTab("list")}
           >
-            Create Banner
+            Banner List
           </button>
-        )}
+        </div>
 
-        <button
-          className={activeTab === "list" ? "active" : ""}
-          onClick={() => setActiveTab("list")}
-        >
-          Banner List
-        </button>
+        {/* ── Tab Content ── */}
+        <div className="bm-body">
 
+          {activeTab === "create" && canManageBanner && (
+            <BannerForm
+              selectedBanner={selectedBanner}
+              onSuccess={() => {
+                loadBanners();
+                setActiveTab("list");
+              }}
+            />
+          )}
+
+          {activeTab === "list" && (
+            <BannerList
+              banners={banners}
+              canManage={canManageBanner}
+              onEdit={(banner) => {
+                if (!canManageBanner) return;
+                setSelectedBanner(banner);
+                setActiveTab("create");
+              }}
+              onRefresh={loadBanners}
+            />
+          )}
+
+        </div>
       </div>
-
-      {/* ================= TAB CONTENT ================= */}
-
-      {/* 🔒 Create Form Only For SUPER + STATE */}
-      {activeTab === "create" && canManageBanner && (
-        <BannerForm
-          selectedBanner={selectedBanner}
-          onSuccess={() => {
-            loadBanners();
-            setActiveTab("list");
-          }}
-        />
-      )}
-
-      {/* Banner List (All Can View) */}
-      {activeTab === "list" && (
-        <BannerList
-          banners={banners}
-          canManage={canManageBanner}  // 🔥 Pass control
-          onEdit={(banner) => {
-            if (!canManageBanner) return;
-            setSelectedBanner(banner);
-            setActiveTab("create");
-          }}
-          onRefresh={loadBanners}
-        />
-      )}
-
     </div>
   );
 };

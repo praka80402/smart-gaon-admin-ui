@@ -227,7 +227,7 @@ const getInitial = () => {
  
   const allMenuItems = [
   { name: "Dashboard", path: "/dashboard" },
-  { name: "User Mgmt", path: "/users" },
+  { name: "User Management", path: "/users" },
   { name: "Shiksha Sahayak", path: "/shiksha" },
   { name: "Gaon Connect", path: "/gaon-connect" },
   { name: "Donation", path: "/donation" },

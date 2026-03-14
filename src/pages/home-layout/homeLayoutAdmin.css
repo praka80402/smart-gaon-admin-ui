@@ -1,97 +1,330 @@
-.home-layout-admin {
-  height: 100%;
+/* ─────────────────────────────────────────
+   PANEL WRAPPER
+───────────────────────────────────────── */
+.hla-panel {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  background: #f5f6f8;
+  border-radius: 16px;
+  overflow: hidden;
 }
 
-/* HEADER */
-.hla-header {
-  padding: 20px 24px 10px;
+/* ─────────────────────────────────────────
+   HEADER
+───────────────────────────────────────── */
+.hla-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px 14px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
 }
 
-.hla-header p {
+.hla-modal-header h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+}
+
+.hla-modal-header p {
   margin: 0;
-  color: #666;
-  font-size: 14px;
+  font-size: 13px;
+  color: #888;
 }
 
-/* ADD SECTION */
+.hla-close-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: #f0f0f0;
+  color: #555;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.hla-close-btn:hover {
+  background: #e0e0e0;
+  color: #111;
+}
+
+/* ─────────────────────────────────────────
+   ADD SECTION ROW
+───────────────────────────────────────── */
 .hla-add {
   display: flex;
-  gap: 10px;
-  padding: 0 24px 14px;
+  gap: 8px;
+  padding: 14px 24px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
 }
 
 .hla-add input {
   flex: 1;
-  padding: 8px 10px;
+  padding: 9px 12px;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+  background: #fafafa;
+}
+
+.hla-add input:focus {
+  border-color: #0066ff;
+  background: #fff;
 }
 
 .hla-add button {
-  padding: 8px 14px;
-  border-radius: 8px;
+  padding: 9px 16px;
   border: none;
+  border-radius: 8px;
   background: #0066ff;
   color: #fff;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
 }
 
-/* LIST */
+.hla-add button:hover {
+  background: #0052cc;
+}
+
+/* ─────────────────────────────────────────
+   SCROLLABLE LIST
+───────────────────────────────────────── */
 .hla-list {
   flex: 1;
   overflow-y: auto;
-  padding: 0 24px;
+  padding: 16px 24px 8px;
 }
 
-/* CARD */
+.hla-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.hla-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hla-list::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 10px;
+}
+
+/* ─────────────────────────────────────────
+   SECTION CARD
+───────────────────────────────────────── */
 .hla-card {
   background: #fff;
   border-radius: 12px;
-  padding: 14px 16px;
-  margin-bottom: 14px;
+  padding: 13px 16px;
+  margin-bottom: 10px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.15s;
+  cursor: default;
 }
 
+.hla-card:hover {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.09);
+}
+
+.hla-card--dragging {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  opacity: 0.96;
+}
+
+/* drag handle icon */
+.hla-drag-icon {
+  color: #ccc;
+  font-size: 18px;
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.hla-drag-icon:active {
+  cursor: grabbing;
+}
+
+/* left text block */
 .hla-left {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.hla-left strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .hla-key {
-  font-size: 12px;
-  color: #777;
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 2px;
 }
 
-/* TOGGLE */
+/* ─────────────────────────────────────────
+   TOGGLE SWITCH
+───────────────────────────────────────── */
 .hla-toggle {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-/* FOOTER */
+/* hide native checkbox */
+.hla-toggle input[type="checkbox"] {
+  display: none;
+}
+
+/* track */
+.hla-slider {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  background: #ddd;
+  border-radius: 11px;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+/* thumb */
+.hla-slider::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+/* checked state */
+.hla-toggle input:checked ~ .hla-slider {
+  background: #00a651;
+}
+
+.hla-toggle input:checked ~ .hla-slider::after {
+  transform: translateX(18px);
+}
+
+/* disabled state */
+.hla-toggle input:disabled ~ .hla-slider {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.hla-toggle-label {
+  font-size: 12px;
+  color: #888;
+  width: 42px;
+}
+
+/* ─────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────── */
 .hla-footer {
-  padding: 16px 24px;
+  display: flex;
+  gap: 10px;
+  padding: 14px 24px;
   border-top: 1px solid #eee;
   background: #fff;
+  flex-shrink: 0;
+}
+
+.hla-cancel-btn {
+  flex: 1;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  background: #f0f0f0;
+  color: #444;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.hla-cancel-btn:hover {
+  background: #e4e4e4;
 }
 
 .hla-save-btn {
-  width: 100%;
-  padding: 14px;
-  font-size: 16px;
+  flex: 2;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 700;
   background: #00a651;
   color: #fff;
   border: none;
   border-radius: 12px;
   cursor: pointer;
+  transition: background 0.15s;
+}
+
+.hla-save-btn:hover:not(:disabled) {
+  background: #008c44;
 }
 
 .hla-save-btn:disabled {
   opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ─────────────────────────────────────────
+   LOADING STATE
+───────────────────────────────────────── */
+.hla-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  gap: 14px;
+  color: #999;
+  font-size: 14px;
+}
+
+.hla-spinner {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #0066ff;
+  border-radius: 50%;
+  animation: hla-spin 0.7s linear infinite;
+}
+
+@keyframes hla-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

@@ -201,7 +201,7 @@ const BannerForm = ({ selectedBanner, onSuccess }) => {
   selected={banner.startDate}
   onChange={(date) => setBanner({ ...banner, startDate: date })}
   dateFormat="dd/MM/yyyy"
-  placeholderText="dd/mm/yyyy"
+  placeholderText=""
   showIcon
   toggleCalendarOnIconClick
   onKeyDown={(e) => e.preventDefault()}
@@ -215,7 +215,7 @@ const BannerForm = ({ selectedBanner, onSuccess }) => {
   onChange={(date) => setBanner({ ...banner, endDate: date })}
   dateFormat="dd/MM/yyyy"
   minDate={banner.startDate}
-  placeholderText="dd/mm/yyyy"
+  placeholderText=""
   showIcon
   toggleCalendarOnIconClick
   onKeyDown={(e) => e.preventDefault()}

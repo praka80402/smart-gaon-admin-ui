@@ -6,13 +6,16 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
+  /* ✅ Removed table-layout: fixed */
 }
 
 .job-table th,
 .job-table td {
   border: 1px solid #ddd;
-  padding: 10px;
+  padding: 8px 10px;
   text-align: center;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .job-table th {
@@ -20,46 +23,159 @@
   color: white;
 }
 
+/* ✅ Column widths */
+.job-table th:nth-child(1) { width: 50px; }   /* ID */
+.job-table th:nth-child(2) { width: 120px; }  /* Title */
+.job-table th:nth-child(3) { width: 100px; }  /* Location */
+.job-table th:nth-child(4) { width: 90px; }   /* Type */
+.job-table th:nth-child(5) { width: 90px; }   /* Salary */
+.job-table th:nth-child(6) { width: 80px; }   /* Status */
+.job-table th:nth-child(7) { width: 130px; }  /* Posted By */
+.job-table th:nth-child(8) { width: 70px; }   /* Reports */
+.job-table th:nth-child(9) { width: 250px; }  /* ✅ Actions */
+
+/* ✅ Status badge */
+.status-badge {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.status-badge.open {
+  background: #d4edda;
+  color: #155724;
+}
+.status-badge.closed {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* ✅ Action buttons in one row */
+.action-cell {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ✅ Cleaned up — single definition for all buttons */
+.detail-btn,
+.view-btn,
 .delete-btn {
-  background: red;
-  color: white;
   border: none;
-  padding: 6px 10px;
+  padding: 5px 10px;
+  border-radius: 4px;
   cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+  width: auto;
+  color: white;
 }
 
-.delete-btn:hover {
-  background: darkred;
-}
+.detail-btn  { background: #6f42c1; }
+.detail-btn:hover  { background: #5a32a3; }
 
+.view-btn    { background: #17a2b8; }
+.view-btn:hover    { background: #138496; }
+
+.delete-btn  { background: #dc3545; }
+.delete-btn:hover  { background: #b02a37; }
+
+/* ================= PAGINATION ================= */
 .pagination {
   margin-top: 15px;
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 15px;
 }
+.pagination button {
+  padding: 6px 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.pagination button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
 
-/* Close Button Styling */
+/* ================= MODAL ================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  position: relative;
+  background: white;
+  padding: 30px 20px 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h3 {
+  margin-bottom: 15px;
+  text-align: center;
+}
 
 .close-btn {
   position: absolute;
   top: 10px;
   right: 10px;
-
-  background: #dc3545;   /* Red background */
+  background: #dc3545;
   color: white;
-
   border: none;
   border-radius: 4px;
-
   padding: 6px 12px;
   font-size: 14px;
   font-weight: bold;
-
   cursor: pointer;
-  transition: background 0.3s ease;
+}
+.close-btn:hover { background: #b02a37; }
+
+/* ================= DETAIL GRID ================= */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 20px;
+  margin-top: 10px;
 }
 
-.close-btn:hover {
-  background: #b02a37;   /* Dark red on hover */
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: #888;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #333;
+  background: #f8f9fa;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
 }
