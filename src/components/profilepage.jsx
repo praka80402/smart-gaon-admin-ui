@@ -27,7 +27,7 @@ const handleSubmit = async (e) => {
 
   try {
     const res = await axios.put(
-      "http://localhost:9090/admin/user/update-profile",
+      "https://smartgaonadmin.duckdns.org/admin/user/update-profile",
       formData,
       {
         headers: {
