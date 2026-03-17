@@ -95,7 +95,7 @@ import UserManagement from "./pages/UserManagement";
 import DonationAdmin from "./pages/donation/DonationAdmin";
 import NcertMain from "./pages/shikshasahayak/Shikshsahayak";
 import SevaBazarAdmin from "./pages/sevabazar/SevaBazarAdmin";
-// import GaonSaathi from "./pages/gaonsaathi/GaonSaathi";
+import GaonSathiManager from "./pages/gaon-sathi/GaonSathiManager";
 
 import "./App.css";
 import ProfilePage from "./components/profilepage";
@@ -194,12 +194,12 @@ function App() {
           />
 
           {/* GAON SAATHI */}
-          {/* <Route
+          <Route
             path="/gaon-saathi"
             element={
-              isLoggedIn ? <GaonSaathi /> : <Navigate to="/login" />
+              isLoggedIn ? <GaonSathiManager /> : <Navigate to="/login" />
             }
-          /> */}
+          />
 
 <Route
   path="/profilepage"
