@@ -54,7 +54,7 @@ function GaonSathiGallery() {
         {images.map((img) => (
           <div key={img.id} className="image-card">
             <img src={img.imageUrl} alt="avatar" />
-            <p>ID: {img.id}</p>
+            
           </div>
         ))}
       </div>
