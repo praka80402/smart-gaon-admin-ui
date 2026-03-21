@@ -1,66 +1,215 @@
-/* ── CONTAINER ── */
-.scheme-container {
-  padding: 24px;
-  background: #f4f6f9;
-  min-height: 100%;
+/* ══════════════════════════════════════
+   OUTER MODAL WRAPPER
+   (the overlay that holds <SchemeAdmin />)
+══════════════════════════════════════ */
+.scheme-outer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  padding: 16px;
 }
 
-/* ── HEADER ── */
+.scheme-outer-modal {
+  background: #f4f6f9;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 960px;
+  max-height: 90vh;
+  overflow: hidden;           /* inner wrapper handles scroll */
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+}
+
+
+/* ══════════════════════════════════════
+   CONTAINER  (the root div of SchemeAdmin)
+══════════════════════════════════════ */
+.scheme-container {
+  padding: 28px 32px;
+  background: #f4f6f9;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow-y: auto;           /* scrolls inside the modal */
+  max-height: 90vh;           /* safety cap when used standalone */
+  border-radius: 16px;
+}
+
+
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
 .scheme-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;             /* never squish the header */
 }
 
 .scheme-header h2 {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: #1a1a2e;
   margin: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-/* ── TABLE ── */
+/* button group */
+.scheme-header > div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* shared header button base */
+.scheme-header > div button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.scheme-header > div button:hover  { opacity: 0.88; }
+.scheme-header > div button:active { transform: scale(0.97); }
+
+/* close (✕) button in header */
+.scheme-header-close {
+  padding: 6px 11px !important;
+  font-size: 16px !important;
+  background: #e5e7eb !important;
+  color: #374151 !important;
+  border-radius: 50% !important;
+  line-height: 1;
+}
+
+.scheme-header-close:hover {
+  background: #fecaca !important;
+  color: #dc2626 !important;
+}
+
+
+/* ══════════════════════════════════════
+   TABLE WRAPPER  (horizontal scroll)
+══════════════════════════════════════ */
+.scheme-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+
+/* ══════════════════════════════════════
+   TABLE
+══════════════════════════════════════ */
 .scheme-table {
   width: 100%;
+  min-width: 640px;
   border-collapse: collapse;
-  background: #fff;
+  background: #ffffff;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
 }
 
+/* head */
 .scheme-table thead {
   background: #1a1a2e;
-  color: #fff;
+  color: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .scheme-table th {
-  padding: 12px 16px;
+  padding: 13px 16px;
   text-align: left;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
+/* body cells */
 .scheme-table td {
-  padding: 12px 16px;
+  padding: 11px 16px;
   font-size: 13px;
   color: #374151;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f2f5;
   vertical-align: middle;
 }
 
-.scheme-table tbody tr:last-child td {
-  border-bottom: none;
+.scheme-table tbody tr:last-child td { border-bottom: none; }
+.scheme-table tbody tr:hover          { background: #f5f7ff; }
+
+/* column widths */
+.scheme-table th:first-child,
+.scheme-table td:first-child  { min-width: 180px; }   /* Title    */
+
+.scheme-table th:nth-child(2),
+.scheme-table td:nth-child(2),
+.scheme-table th:nth-child(3),
+.scheme-table td:nth-child(3) { min-width: 90px; white-space: nowrap; }  /* Type / State */
+
+.scheme-table th:nth-child(4),
+.scheme-table td:nth-child(4) { min-width: 130px; }   /* Category */
+
+.scheme-table th:last-child,
+.scheme-table td:last-child   { min-width: 220px; white-space: nowrap; } /* Actions  */
+
+/* "View More" link */
+.scheme-title-toggle {
+  color: #6366f1;
+  cursor: pointer;
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-.scheme-table tbody tr:hover {
-  background: #f8faff;
+.scheme-title-toggle:hover { text-decoration: underline; }
+
+/* action buttons inside table */
+.scheme-action-btn {
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.18s, transform 0.1s;
+  min-width: 62px;
+  color: #fff;
 }
+
+.scheme-action-btn:hover  { opacity: 0.85; }
+.scheme-action-btn:active { transform: scale(0.96); }
+
+.scheme-action-btn.view   { background: #6c757d; }
+.scheme-action-btn.edit   { background: #2ecc71; }
+.scheme-action-btn.delete { background: #e74c3c; }
+
 
 /* ══════════════════════════════════════
-   SHARED OVERLAY
+   SHARED OVERLAY  (for inner modals)
 ══════════════════════════════════════ */
 .scheme-details-overlay,
 .scheme-form-overlay,
@@ -76,8 +225,9 @@
   padding: 16px;
 }
 
+
 /* ══════════════════════════════════════
-   SHARED CLOSE BUTTON
+   SHARED CLOSE BUTTON  (top-right ✕)
 ══════════════════════════════════════ */
 .scheme-modal-close,
 .scheme-close-btn {
@@ -86,64 +236,71 @@
   right: 14px;
   background: transparent;
   border: none;
-  font-size: 20px;
-  color: #888;
+  font-size: 18px;
+  color: #9ca3af;
   cursor: pointer;
   line-height: 1;
   z-index: 10;
-  transition: color 0.2s;
+  transition: color 0.18s;
+  padding: 4px;
+  border-radius: 50%;
 }
 
 .scheme-modal-close:hover,
 .scheme-close-btn:hover {
   color: #ef4444;
+  background: #fef2f2;
 }
+
 
 /* ══════════════════════════════════════
    DETAILS MODAL
 ══════════════════════════════════════ */
 .scheme-details-modal {
-  background: #fff;
+  background: #ffffff;
   border-radius: 14px;
-  padding: 24px;
+  padding: 26px;
   width: 100%;
-  max-width: 420px;
-  max-height: 75vh;
+  max-width: 460px;
+  max-height: 82vh;
   overflow-y: auto;
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
 
 .scheme-details-modal h3 {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: #1a1a2e;
   margin: 0 0 16px;
   padding-right: 28px;
+  line-height: 1.4;
 }
 
 .details-content p {
   font-size: 13px;
   color: #374151;
   margin: 0 0 10px;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .details-content p strong {
   color: #1a1a2e;
   font-weight: 600;
+  margin-right: 4px;
 }
+
 
 /* ══════════════════════════════════════
    CREATE / EDIT SCHEME MODAL
 ══════════════════════════════════════ */
 .scheme-form-modal {
-  background: #fff;
+  background: #ffffff;
   border-radius: 14px;
-  padding: 24px;
+  padding: 26px;
   width: 100%;
-  max-width: 460px;
-  max-height: 85vh;
+  max-width: 500px;
+  max-height: 92vh;
   overflow-y: auto;
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
@@ -158,13 +315,14 @@
   padding-right: 28px;
 }
 
-/* ── FORM GRID ── */
+/* form layout */
 .scheme-form .form-grid {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
+/* inputs, selects, textareas */
 .scheme-form input,
 .scheme-form select,
 .scheme-form textarea {
@@ -177,36 +335,40 @@
   background: #fff;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
 }
 
 .scheme-form input:focus,
 .scheme-form select:focus,
 .scheme-form textarea:focus {
   border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
 }
 
 .scheme-form textarea {
-  min-height: 70px;
+  min-height: 72px;
   resize: vertical;
+  line-height: 1.5;
 }
 
 .scheme-form input[type="file"] {
-  padding: 6px;
+  padding: 7px;
   font-size: 12px;
   color: #6b7280;
+  cursor: pointer;
 }
 
-/* ── FORM FOOTER ── */
+/* form footer */
 .form-footer {
-  margin-top: 16px;
+  margin-top: 18px;
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
 }
 
 .form-footer button {
-  padding: 9px 22px;
+  padding: 9px 24px;
   background: #6366f1;
   color: #fff;
   border: none;
@@ -214,22 +376,22 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.1s;
 }
 
-.form-footer button:hover {
-  background: #4f46e5;
-}
+.form-footer button:hover  { background: #4f46e5; }
+.form-footer button:active { transform: scale(0.97); }
+
 
 /* ══════════════════════════════════════
-   CATEGORY MODAL
+   CREATE CATEGORY MODAL
 ══════════════════════════════════════ */
 .scheme-modal-box {
-  background: #fff;
+  background: #ffffff;
   border-radius: 14px;
-  padding: 24px;
+  padding: 26px;
   width: 100%;
-  max-width: 340px;
+  max-width: 360px;
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   display: flex;
@@ -254,12 +416,13 @@
   font-size: 13px;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
 }
 
 .scheme-modal-box input:focus {
   border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
 }
 
 .scheme-modal-box > button:not(.scheme-close-btn) {
@@ -276,4 +439,26 @@
 
 .scheme-modal-box > button:not(.scheme-close-btn):hover {
   background: #4f46e5;
+}
+
+
+/* ══════════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════════ */
+.scheme-empty {
+  text-align: center;
+  padding: 40px 16px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+
+/* ══════════════════════════════════════
+   RESPONSIVE  — narrow screens
+══════════════════════════════════════ */
+@media (max-width: 600px) {
+  .scheme-container     { padding: 20px 16px; }
+  .scheme-header h2     { font-size: 16px; }
+  .scheme-form-modal,
+  .scheme-details-modal { padding: 20px 16px; }
 }
