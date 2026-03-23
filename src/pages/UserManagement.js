@@ -166,6 +166,7 @@ const canManageUsers = isSuper || isState;
           <option value="UP">UP</option>
           <option value="Maharashtra">Maharashtra</option>
           <option value="Jharkhand">Jharkhand</option>
+          <option value="Madhya Pardesh">Madhya Pardesh</option>
           <option value="Gujarat">Gujarat</option>
         </select>
 
