@@ -518,7 +518,7 @@ setAdminForm({ ...adminForm, pincode: e.target.value })
       <option value="Bihar">Bihar</option>
       <option value="UP">UP</option>
       <option value="Maharashtra">Maharashtra</option>
-       <option value="Madhya Pardesh">Madhya Pardesh</option>
+       <option value="Madhya Pradesh">Madhya Pradesh</option>
       <option value="Jharkhand">Jharkhand</option>
       <option value="Gujarat">Gujarat</option>
     </select>
