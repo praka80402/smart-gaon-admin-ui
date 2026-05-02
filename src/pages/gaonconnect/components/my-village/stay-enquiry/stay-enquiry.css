@@ -1,0 +1,224 @@
+/* 🔷 Container */
+.stay-container {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+/* 🔷 Title */
+.title {
+  margin-bottom: 15px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+
+.filter-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: nowrap; 
+}
+
+/* 🔷 Inputs */
+.filter-box input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.filter-box input[type="date"] {
+  flex: 1;
+  min-width: 150px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.input-wrapper input {
+  width: 100%;
+  padding: 8px 30px 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.clear-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 16px;
+  color: #888;
+  font-weight: bold;
+  z-index: 10;
+}
+
+.clear-btn:hover {
+  color: red;
+}
+
+
+.filter-box button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: 0.3s;
+}
+
+.filter-box button:hover {
+  background-color: #1d4ed8;
+}
+.input-wrapper {
+  position: relative;
+  flex: 1;
+}.input-wrapper input {
+  width: 100%;
+  padding: 8px 35px 8px 10px; /* right space */
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.enquiry-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Table Header */
+.enquiry-table th {
+  background-color: #f1f5f9;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Table Rows */
+.enquiry-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+/* Row Hover */
+.enquiry-table tr:hover {
+  background-color: #f9fafb;
+}
+
+/* 🟢 View Button */
+.enquiry-view-btn {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.3s;
+}
+
+.enquiry-view-btn:hover {
+  background-color: #059669;
+}
+
+/* 🔷 Pagination */
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background-color: #e5e7eb;
+  cursor: pointer;
+}
+
+.pagination button:hover {
+  background-color: #d1d5db;
+}
+
+/* 🔷 Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* 🔷 Modal Box */
+.modal-box {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 420px;
+  max-width: 90%;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* 🔷 Modal Title */
+.modal-box h3 {
+  margin-bottom: 15px;
+}
+
+/* 🔷 Modal Text */
+.modal-box p {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+/* 🔴 Close Button */
+.close-btn {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  border: none;
+  background: #ef4444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  background: #dc2626;
+}
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.pagination button {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  background-color: #e5e7eb;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #d1d5db;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
