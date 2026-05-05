@@ -1,94 +1,15 @@
-// import React, { useState } from "react";
-// import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-
-// import Header from "./components/Header";
-// import Dashboard from "./pages/Dashboard";
-// import GaonConnect from "./pages/gaonconnect/GaonConnect";
-// import Login from "./pages/auth/Login";
-// import Loader from "./Loader";
-
-// import "./App.css";
-
-// function App() {
-//   // Track login state
-//   const [isLoggedIn, setIsLoggedIn] = useState(
-//     localStorage.getItem("isAdminLoggedIn") === "true"
-//   );
-
-//   // Handle logout
-//   const handleLogout = () => {
-//     localStorage.removeItem("isAdminLoggedIn");
-//     setIsLoggedIn(false);
-//   };
-
-//   // When login happens in Login.jsx
-//   const handleLogin = () => {
-//     localStorage.setItem("isAdminLoggedIn", "true");
-//     setIsLoggedIn(true);
-//   };
-
-//   return (
-  
-//     <Router>
-//        <Loader />
-//       {/* Show header only if logged in */}
-//       {isLoggedIn && <Header onLogout={handleLogout} />}
-
-//       <main className={isLoggedIn ? "content-area" : ""}>
-//         <Routes>
-
-//           {/* Default route */}
-//           <Route
-//             path="/"
-//             element={
-//               isLoggedIn ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
-//             }
-//           />
-
-//           {/* LOGIN ROUTE */}
-//           <Route
-//             path="/login"
-//             element={
-//               isLoggedIn ? (
-//                 <Navigate to="/dashboard" />
-//               ) : (
-//                 <Login onLogin={handleLogin} />    // <-- FIXED HERE
-//               )
-//             }
-//           />
-
-//           {/* DASHBOARD */}
-//           <Route
-//             path="/dashboard"
-//             element={
-//               isLoggedIn ? <Dashboard /> : <Navigate to="/login" />
-//             }
-//           />
-
-//           {/* GAON CONNECT */}
-//           <Route
-//             path="/gaon-connect"
-//             element={
-//               isLoggedIn ? <GaonConnect /> : <Navigate to="/login" />
-//             }
-//           />
-
-//         </Routes>
-//       </main>
-//     </Router>
-//   );
-// }
-
-// export default App;
 
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-
 import Header from "./components/Header";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/dashboard/pages/Dashboard";
 import GaonConnect from "./pages/gaonconnect/GaonConnect";
 import Login from "./pages/auth/Login";
 import Loader from "./Loader";
+import ImpactPage from "./pages/dashboard/management/impact/ImpactPage";
+import InsightsPage from "./pages/dashboard/management/insights/InsightsPage";
+import DashboardManagement from "./pages/dashboard/management/DashboardManagement";
+
 
 // ✅ ADD THESE IMPORTS
 import UserManagement from "./pages/UserManagement";
@@ -206,6 +127,16 @@ function App() {
   element={isLoggedIn ? <ProfilePage /> : <Navigate to="/login" />}
 />
 
+<Route
+  path="/dashboard/management"
+  element={isLoggedIn ? <DashboardManagement /> : <Navigate to="/login" />}
+>
+  <Route index element={<Navigate to="impact" />} />
+  <Route path="impact" element={<ImpactPage />} />
+  <Route path="insights" element={<InsightsPage />} />
+</Route>
+
+<Route path="/users" element={<UserManagement />} />
         </Routes>
       </main>
     </Router>
