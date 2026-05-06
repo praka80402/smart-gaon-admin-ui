@@ -36,6 +36,10 @@ const canManageUsers = isSuper || isState;
   const [page, setPage] = useState(1);
   const pageSize = 5;
 
+  // ADMIN PAGINATION
+  const [adminPage, setAdminPage] = useState(1);
+  const adminPageSize = 5;
+
   // Filters
   const [filterState, setFilterState] = useState("");
   const [filterPincode, setFilterPincode] = useState("");
@@ -150,9 +154,57 @@ const canManageUsers = isSuper || isState;
 
   // ---------------- PAGINATION ----------------
   const totalPages = Math.ceil(users.length / pageSize);
+  const getPagination = () => {
+  let pages = [];
+
+  if (page > 3) {
+    pages.push(1, "...");
+  }
+
+  for (let i = page - 2; i <= page + 2; i++) {
+    if (i > 0 && i <= totalPages) {
+      pages.push(i);
+    }
+  }
+
+  if (page < totalPages - 2) {
+    pages.push("...", totalPages);
+  }
+
+  return pages;
+};
   const paginatedUsers = users.slice((page - 1) * pageSize, page * pageSize);
 
+  // ADMIN PAGINATION LOGIC
+const adminTotalPages = Math.ceil(admins.length / adminPageSize);
+
+const paginatedAdmins = admins.slice(
+  (adminPage - 1) * adminPageSize,
+  adminPage * adminPageSize
+);
+
+const getAdminPagination = () => {
+  let pages = [];
+
+  if (adminPage > 3) {
+    pages.push(1, "...");
+  }
+
+  for (let i = adminPage - 2; i <= adminPage + 2; i++) {
+    if (i > 0 && i <= adminTotalPages) {
+      pages.push(i);
+    }
+  }
+
+  if (adminPage < adminTotalPages - 2) {
+    pages.push("...", adminTotalPages);
+  }
+
+  return pages;
+};
   const renderUsers = () => (
+
+    
     <div>
       {/* FILTER BAR */}
       <div className="filter-row">
@@ -304,15 +356,21 @@ const canManageUsers = isSuper || isState;
           Prev
         </button>
 
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i}
-            className={page === i + 1 ? "page-btn active" : "page-btn"}
-            onClick={() => setPage(i + 1)}
-          >
-            {i + 1}
-          </button>
-        ))}
+{getPagination().map((p, index) =>
+  p === "..." ? (
+    <span key={index}>...</span>
+  ) : (
+    <button
+      key={index}
+      className={page === p ? "page-btn active" : "page-btn"}
+      onClick={() => setPage(p)}
+    >
+      {p}
+    </button>
+  )
+)}
+        
+         
 
         <button
           className="page-btn"
@@ -327,6 +385,71 @@ const canManageUsers = isSuper || isState;
 
   // ---------------- RENDER ADMIN TABLE ----------------
   const renderAdmins = () => (
+  <div>
+
+    <table className="um-table">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Role</th>
+          <th>State</th>
+          <th>District</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {paginatedAdmins.map((a) => (
+          <tr key={a.id}>
+            <td>{a.email}</td>
+            <td>{a.role}</td>
+            <td>{a.state || "-"}</td>
+            <td>{a.district || "-"}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    {/* ADMIN PAGINATION */}
+    <div className="pagination">
+
+      <button
+        className="page-btn"
+        disabled={adminPage === 1}
+        onClick={() => setAdminPage(adminPage - 1)}
+      >
+        Prev
+      </button>
+
+      {getAdminPagination().map((p, index) =>
+        p === "..." ? (
+          <span key={index}>...</span>
+        ) : (
+          <button
+            key={index}
+            className={
+              adminPage === p
+                ? "page-btn active"
+                : "page-btn"
+            }
+            onClick={() => setAdminPage(p)}
+          >
+            {p}
+          </button>
+        )
+      )}
+
+      <button
+        className="page-btn"
+        disabled={adminPage === adminTotalPages}
+        onClick={() => setAdminPage(adminPage + 1)}
+      >
+        Next
+      </button>
+
+    </div>
+
+  </div>
+);
     <table className="um-table">
       <thead>
         <tr>
@@ -337,7 +460,7 @@ const canManageUsers = isSuper || isState;
         </tr>
       </thead>
       <tbody>
-        {admins.map((a) => (
+        {paginatedAdmins.map((a) => (
           <tr key={a.id}>
             <td>{a.email}</td>
             <td>{a.role}</td>
@@ -347,13 +470,39 @@ const canManageUsers = isSuper || isState;
         ))}
       </tbody>
     </table>
-  );
+  
 
   return (
      <div className="user-container">
 
     <div className="um-container">
-      <h2>User & Admin Management</h2>
+      <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "20px"
+  }}
+>
+  <h2>User & Admin Management</h2>
+
+  <button
+    onClick={() => window.history.back()}
+    style={{
+      background: "rgb(227, 246, 246)",
+      color: "#ab0808",
+      border: "none",
+      width: "38px",
+      height: "38px",
+      borderRadius: "50%",
+      cursor: "pointer",
+      fontSize: "18px",
+      fontWeight: "bold"
+    }}
+  >
+    ✕
+  </button>
+</div>
 
       <div className="um-btn-row">
         <button
@@ -412,68 +561,8 @@ const canManageUsers = isSuper || isState;
             />
 
             
-            {/* <label>Role</label>
-        <select
-name="role"
-value={adminForm.role}
-onChange={(e) =>
-setAdminForm({
-...adminForm,
-role: e.target.value,
-state: "",
-district: "",
-pincode: ""
-})
-}
-
->
-
-  <option value="">Select Role</option>
-
-{isSuper && <option value="STATE_ADMIN">State Admin</option>}
-{(isSuper || isState) && <option value="DISTRICT_ADMIN">District Admin</option>}
-{(isSuper || isState || isDistrict) && <option value="VILLAGE_ADMIN">Village Admin</option>}
-{isSuper && <option value="ACCOUNT_ADMIN">Account Admin</option>} </select>
-
-
-{adminForm.role && adminForm.role !== "ACCOUNT_ADMIN" && (
-<> 
-<label>State</label>
-<select
-name="state"
-value={adminForm.state}
-onChange={(e) =>
-setAdminForm({ ...adminForm, state: e.target.value })
-}
-> <option value="">Select State</option> <option value="Bihar">Bihar</option> <option value="UP">UP</option> <option value="Maharashtra">Maharashtra</option> <option value="Jharkhand">Jharkhand</option> <option value="Gujarat">Gujarat</option> </select>
-</>
-)}
-
-{(adminForm.role === "DISTRICT_ADMIN" || adminForm.role === "VILLAGE_ADMIN") && (
-<> <label>District</label>
-<input
-name="district"
-value={adminForm.district}
-onChange={(e) =>
-setAdminForm({ ...adminForm, district: e.target.value })
-}
-/>
-</>
-)}
-
-
-{adminForm.role === "VILLAGE_ADMIN" && (
-<> <label>Pincode</label>
-<input
-name="pincode"
-value={adminForm.pincode || ""}
-onChange={(e) =>
-setAdminForm({ ...adminForm, pincode: e.target.value })
-}
-/>
-</>
-
-)} */}
+            
+            
 <label>Role</label>
 <select
   name="role"
