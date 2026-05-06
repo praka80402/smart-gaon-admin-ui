@@ -81,7 +81,11 @@ const Dashboard = () => {
         <TodayTipsList onClose={closeModal} />
       </Modal>
 
-      <Modal open={activeModal === "SCHEME"} onClose={closeModal}>
+      <Modal
+        open={activeModal === "SCHEME"}
+        onClose={closeModal}
+        className="modal-box-scheme"
+      >
         <SchemeAdmin onClose={closeModal} />
       </Modal>
 
@@ -89,9 +93,13 @@ const Dashboard = () => {
         <BannerAdmin onClose={closeModal} />
       </Modal>
 
-      <Modal open={activeModal === "HOME"} onClose={closeModal}>
-        <HomeLayoutAdmin onClose={closeModal} />
-      </Modal>
+      <Modal
+  open={activeModal === "HOME"}
+  onClose={closeModal}
+  className="home-layout-modal"
+>
+  <HomeLayoutAdmin onClose={closeModal} />
+</Modal>
 
     </div>
   );
