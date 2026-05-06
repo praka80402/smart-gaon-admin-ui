@@ -84,10 +84,10 @@ const menuItems =
       {/* LEFT */}
       <div className="header-left">
         <div className="logo"></div>
-        <div className="title" onClick={() => navigate("/dashboard")}>
-          SmartGaon AI <br/>
-          Admin Portal
-        </div>
+        <div className="brand-text" onClick={() => navigate("/dashboard")}>
+  <div className="brand-main">SmartGaon AI</div>
+  <div className="brand-sub">Admin Portal</div>
+</div>
       </div>
 
       {/* MENU */}

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import "./Modal.css";
 
-const Modal = ({ open, onClose, children }) => {
+const Modal = ({ open, onClose, children, className = "" }) => {
   // Close on Escape key
   useEffect(() => {
     if (!open) return;
@@ -15,7 +15,7 @@ const Modal = ({ open, onClose, children }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal-box"
+        className={`modal-box ${className}`.trim()}
         onClick={(e) => e.stopPropagation()} // prevent overlay click from closing
       >
         {children}

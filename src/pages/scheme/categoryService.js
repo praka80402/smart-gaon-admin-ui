@@ -15,3 +15,17 @@ export const createCategory = (name) => {
     }
   );
 };
+
+export const updateCategory = (id, name) => {
+  return api.put(
+    `${BASE_URL}/${id}`,
+    null,
+    {
+      params: { name },
+    }
+  );
+};
+
+export const deleteCategory = (id) => {
+  return api.delete(`${BASE_URL}/${id}`);
+};

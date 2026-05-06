@@ -1,183 +1,4 @@
-/* .header-bar {
-  width: 100%;
-  height: 75px;
-  background: linear-gradient(to right, #FFFFFF 5%, #159946  70%);;
-  padding: 0 40px;          
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: white;
-  position: fixed;
-  top: 0;
-  z-index: 1000;
-}
 
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-
- .logo-box {
-  width: 60px;             
-  height: 60px;            
-  background-image: url("../assets/logo.svg");
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.header-title {
-  font-size: 22px;
-  font-weight: 700;
-   color:  #0a6829;
-  margin-bottom: -3px;
-}
-
-.header-subtitle {
-  font-size: 13px;
-  opacity: 0.85;
-}
-
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 20px;               
-  flex-shrink: 0;          
-}
-
-.user-tag {
-  background: #5b352d;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #e6e6e6;
-  white-space: nowrap;
-}
-
-
-.logout-btn {
-  background: #ffffff;
-  color: #0f6d35;
-  padding: 8px 18px;
-  font-size: 14px;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.2s;
-
-  margin-right: 65px;  
-}
-
-.logout-btn:hover {
-  background: #e6f3e6;
-} */
-
-
-/* .header-bar {
-  width: 100%;
-  height: 75px;
-  background: linear-gradient(to right, #FFFFFF 5%, #2bac5a  70%);;
-  padding: 0 40px;          
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: white;
-  position: fixed;
-  top: 0;
-  z-index: 1000;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.logo-box {
-  width: 60px;             
-  height: 60px;            
-  background-image: url("../assets/logo.svg");
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.header-title {
-  font-size: 20px;
-  color: rgb(14, 117, 28);
-  font-weight: 600;
-}
-
-.clickable {
-  cursor: pointer;
-}
-
-.header-menu {
-  display: flex;
-  color: rgb(14, 117, 28);
-  gap: 25px;
-  align-items: center;
-}
-
-.menu-item {
-  cursor: pointer;
-  padding: 8px 14px;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-  font-weight: 500;
-}
-
-
-.menu-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-
-.active-menu {
-  
-  color: white;
-  font-weight: 600;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.user-tag {
-  font-size: 13px;
-  background: #1e293b;
-  padding: 6px 12px;
-  border-radius: 6px;
-}
-
-.logout-btn {
-  background: #ef4444;
-  border: none;
-  padding: 7px 14px;
-  color: white;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: 0.3s;
-}
-
-.logout-btn:hover {
-  background: #dc2626;
-} */
-
-/* ================= HEADER BAR ================= */
-
-/* HEADER */
-
-/* ===================================================
-   SmartGaon AI — Admin Portal Header
-   =================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@600;700&display=swap');
 
@@ -451,4 +272,47 @@ position: relative;
   .title {
     display: none;
   }
+}
+
+.brand-text {
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  line-height: 1.05;
+}
+.brand-main {
+  font-size: 30px;
+
+  font-weight: 800;
+
+  line-height: 1;
+
+  letter-spacing: -0.5px;
+
+  color: #065f46;
+
+  font-family: var(--font-body);
+
+  text-rendering: optimizeLegibility;
+
+  white-space: nowrap;
+}
+
+.brand-sub {
+  font-size: 13px;
+
+  font-weight: 600;
+
+  color: #16a34a;
+
+  opacity: 0.9;
+
+  letter-spacing: 0.4px;
+
+  margin-top: 2px;
+
+  font-family: var(--font-body);
 }
