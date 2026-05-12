@@ -8,6 +8,7 @@ import {
 import ReportModal from "../ReportModal";
 
 export default function Engagement() {
+  
   /* ================= ROLE CONTROL ================= */
 
   const role = localStorage.getItem("adminRole");
@@ -29,6 +30,12 @@ export default function Engagement() {
 
   const [reports, setReports] = useState([]);
   const [showReports, setShowReports] = useState(false);
+  const [showRejectBox, setShowRejectBox] = useState(false);
+
+  const [rejectRemark, setRejectRemark] = useState("");
+
+  const [moderationLoading, setModerationLoading] =
+  useState(false);
 
   const pageSize = 20;
 
@@ -145,6 +152,117 @@ export default function Engagement() {
     }
   };
 
+ /* ================= APPROVE ENTRY ================= */
+
+const handleApprove = async (entryId) => {
+  try {
+    setModerationLoading(true);
+
+    const token = localStorage.getItem("adminToken");
+
+    const response = await fetch(
+      `https://smartgaonadmin.duckdns.org/admin/gaon-talent/entries/${entryId}/approve`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          comment: "Approved after review",
+        }),
+      }
+    );
+
+    let text = "";
+    try {
+      text = await response.text();
+    } catch {
+      text = "";
+    }
+
+    console.log("APPROVE RESPONSE:", text);
+
+    if (!response.ok) {
+      throw new Error(text || "Approve failed");
+    }
+
+    alert("Video Approved Successfully");
+
+    await loadEngagementData();
+
+    setSelectedPost((prev) => ({
+      ...prev,
+      moderationStatus: "APPROVED",
+    }));
+
+  } catch (error) {
+    console.log("APPROVE ERROR:", error);
+    alert(error.message);
+  } finally {
+    setModerationLoading(false);
+  }
+};
+
+/* ================= REJECT ENTRY ================= */
+
+const handleReject = async () => {
+  try {
+    if (!rejectRemark.trim()) {
+      alert("Please enter rejection reason");
+      return;
+    }
+
+    setModerationLoading(true);
+
+    const token = localStorage.getItem("adminToken");
+
+    const response = await fetch(
+      `https://smartgaonadmin.duckdns.org/admin/gaon-talent/entries/${selectedPost.id}/reject`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          comment: rejectRemark,
+        }),
+      }
+    );
+
+    let rejectText = "";
+    try {
+      rejectText = await response.text();
+    } catch {
+      rejectText = "";
+    }
+
+    if (!response.ok) {
+      throw new Error(rejectText || "Reject failed");
+    }
+
+    alert("Video Rejected");
+
+    await loadEngagementData();
+
+    setSelectedPost((prev) => ({
+      ...prev,
+      moderationStatus: "REJECTED",
+      adminComment: rejectRemark,
+    }));
+
+    setShowRejectBox(false);
+    setRejectRemark("");
+
+  } catch (error) {
+    console.log(error);
+    alert("Reject failed");
+  } finally {
+    setModerationLoading(false);
+  }
+};
+
   /* ================= SEARCH ================= */
 
   const filteredUsers = users.filter((u) => {
@@ -254,7 +372,7 @@ export default function Engagement() {
         style={{
           display: "grid",
           gridTemplateColumns:
-            "repeat(auto-fit,minmax(120px,1fr))",
+         "repeat(auto-fit,minmax(160px,1fr))",
           gap: "16px",
           marginBottom: "24px",
         }}
@@ -295,7 +413,7 @@ export default function Engagement() {
             style={{
               background: "#ffffff",
               padding: "12px",
-              borderRadius: "18px",
+              borderRadius: "12px",
               border: `1px solid ${item.border}`,
               boxShadow:
                 "0 4px 12px rgba(0,0,0,0.05)",
@@ -544,6 +662,38 @@ export default function Engagement() {
                         🏆 Winner
                       </span>
                     )}
+
+                    <div
+  style={{
+    marginTop: "6px",
+
+    background:
+      u.moderationStatus === "APPROVED"
+        ? "#dcfce7"
+        : u.moderationStatus === "REJECTED"
+        ? "#fee2e2"
+        : "#fef3c7",
+
+    color:
+      u.moderationStatus === "APPROVED"
+        ? "#166534"
+        : u.moderationStatus === "REJECTED"
+        ? "#991b1b"
+        : "#92400e",
+
+    padding: "4px 12px",
+
+    borderRadius: "30px",
+
+    fontSize: "11px",
+
+    fontWeight: "700",
+
+    width: "fit-content",
+  }}
+>
+  {u.moderationStatus || "PENDING"}
+</div>
                   </div>
 
                   <div
@@ -777,22 +927,6 @@ export default function Engagement() {
   >
     Winner ✓
   </button>
-
-  <button
-  style={{
-    background: "#fee2e2",
-    color: "#dc2626",
-    border: "none",
-    padding: "4px 10px",
-    borderRadius: "999px",
-    fontSize: "11px",
-    fontWeight: "600",
-    cursor: "pointer",
-    marginTop: "-2px",
-  }}
->
-  Remove Winner
-</button>
 </div>
         )}
       </>
@@ -1043,40 +1177,66 @@ export default function Engagement() {
                 </div>
               )}
 
-              {/* STATS */}
+             
+              
+              {/* STATS + ACTIONS */}
 
               <div
                 style={{
                   marginTop: "20px",
+
                   display: "flex",
+
                   gap: "14px",
+
                   flexWrap: "wrap",
+
+                  alignItems: "center",
+
+                  justifyContent: "center",
                 }}
               >
+                {/* LIKES */}
+
                 <div
                   style={{
                     background: "#eff6ff",
+
                     color: "#2563eb",
+
                     padding: "10px 16px",
+
                     borderRadius: "12px",
+
                     fontWeight: "600",
                   }}
                 >
-                  ❤️ Likes: {selectedPost.likes}
+                  ❤️ Likes:
+                  {" "}
+                  {selectedPost.likes}
                 </div>
+
+                {/* COMMENTS */}
 
                 <div
                   style={{
                     background: "#f8fafc",
+
                     color: "#475569",
+
                     padding: "10px 16px",
+
                     borderRadius: "12px",
+
                     fontWeight: "600",
                   }}
                 >
-                  💬 Comments:{" "}
+                  💬 Comments:
+                  {" "}
                   {selectedPost.comments}
                 </div>
+
+                {/* REPORTS */}
 
                 <div
                   style={{
@@ -1091,14 +1251,259 @@ export default function Engagement() {
                         : "#178248",
 
                     padding: "10px 16px",
+
                     borderRadius: "12px",
+
                     fontWeight: "700",
                   }}
                 >
-                  🚨 Reports:{" "}
+                  🚨 Reports:
+                  {" "}
                   {selectedPost.reportCount ?? 0}
                 </div>
+
+                {/* APPROVE BUTTON */}
+
+                <button
+                  onClick={() => {
+                    console.log(
+                      "APPROVE CLICKED",
+                      selectedPost.id
+                    );
+
+  handleApprove(selectedPost.id);
+}}
+                  
+                  disabled={moderationLoading}
+                  style={{
+                    background: "#16a34a",
+
+                    color: "white",
+
+                    border: "none",
+
+                    padding: "10px 18px",
+
+                    borderRadius: "12px",
+
+                    cursor: "pointer",
+
+                    fontWeight: "700",
+
+                    fontSize: "14px",
+
+                    opacity:
+                      selectedPost?.moderationStatus ===
+                      "APPROVED"
+                        ? 0.7
+                        : 1,
+                  }}
+                >
+                  {selectedPost?.moderationStatus ===
+                  "APPROVED"
+                    ? "✅ Approved"
+                    : "Approve"}
+                </button>
+
+                {/* REJECT BUTTON */}
+
+                <button
+                  onClick={() => {
+  console.log(
+    "REJECT CLICKED"
+  );
+
+  setShowRejectBox(true);
+}}
+                  disabled={moderationLoading}
+                  style={{
+                    background: "#dc2626",
+
+                    color: "white",
+
+                    border: "none",
+
+                    padding: "10px 18px",
+
+                    borderRadius: "12px",
+
+                    cursor: "pointer",
+
+                    fontWeight: "700",
+
+                    fontSize: "14px",
+
+                    opacity:
+                      selectedPost?.moderationStatus ===
+                      "REJECTED"
+                        ? 0.7
+                        : 1,
+                  }}
+                >
+                  {selectedPost?.moderationStatus ===
+                  "REJECTED"
+                    ? "❌ Rejected"
+                    : "Reject"}
+                </button>
               </div>
+
+              {/* REJECTION COMMENT */}
+
+{selectedPost?.moderationStatus ===
+  "REJECTED" &&
+  selectedPost?.adminComment && (
+    <div
+      style={{
+        marginTop: "18px",
+        padding: "14px 18px",
+        background: "#fff1f2",
+        border:
+          "1px solid #fecdd3",
+        borderRadius: "14px",
+        color: "#be123c",
+        fontWeight: "600",
+        fontSize: "15px",
+        textAlign: "center",
+      }}
+    >
+      Rejection Reason:{" "}
+      {selectedPost.adminComment}
+    </div>
+)}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* REJECT MODAL */}
+
+      {showRejectBox && (
+        <div
+          style={{
+            position: "fixed",
+
+            top: 0,
+
+            left: 0,
+
+            width: "100%",
+
+            height: "100%",
+
+            background:
+              "rgba(0,0,0,0.5)",
+
+            display: "flex",
+
+            justifyContent: "center",
+
+            alignItems: "center",
+
+            zIndex: 999999,
+          }}
+        >
+          <div
+            style={{
+              width: "420px",
+
+              background: "white",
+
+              borderRadius: "18px",
+
+              padding: "24px",
+            }}
+          >
+            <h3
+              style={{
+                marginBottom: "16px",
+
+                color: "#111827",
+              }}
+            >
+              Reject Video
+            </h3>
+
+            <textarea
+              placeholder="Enter rejection reason..."
+              value={rejectRemark}
+              onChange={(e) =>
+                setRejectRemark(
+                  e.target.value
+                )
+              }
+              style={{
+                width: "100%",
+
+                minHeight: "140px",
+
+                border:
+                  "1px solid #d1d5db",
+
+                borderRadius: "12px",
+
+                padding: "12px",
+
+                outline: "none",
+
+                resize: "none",
+
+                fontSize: "14px",
+              }}
+            />
+
+            <div
+              style={{
+                marginTop: "18px",
+
+                display: "flex",
+
+                justifyContent:
+                  "flex-end",
+
+                gap: "10px",
+              }}
+            >
+              <button
+                onClick={() =>
+                  setShowRejectBox(false)
+                }
+                style={{
+                  background: "#e5e7eb",
+
+                  border: "none",
+
+                  padding: "10px 18px",
+
+                  borderRadius: "10px",
+
+                  cursor: "pointer",
+
+                  fontWeight: "600",
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleReject}
+                style={{
+                  background: "#dc2626",
+
+                  color: "white",
+
+                  border: "none",
+
+                  padding: "10px 18px",
+
+                  borderRadius: "10px",
+
+                  cursor: "pointer",
+
+                  fontWeight: "700",
+                }}
+              >
+                Submit Reject
+              </button>
             </div>
           </div>
         </div>
@@ -1109,7 +1514,9 @@ export default function Engagement() {
       {showReports && (
         <ReportModal
           reports={reports}
-          onClose={() => setShowReports(false)}
+          onClose={() =>
+            setShowReports(false)
+          }
         />
       )}
     </div>
@@ -1120,9 +1527,16 @@ export default function Engagement() {
 
 const tableHead = {
   padding: "16px",
+
   textAlign: "left",
+
   color: "#334155",
+
   fontWeight: "700",
+
   fontSize: "13px",
-  borderBottom: "1px solid #e2e8f0",
+
+  borderBottom:
+    "1px solid #e2e8f0",
 };
+
