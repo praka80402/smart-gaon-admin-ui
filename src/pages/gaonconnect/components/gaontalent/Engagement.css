@@ -186,20 +186,20 @@
 }
 
 /* TABLE */
-.table-wrapper {
-  background: white;
-  border-radius: 20px;
-  overflow-x: auto;
-  overflow-y: auto;
-  max-height: 65vh;
-  width: 100%;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+.table-wrapper{
+  width:100%;
+  overflow-x:hidden;
+  overflow-y:auto;
+  max-height:70vh;
+  background:#fff;
+  border-radius:22px;
+  box-shadow:0 4px 14px rgba(0,0,0,0.06);
 }
 
-.engagement-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 1100px;
+.engagement-table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
 }
 
 .engagement-table thead {
@@ -225,10 +225,11 @@
 }
 
 /* PARTICIPANT CELL */
-.td-participant {
-  padding: 18px 16px;
-  vertical-align: top;
-  min-width: 280px;
+.td-participant{
+  padding:18px 16px;
+  vertical-align:top;
+  width:30%;
+  word-break:break-word;
 }
 
 .participant-name-row {
@@ -287,10 +288,11 @@
 }
 
 /* COMPETITION CELL */
-.td-competition {
-  padding: 18px 16px;
-  vertical-align: top;
-  min-width: 250px;
+.td-competition{
+  padding:18px 16px;
+  vertical-align:top;
+  width:28%;
+  word-break:break-word;
 }
 
 .competition-inner {
@@ -820,19 +822,15 @@
   cursor: pointer;
   font-weight: 700;
 }
-@media (max-width:768px){
 
-  .modal-actions-row{
-    grid-template-columns:repeat(2,1fr);
-  }
+.td-actions{
+  width:22%;
+  padding:18px 16px;
+}
 
-  .modal-chip-likes,
-  .modal-chip-comments,
-  .modal-chip-reports,
-  .btn-approve,
-  .btn-reject{
-    height:48px;
-    font-size:12px;
-    border-radius:14px;
-  }
+.actions-wrapper{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
 }

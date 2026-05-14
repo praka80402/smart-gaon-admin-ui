@@ -2,6 +2,24 @@
 import React, { useEffect, useState } from "react";
 import "./communityNews.css";
 
+const getMediaImages = (item) => {
+  if (Array.isArray(item?.imageUrls) && item.imageUrls.length > 0) {
+    return item.imageUrls;
+  }
+
+  if (Array.isArray(item?.images) && item.images.length > 0) {
+    return item.images
+      .map((img) => img?.imageUrl || img?.url || img)
+      .filter(Boolean);
+  }
+
+  if (item?.pictureUrl) return [item.pictureUrl];
+  if (item?.thumbnailUrl) return [item.thumbnailUrl];
+  if (item?.imageUrl) return [item.imageUrl];
+
+  return [];
+};
+
 const EditModal = ({ visible, onClose, initial, type, onSave }) => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -20,15 +38,7 @@ const EditModal = ({ visible, onClose, initial, type, onSave }) => {
       setTitle(initial.title || "");
       setBody(initial.summary || initial.description || "");
 
-      if (Array.isArray(initial.imageUrls)) {
-        setExistingImages(initial.imageUrls);
-      } else if (initial.pictureUrl) {
-        setExistingImages([initial.pictureUrl]);
-      } else if (initial.thumbnailUrl) {
-        setExistingImages([initial.thumbnailUrl]);
-      } else {
-        setExistingImages([]);
-      }
+      setExistingImages(getMediaImages(initial));
 
       setExistingVideoUrl(initial.videoUrl || null);
 
