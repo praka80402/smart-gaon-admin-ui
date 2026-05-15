@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "./forum.css";
 
 const ReportModal = ({
@@ -15,66 +15,102 @@ const ReportModal = ({
   onOpenReject,
   onClose,
 }) => {
-  const hasShortMedia = media.some((item) => isYouTubeShort(item));
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  const goPrev = () => setActiveIdx((i) => (i > 0 ? i - 1 : media.length - 1));
+  const goNext = () => setActiveIdx((i) => (i < media.length - 1 ? i + 1 : 0));
+
+  const renderSlide = (url) => {
+    if (isYouTube(url)) {
+      return (
+        <iframe
+          src={getYoutubeEmbedUrl(url)}
+          title="youtube media"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="gc-slide-iframe"
+        />
+      );
+    }
+    if (isVideo(url)) {
+      return (
+        <video
+          src={url}
+          controls
+          className="gc-slide-media"
+        />
+      );
+    }
+    return (
+      <img
+        src={url}
+        alt={`media ${activeIdx + 1}`}
+        className="gc-slide-media"
+      />
+    );
+  };
 
   return (
     <div className="gc-modal-overlay">
-      <div className={`gc-modal ${hasShortMedia ? "gc-modal-shorts" : ""}`}>
+      <div className="gc-modal gc-modal-slideshow">
+
+        {/* HEADER */}
         <div className="gc-modal-header">
-          <h3>View Media</h3>
-          <button className="gc-modal-close-icon" onClick={onClose}>
-            x
+          <h3>{postTitle || "View Media"}</h3>
+          <button className="gc-modal-close-icon gc-modal-close-x" onClick={onClose}>
+            ✕
           </button>
         </div>
 
-        {(postTitle || media.length > 0) && (
-          <div className="gc-report-media-block">
-            {postTitle && (
-              <p className="gc-report-post-title">{postTitle}</p>
+        {/* SLIDESHOW */}
+        {media.length > 0 ? (
+          <div className="gc-slideshow-wrap">
+
+            {/* Left arrow */}
+            {media.length > 1 && (
+              <button className="gc-slide-arrow gc-slide-arrow-left" onClick={goPrev}>
+                &#8249;
+              </button>
             )}
 
-            {media.length > 0 ? (
-              <div className={`gc-report-media-grid ${hasShortMedia ? "gc-report-media-grid-shorts" : ""}`}>
-                {media.map((item, index) =>
-                  isYouTube(item) ? (
-                    <div
-                      key={`${item}-${index}`}
-                      className={`gc-youtube-wrapper ${isYouTubeShort(item) ? "gc-youtube-wrapper-shorts" : ""}`}
-                    >
-                      <iframe
-                        src={getYoutubeEmbedUrl(item)}
-                        title={`youtube media ${index + 1}`}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className={`gc-youtube-iframe ${isYouTubeShort(item) ? "gc-youtube-iframe-shorts" : ""}`}
-                      />
-                    </div>
-                  ) : isVideo(item) ? (
-                    <video
-                      key={`${item}-${index}`}
-                      src={item}
-                      controls
-                      className="gc-report-media"
+            {/* Main slide */}
+            <div className="gc-slide-main">
+              {renderSlide(media[activeIdx])}
+            </div>
+
+            {/* Right arrow */}
+            {media.length > 1 && (
+              <button className="gc-slide-arrow gc-slide-arrow-right" onClick={goNext}>
+                &#8250;
+              </button>
+            )}
+
+            {/* Counter & dot indicators */}
+            {media.length > 1 && (
+              <div className="gc-slide-footer">
+                <div className="gc-slide-dots">
+                  {media.map((_, i) => (
+                    <span
+                      key={i}
+                      className={`gc-slide-dot${i === activeIdx ? " active" : ""}`}
+                      onClick={() => setActiveIdx(i)}
                     />
-                  ) : (
-                    <img
-                      key={`${item}-${index}`}
-                      src={item}
-                      alt={`report media ${index + 1}`}
-                      className="gc-report-media"
-                    />
-                  )
-                )}
-              </div>
-            ) : (
-              <div className="gc-empty">
-                No image or video attached
+                  ))}
+                </div>
+                <div className="gc-slide-counter">
+                  {activeIdx + 1} / {media.length}
+                </div>
               </div>
             )}
           </div>
+        ) : (
+          <div className="gc-empty" style={{ padding: "32px" }}>
+            No image or video attached
+          </div>
         )}
 
+        {/* MODERATION BAR */}
         {selectedPost && (
           <div className="gc-forum-moderation-bar">
             <div className="gc-forum-moderation-status">
@@ -86,7 +122,7 @@ const ReportModal = ({
               onClick={onApprove}
               disabled={moderationLoading}
             >
-              {selectedPost?.moderationStatus === "APPROVED" ? "Approved" : "Approve"}
+              {selectedPost?.moderationStatus === "APPROVED" ? "✓ Approved" : "Approve"}
             </button>
 
             <button
@@ -94,7 +130,7 @@ const ReportModal = ({
               onClick={onOpenReject}
               disabled={moderationLoading}
             >
-              {selectedPost?.moderationStatus === "REJECTED" ? "Rejected" : "Reject"}
+              {selectedPost?.moderationStatus === "REJECTED" ? "✗ Rejected" : "Reject"}
             </button>
           </div>
         )}
@@ -106,13 +142,12 @@ const ReportModal = ({
             </div>
         )}
 
+        {/* REPORT LIST */}
         <div className="gc-report-list-wrap">
           <h4 className="gc-report-list-title">Report Reasons</h4>
 
           {reports.length === 0 ? (
-            <div className="gc-empty">
-              No reports found
-            </div>
+            <div className="gc-empty">No reports found</div>
           ) : (
             <div className="gc-report-card-list">
               {reports.map((r) => (
@@ -120,24 +155,15 @@ const ReportModal = ({
                   <div className="gc-report-card-top">
                     <div>
                       <b>{r.reportedByUserName}</b>
-                      <div className="gc-muted">
-                        ID: {r.reportedByUserId}
-                      </div>
+                      <div className="gc-muted">ID: {r.reportedByUserId}</div>
                     </div>
-
-                    <span className="gc-report-reason">
-                      {r.reason}
-                    </span>
+                    <span className="gc-report-reason">{r.reason}</span>
                   </div>
-
                   <p className="gc-report-card-remark">
                     {r.customReason || "No custom remark"}
                   </p>
-
                   <div className="gc-report-card-date">
-                    {r.reportedAt
-                      ? new Date(r.reportedAt).toLocaleString()
-                      : "-"}
+                    {r.reportedAt ? new Date(r.reportedAt).toLocaleString() : "-"}
                   </div>
                 </div>
               ))}
@@ -145,11 +171,13 @@ const ReportModal = ({
           )}
         </div>
 
+        {/* FOOTER */}
         <div className="gc-modal-footer">
           <button className="gc-btn-close" onClick={onClose}>
             Close
           </button>
         </div>
+
       </div>
     </div>
   );
