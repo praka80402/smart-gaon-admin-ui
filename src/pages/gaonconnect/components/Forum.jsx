@@ -5,8 +5,7 @@ import {
   getAllForumPosts,
   deleteForumPost,
   getForumPostReports,
-  approveForumPost,
-  rejectForumPost,
+  updateForumPostStatus,          // ✅ updated import
 } from "../services/forumService";
 import ReportModal from "./ReportModal";
 
@@ -66,7 +65,6 @@ const getForumMedia = (post) => {
 
 /* ────────────────────────────────────────────────
    MediaPreviewStrip  –  multiple media support
-   Shows main preview + clickable thumbnail strip
 ──────────────────────────────────────────────── */
 const MediaPreviewStrip = ({ allMedia }) => {
   const [activeIdx, setActiveIdx] = useState(0);
@@ -80,13 +78,7 @@ const MediaPreviewStrip = ({ allMedia }) => {
   const renderMain = (url) => {
     if (isVideo(url)) {
       return (
-        <video
-          key={url}
-          src={url}
-          className="sg-forum-media"
-          controls
-          muted
-        />
+        <video key={url} src={url} className="sg-forum-media" controls muted />
       );
     }
     if (isYouTube(url)) {
@@ -113,12 +105,8 @@ const MediaPreviewStrip = ({ allMedia }) => {
 
   return (
     <div className="sg-forum-media-wrapper">
-      {/* Main preview */}
-      <div className="sg-forum-media-main">
-        {renderMain(active)}
-      </div>
+      <div className="sg-forum-media-main">{renderMain(active)}</div>
 
-      {/* Thumbnail strip — only if more than 1 media */}
       {allMedia.length > 1 && (
         <div className="sg-forum-media-strip">
           {allMedia.map((url, idx) => (
@@ -137,7 +125,6 @@ const MediaPreviewStrip = ({ allMedia }) => {
         </div>
       )}
 
-      {/* Counter badge */}
       {allMedia.length > 1 && (
         <div className="sg-forum-media-count">
           {activeIdx + 1} / {allMedia.length}
@@ -170,6 +157,8 @@ const Forum = () => {
   const [moderationLoading, setModerationLoading] = useState(false);
   const [showRejectBox, setShowRejectBox] = useState(false);
   const [rejectRemark, setRejectRemark] = useState("");
+  const [showApproveBox, setShowApproveBox] = useState(false);
+  const [approveRemark, setApproveRemark] = useState("Approved after review");
 
   const pageSize = 5;
   const role = localStorage.getItem("adminRole");
@@ -225,7 +214,9 @@ const Forum = () => {
       setReports(Array.isArray(res.data) ? res.data : res.data?.content || []);
       setReportMedia(allMedia);
       setReportPostTitle(post.title || "Post");
-      setSelectedReportPost(post);
+      // Always use fresh item from current list so moderationStatus is up to date
+      const freshPost = items.find((i) => i.postId === post.postId) || post;
+      setSelectedReportPost(freshPost);
       setShowReports(true);
     } catch (e) {
       console.error(e);
@@ -236,14 +227,24 @@ const Forum = () => {
   const prevPage = () => { if (page > 0) load(page - 1); };
   const nextPage = () => { if (page < totalPages - 1) load(page + 1); };
 
-  const handleApprove = async () => {
+  /* ✅ APPROVE — uses PUT /admin/forum/{id}/status with comment */
+  const handleApprove = async (comment = "Approved after review") => {
     if (!selectedReportPost?.postId) return;
     try {
       setModerationLoading(true);
-      await approveForumPost(selectedReportPost.postId);
-      await load(page);
+      await updateForumPostStatus(selectedReportPost.postId, "APPROVED", comment);
+      
+      // Update item in local list so card shows correct status without reload
+      setItems((prev) =>
+        prev.map((i) =>
+          i.postId === selectedReportPost.postId
+            ? { ...i, moderationStatus: "APPROVED", adminComment: comment }
+            : i
+        )
+      );
+      
       setSelectedReportPost((prev) =>
-        prev ? { ...prev, moderationStatus: "APPROVED" } : prev
+        prev ? { ...prev, moderationStatus: "APPROVED", adminComment: comment } : prev
       );
     } catch (e) {
       console.error(e);
@@ -253,6 +254,7 @@ const Forum = () => {
     }
   };
 
+  /* ✅ REJECT — uses PUT /admin/forum/{id}/status with comment */
   const handleReject = async () => {
     if (!selectedReportPost?.postId) return;
     if (!rejectRemark.trim()) {
@@ -261,8 +263,21 @@ const Forum = () => {
     }
     try {
       setModerationLoading(true);
-      await rejectForumPost(selectedReportPost.postId, rejectRemark);
-      await load(page);
+      await updateForumPostStatus(
+        selectedReportPost.postId,
+        "REJECTED",
+        rejectRemark
+      );
+      
+      // Update item in local list so card shows correct status without reload
+      setItems((prev) =>
+        prev.map((i) =>
+          i.postId === selectedReportPost.postId
+            ? { ...i, moderationStatus: "REJECTED", adminComment: rejectRemark }
+            : i
+        )
+      );
+      
       setSelectedReportPost((prev) =>
         prev
           ? { ...prev, moderationStatus: "REJECTED", adminComment: rejectRemark }
@@ -415,13 +430,18 @@ const Forum = () => {
                       </div>
                     </div>
 
-                    {/* MEDIA – multiple preview */}
+                    {/* MEDIA */}
                     <div className="sg-forum-media-section">
                       <MediaPreviewStrip allMedia={allMedia} />
                     </div>
 
                     {/* ACTIONS */}
                     <div className="sg-forum-action-section">
+                      {/* Status badge on card */}
+                      <div className={`sg-forum-status-badge sg-forum-status-badge--${(item.status || "PENDING").toLowerCase()}`}>
+                        {item.status === "APPROVED" ? "✓ Approved" :
+                         item.status === "REJECTED" ? "✗ Rejected" : "⏳ Pending"}
+                      </div>
                       <button
                         className="sg-forum-view-btn"
                         onClick={() => handleViewReports(item)}
@@ -478,6 +498,7 @@ const Forum = () => {
             selectedPost={selectedReportPost}
             moderationLoading={moderationLoading}
             onApprove={handleApprove}
+            onOpenApprove={() => { setShowApproveBox(true); setApproveRemark("Approved after review"); }}
             onOpenReject={() => setShowRejectBox(true)}
             onClose={() => {
               setShowReports(false);
@@ -487,6 +508,8 @@ const Forum = () => {
               setSelectedReportPost(null);
               setShowRejectBox(false);
               setRejectRemark("");
+              setShowApproveBox(false);
+              setApproveRemark("Approved after review");
             }}
           />
         )}
@@ -515,6 +538,40 @@ const Forum = () => {
                   disabled={moderationLoading}
                 >
                   Submit Reject
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* APPROVE BOX */}
+        {showApproveBox && (
+          <div className="sg-forum-content-modal-backdrop">
+            <div className="sg-forum-reject-modal">
+              <h3>Approve Post</h3>
+              <textarea
+                className="sg-forum-reject-textarea"
+                placeholder="Enter approval comment..."
+                value={approveRemark}
+                onChange={(e) => setApproveRemark(e.target.value)}
+              />
+              <div className="sg-forum-reject-actions">
+                <button
+                  className="sg-forum-clear-btn"
+                  onClick={() => setShowApproveBox(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="sg-forum-approve-submit-btn"
+                  onClick={() => {
+                    if (!approveRemark.trim()) { alert("Please enter approval comment"); return; }
+                    handleApprove(approveRemark);
+                    setShowApproveBox(false);
+                  }}
+                  disabled={moderationLoading}
+                >
+                  Submit Approve
                 </button>
               </div>
             </div>

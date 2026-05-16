@@ -4,101 +4,61 @@ import "./donation.css";
 
 export default function ProgramDonationModal({ program, onClose }) {
 
+
   const [donations, setDonations] = useState([]);
   const [total, setTotal] = useState(0);
 
-  /* ================= LOAD DONATIONS ================= */
   const load = async () => {
     if (!program) return;
-
     try {
-      const res = await api.get(
-        `/admin/donation/transactions/${program.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`
-          }
-        }
-      );
-
+      const res = await api.get(`/admin/donation/transactions/${program.id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` }
+      });
       const list = res.data || [];
       setDonations(list);
-
-      const sum = list.reduce((a, b) => a + (b.amount || 0), 0);
-      setTotal(sum);
-
+      setTotal(list.reduce((a, b) => a + (b.amount || 0), 0));
     } catch (err) {
       console.error("Failed to load donations", err.response?.data || err);
     }
   };
 
-  useEffect(() => {
-    load();
-  }, [program]);
+  useEffect(() => { load(); }, [program]);
 
-  /* ================= VERIFY ================= */
   const verify = async (id, approved) => {
     try {
-      await api.put(
-        `/admin/donation/verify/${id}`,
-        { approved },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`
-          }
-        }
-      );
-
+      await api.put(`/admin/donation/verify/${id}`, { approved }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` }
+      });
       load();
     } catch {
       alert("Verification failed");
     }
   };
 
-  /* ================= DOWNLOAD CERTIFICATE ================= */
- const downloadCertificate = async (id) => {
-
-  const res = await api.get(
-    `/admin/donation/certificate/download/${id}`,
-    {
+  const downloadCertificate = async (id) => {
+    const res = await api.get(`/admin/donation/certificate/download/${id}`, {
       responseType: "blob",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("adminToken")}`
-      }
-    }
-  );
+      headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` }
+    });
+    const blob = new Blob([res.data], { type: "application/pdf" });
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = `certificate-${id}.pdf`;
+    link.click();
+  };
 
-  const blob = new Blob([res.data], { type: "application/pdf" });
-
-  const link = document.createElement("a");
-  link.href = window.URL.createObjectURL(blob);
-  link.download = `certificate-${id}.pdf`;
-  link.click();
-};
-
-
-
-  /* ================= UPLOAD CERTIFICATE ================= */
   const uploadCertificate = async (txId, file) => {
-
     const formData = new FormData();
     formData.append("file", file);
-
     try {
-      await api.post(
-        `/admin/donation/certificate/upload/${txId}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-            "Content-Type": "multipart/form-data"
-          }
+      await api.post(`/admin/donation/certificate/upload/${txId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          "Content-Type": "multipart/form-data"
         }
-      );
-
+      });
       alert("Certificate uploaded successfully");
       load();
-
     } catch {
       alert("Upload failed");
     }
@@ -106,66 +66,106 @@ export default function ProgramDonationModal({ program, onClose }) {
 
   if (!program) return null;
 
+  const remaining = (program.targetAmount || 0) - total;
+  const progress = program.targetAmount ? Math.min((total / program.targetAmount) * 100, 100) : 0;
+
   return (
-    <div className="modal-backdrop">
-      <div className="modal">
+    <div className="dm-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="dm-modal">
 
-        <span className="modal-close-x" onClick={onClose}>✕</span>
+        {/* Header */}
+        <div className="dm-header">
+          <div>
+            <h2 className="dm-title">{program.title}</h2>
+            <p className="dm-subtitle">Donation Transactions</p>
+          </div>
+          <button className="dm-close" onClick={onClose}>✕</button>
+        </div>
 
-        <h2>{program.title}</h2>
-        <h3>Total Raised: ₹{total}</h3>
+        {/* Stats */}
+        <div className="dm-stats">
+          <div className="dm-stat">
+            <span className="dm-stat-label">Target</span>
+            <span className="dm-stat-value">₹{program.targetAmount || 0}</span>
+          </div>
+          <div className="dm-stat dm-stat-raised">
+            <span className="dm-stat-label">Total Raised</span>
+            <span className="dm-stat-value">₹{total}</span>
+          </div>
+          <div className="dm-stat dm-stat-remain">
+            <span className="dm-stat-label">Remaining</span>
+            <span className="dm-stat-value">₹{remaining}</span>
+          </div>
+        </div>
 
-        <table className="donation-table">
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Admin Action</th>
-            </tr>
-          </thead>
+        {/* Progress Bar */}
+        <div className="dm-progress-wrap">
+          <div className="dm-progress-bar">
+            <div className="dm-progress-fill" style={{ width: `${progress}%` }} />
+          </div>
+          <span className="dm-progress-pct">{Math.round(progress)}%</span>
+        </div>
 
-          <tbody>
-            {donations.length === 0 ? (
-              <tr><td colSpan="4">No donations yet</td></tr>
-            ) : (
-              donations.map(d => (
-                <tr key={d.id}>
-                  <td>{d.name} ({d.phone})</td>
-                  <td>₹{d.amount}</td>
-                  <td>{d.status}</td>
-
-                  <td>
-
-                    {d.status === "PENDING" && (
-                      <>
-                        <button onClick={() => verify(d.id, true)}>Approve</button>
-                        <button onClick={() => verify(d.id, false)}>Reject</button>
-                      </>
-                    )}
-
-                    {d.status === "VERIFIED" && (
-                      <>
-                        <button onClick={() => downloadCertificate(d.id)}>
-                          Download Certificate
-                        </button>
-
-                        <input
-                          type="file"
-                          accept=".pdf,.jpg,.png"
-                          onChange={(e) =>
-                            uploadCertificate(d.id, e.target.files[0])
-                          }
-                        />
-                      </>
-                    )}
-
-                  </td>
+        {/* Table */}
+        <div className="dm-table-wrap">
+          <table className="dm-table">
+            <thead>
+              <tr>
+                <th>Donor</th>
+                <th>Phone</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {donations.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="dm-empty">No donations yet</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                donations.map(d => (
+                  <tr key={d.id}>
+                    <td className="dm-donor-name">{d.name}</td>
+                    <td>{d.phone}</td>
+                    <td className="dm-amount">₹{d.amount}</td>
+                    <td>
+                      <span className={`dm-badge dm-badge-${d.status?.toLowerCase()}`}>
+                        {d.status}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="dm-row-actions">
+                        {d.status === "PENDING" && (
+                          <>
+                            <button className="dm-act-btn dm-approve" onClick={() => verify(d.id, true)}>Approve</button>
+                            <button className="dm-act-btn dm-reject" onClick={() => verify(d.id, false)}>Reject</button>
+                          </>
+                        )}
+                        {d.status === "VERIFIED" && (
+                          <>
+                            <button className="dm-act-btn dm-download" onClick={() => downloadCertificate(d.id)}>
+                              ↓ Receipt
+                            </button>
+                            <label className="dm-act-btn dm-upload">
+                              ↑ Certificate
+                              <input
+                                type="file"
+                                accept=".pdf,.jpg,.png"
+                                style={{ display: "none" }}
+                                onChange={(e) => uploadCertificate(d.id, e.target.files[0])}
+                              />
+                            </label>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
       </div>
     </div>

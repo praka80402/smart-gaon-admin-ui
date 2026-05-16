@@ -11,11 +11,9 @@ export const deleteForumPost = (id) =>
 export const getForumPostReports = (postId) =>
   api.get(`/admin/forum/reports/${postId}`);
 
-export const approveForumPost = (postId, comment = "Approved after review") =>
-  api.post(`/admin/forum/${postId}/approve`, { comment });
-
-export const rejectForumPost = (postId, comment) =>
-  api.post(`/admin/forum/${postId}/reject`, { comment });
+// ✅ UPDATED: Single status API for both approve and reject
+export const updateForumPostStatus = (postId, status, comment = "") =>
+  api.put(`/admin/forum/${postId}/status`, { status, comment });
 
 const getLocalForumUserId = () => {
   const directKeys = ["userId", "id", "memberId"];
@@ -73,27 +71,3 @@ export const createForumPostMulti = async ({
     formData
   );
 };
-
-// import axios from "axios";
-
-// const api = axios.create({
-//   baseURL: "http://localhost:9090",
-//   headers: {
-//     "Content-Type": "application/json",
-//   },
-// });
-
-// // Attach ADMIN token
-// api.interceptors.request.use((config) => {
-//   const token = localStorage.getItem("adminToken");
-//   if (token) {
-//     config.headers.Authorization = `Bearer ${token}`;
-//   }
-//   return config;
-// });
-
-// export const getAllForumPosts = (params) =>
-//   api.get("/admin/forum/list", { params });
-
-// export const deleteForumPost = (id) =>
-//   api.delete(`/admin/forum/${id}`);

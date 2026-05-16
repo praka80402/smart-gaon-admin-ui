@@ -13,6 +13,7 @@ const ReportModal = ({
   moderationLoading = false,
   onApprove,
   onOpenReject,
+  onOpenApprove,
   onClose,
 }) => {
   const [activeIdx, setActiveIdx] = useState(0);
@@ -34,13 +35,7 @@ const ReportModal = ({
       );
     }
     if (isVideo(url)) {
-      return (
-        <video
-          src={url}
-          controls
-          className="gc-slide-media"
-        />
-      );
+      return <video src={url} controls className="gc-slide-media" />;
     }
     return (
       <img
@@ -66,27 +61,19 @@ const ReportModal = ({
         {/* SLIDESHOW */}
         {media.length > 0 ? (
           <div className="gc-slideshow-wrap">
-
-            {/* Left arrow */}
             {media.length > 1 && (
               <button className="gc-slide-arrow gc-slide-arrow-left" onClick={goPrev}>
                 &#8249;
               </button>
             )}
-
-            {/* Main slide */}
             <div className="gc-slide-main">
               {renderSlide(media[activeIdx])}
             </div>
-
-            {/* Right arrow */}
             {media.length > 1 && (
               <button className="gc-slide-arrow gc-slide-arrow-right" onClick={goNext}>
                 &#8250;
               </button>
             )}
-
-            {/* Counter & dot indicators */}
             {media.length > 1 && (
               <div className="gc-slide-footer">
                 <div className="gc-slide-dots">
@@ -119,7 +106,7 @@ const ReportModal = ({
 
             <button
               className={`gc-forum-approve-btn ${selectedPost?.moderationStatus === "APPROVED" ? "dimmed" : ""}`}
-              onClick={onApprove}
+              onClick={onOpenApprove}
               disabled={moderationLoading}
             >
               {selectedPost?.moderationStatus === "APPROVED" ? "✓ Approved" : "Approve"}
@@ -135,17 +122,21 @@ const ReportModal = ({
           </div>
         )}
 
-        {selectedPost?.moderationStatus === "REJECTED" &&
-          selectedPost?.adminComment && (
-            <div className="gc-forum-admin-comment">
-              Rejection Reason: {selectedPost.adminComment}
-            </div>
+        {/* Admin comment display */}
+        {selectedPost?.moderationStatus === "APPROVED" && selectedPost?.adminComment && (
+          <div className="gc-forum-admin-comment gc-forum-admin-comment--approved">
+            ✅ Approval Reason: {selectedPost.adminComment}
+          </div>
+        )}
+        {selectedPost?.moderationStatus === "REJECTED" && selectedPost?.adminComment && (
+          <div className="gc-forum-admin-comment">
+            ❌ Rejection Reason: {selectedPost.adminComment}
+          </div>
         )}
 
         {/* REPORT LIST */}
         <div className="gc-report-list-wrap">
           <h4 className="gc-report-list-title">Report Reasons</h4>
-
           {reports.length === 0 ? (
             <div className="gc-empty">No reports found</div>
           ) : (
