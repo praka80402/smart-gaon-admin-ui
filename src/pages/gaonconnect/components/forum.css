@@ -1174,3 +1174,135 @@ grid-template-columns:1fr;
   border-radius: 12px;
   pointer-events: none;
 }
+/* =========================================
+   APPROVE COMMENT BOX
+   ========================================= */
+
+.gc-forum-comment-box {
+  margin: 0 18px 14px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.gc-forum-comment-box-title {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #15803d;
+}
+
+.gc-forum-comment-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #86efac;
+  border-radius: 10px;
+  font-size: 14px;
+  resize: vertical;
+  box-sizing: border-box;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.gc-forum-comment-textarea:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+.gc-forum-comment-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.gc-forum-comment-cancel-btn {
+  height: 38px;
+  padding: 0 18px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #fff;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.gc-forum-comment-cancel-btn:hover {
+  background: #f1f5f9;
+}
+
+.gc-forum-admin-comment--approved {
+  background: #f0fdf4;
+  color: #15803d;
+  border-left: 3px solid #22c55e;
+}
+
+/* Moderation wrap — groups bar + comment box with no gap */
+.gc-forum-moderation-wrap {
+  border-bottom: 1px solid #eee;
+}
+
+.gc-forum-moderation-wrap .gc-forum-moderation-bar {
+  border-bottom: none;
+}
+
+.gc-forum-moderation-wrap .gc-forum-comment-box {
+  margin: 0;
+  border-radius: 0;
+  border-top: 1px solid #bbf7d0;
+  border-bottom: none;
+  padding: 14px 18px;
+}
+
+/* Approve submit button in floating modal */
+.sg-forum-approve-submit-btn {
+  height: 44px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.sg-forum-approve-submit-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.93;
+}
+
+.sg-forum-approve-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Status badge on forum card */
+.sg-forum-status-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.sg-forum-status-badge--pending {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.sg-forum-status-badge--approved {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.sg-forum-status-badge--rejected {
+  background: #fee2e2;
+  color: #dc2626;
+}
