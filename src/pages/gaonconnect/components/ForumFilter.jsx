@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import "./forum.css";
 
@@ -11,37 +9,62 @@ const ForumFilter = ({
   toDate,
   setToDate,
   onSearch,
-}) => (
-  <div className="gc-filter-row">
+  onClear,
+}) => {
 
-  <input
-    type="text"
-    placeholder="Search phone"
-    value={searchPhone}
-    onChange={(e) => setSearchPhone(e.target.value)}
-    className="gc-forum-input"
-  />
+  return (
 
-  <input
-    type="date"
-    value={fromDate}
-    onChange={(e) => setFromDate(e.target.value)}
-    className="gc-forum-input"
-  />
+    <div className="gc-filter-row">
 
-  <input
-    type="date"
-    value={toDate}
-    onChange={(e) => setToDate(e.target.value)}
-    className="gc-forum-input"
-  />
+      {/* PHONE SEARCH */}
 
-  <button onClick={onSearch} className="gc-forum-btn">
-    Search
-  </button>
+      <input
+        type="text"
+        placeholder="Search phone"
+        value={searchPhone}
+        onChange={(e) => setSearchPhone(e.target.value)}
+        className="gc-forum-input"
+      />
 
-</div>
+      {/* FROM DATE */}
 
-);
+      <input
+        type="date"
+        value={fromDate}
+        onChange={(e) => setFromDate(e.target.value)}
+        className="gc-forum-input"
+      />
+
+      {/* TO DATE */}
+
+      <input
+        type="date"
+        value={toDate}
+        onChange={(e) => setToDate(e.target.value)}
+        className="gc-forum-input"
+      />
+
+      {/* SEARCH BUTTON */}
+
+      <button
+        onClick={onSearch}
+        className="gc-forum-btn"
+      >
+        Search
+      </button>
+
+      {/* CLEAR BUTTON */}
+
+      <button
+        onClick={onClear}
+        className="gc-forum-btn gc-clear-btn"
+      >
+        Clear
+      </button>
+
+    </div>
+
+  );
+};
 
 export default ForumFilter;

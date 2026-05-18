@@ -1,137 +1,261 @@
 /* ========== Container ========== */
 .village-list-container {
   padding: 30px;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f0f4f8;
+  min-height: 100vh;
 }
 
-/* ========== Card ========== */
-.village-card {
-  background: #ffffff;
-  padding: 18px;
-  margin-bottom: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  transition: 0.2s ease;
+.village-list-container h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 18px;
 }
 
-.village-card:hover {
-  transform: translateY(-3px);
+/* ========== Tabs ========== */
+.village-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
 }
 
-.village-card h3 {
-  margin: 0 0 8px 0;
-}
-
-.village-card button {
-  margin-right: 10px;
-  padding: 6px 14px;
+.village-tabs button {
+  padding: 8px 20px;
   border: none;
-  border-radius: 6px;
+  background: #e2e8f0;
   cursor: pointer;
+  border-radius: 20px;
   font-size: 14px;
+  font-weight: 500;
+  color: #4a5568;
+  transition: all 0.2s ease;
 }
 
-.village-card button:first-of-type {
-  background-color: #2e7d32;
+.village-tabs button:hover {
+  background: #cbd5e0;
+}
+
+.active-tab {
+  background: #2563eb !important;
+  color: white !important;
+}
+
+/* ========== Cards Wrapper ========== */
+.village-cards-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ========== Village Card ========== */
+.village-card-item {
+  background: white;
+  border-radius: 14px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  transition: box-shadow 0.2s, transform 0.2s;
+  gap: 16px;
+}
+
+.village-card-item:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+.village-card-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.village-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #16a34a, #2563eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: white;
+  font-size: 20px;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
-.village-card button:last-of-type {
-  background-color: #c62828;
-  color: white;
+.village-info { flex: 1; min-width: 0; }
+
+.village-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-/* ========== Smart Badge ========== */
+.village-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a202c;
+}
+
 .smart-badge {
-  background: #4caf50;
-  color: white;
+  background: #dcfce7;
+  color: #15803d;
   font-size: 11px;
-  padding: 4px 8px;
+  font-weight: 700;
+  padding: 3px 10px;
   border-radius: 12px;
-  margin-left: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.no-badge {
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+.village-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.village-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.village-meta-item .meta-icon { font-size: 14px; }
+
+.village-card-mid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 100px;
+}
+
+.state-label {
+  font-size: 11px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.state-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.village-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-view {
+  padding: 8px 16px;
+  background: #1e40af;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-view:hover { background: #1d3baa; }
+
+.btn-edit {
+  padding: 8px 16px;
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-edit:hover { background: #15803d; }
+
+.btn-delete {
+  padding: 8px 16px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-delete:hover { background: #b91c1c; }
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #94a3b8;
+  font-size: 15px;
 }
 
 /* ========== Modal Overlay ========== */
 .modal-overlay {
-  /* position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999; */
-
-   position: fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background: rgba(0,0,0,0.4);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:1000;
+  z-index: 1000;
 }
 
-/* ========== Modal Box ========== */
 .modal-box-large {
-   position: relative;
-  width:700px;
-  max-height:90vh;
-  overflow-y:auto;
-  background:#fff;
-  padding:25px;
-  border-radius:10px;
-  box-shadow:0 5px 20px rgba(0,0,0,0.2);
-  /* background: #ffffff;
+  position: relative;
   width: 700px;
   max-height: 90vh;
   overflow-y: auto;
+  background: #fff;
   padding: 25px;
-  border-radius: 12px;
-  position: relative;
-  animation: fadeIn 0.3s ease-in-out; */
+  border-radius: 14px;
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
 }
 
-/* Scrollbar clean */
-.modal-box-large::-webkit-scrollbar {
-  width: 6px;
-}
-.modal-box-large::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 10px;
-}
+.modal-box-large::-webkit-scrollbar { width: 6px; }
+.modal-box-large::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
 
-/* Close Button */
 .close-btn {
-
-   position:absolute;
-  top:10px;
-  right:10px;
-  width:32px;
-  height:32px;
-  border-radius:50%;
-  border:none;
-  background:#f44336;
-  color:white;
-  font-size:16px;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  /* position: absolute;
-  right: 15px;
-  top: 15px;
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
   border: none;
-  background: transparent;
-  font-size: 18px;
-  cursor: pointer; */
+  background: #f44336;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* ========== Inputs ========== */
 .modal-box-large input,
 .modal-box-large textarea,
 .modal-box-large select {
@@ -144,64 +268,15 @@
   font-size: 14px;
 }
 
-.modal-box-large textarea {
-  min-height: 80px;
-  resize: vertical;
-}
+.modal-box-large textarea { min-height: 80px; resize: vertical; }
+.modal-box-large label { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; }
+.modal-box-large button { margin-top: 12px; padding: 8px 14px; background: #1976d2; color: white; border: none; border-radius: 5px; cursor: pointer; }
+.modal-box-large button:hover { background-color: #1565c0; }
+.modal-box-large h4 { margin-top: 20px; margin-bottom: 10px; }
+.modal-box-large hr { margin: 20px 0; }
+.modal-box-large input[type="radio"] { width: auto; margin-right: 8px; }
 
-/* Checkbox */
-.modal-box-large label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 15px;
-}
-
-/* Buttons inside modal */
-.modal-box-large button {
-   margin-top:12px;
-  padding:8px 14px;
-  background:#1976d2;
-  color:white;
-  border:none;
-  border-radius:5px;
-  cursor:pointer;
-
-}
-
-.modal-box-large button:hover {
-  background-color: #1565c0;
-}
-
-/* Assigned Section */
-.modal-box-large h4 {
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-
-.modal-box-large hr {
-  margin: 20px 0;
-}
-
-/* Radio Section */
-.modal-box-large input[type="radio"] {
-  width: auto;
-  margin-right: 8px;
-}
-
-/* Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* ================= OVERLAY ================= */
+/* ========== View Overlay ========== */
 .view-overlay {
   position: fixed;
   inset: 0;
@@ -212,7 +287,6 @@
   z-index: 9999;
 }
 
-/* ================= MODAL BOX ================= */
 .view-box-large {
   background: #ffffff;
   width: 850px;
@@ -225,11 +299,9 @@
   animation: fadeIn 0.25s ease-in-out;
 }
 
-/* ================= CLOSE BUTTON ================= */
 .view-close-btn {
   position: absolute;
-  top: 18px;
-  right: 22px;
+  top: 18px; right: 22px;
   background: #ef4444;
   color: white;
   border: none;
@@ -237,101 +309,1064 @@
   border-radius: 6px;
   font-size: 14px;
   cursor: pointer;
-  transition: 0.2s ease;
 }
+.view-close-btn:hover { background: #dc2626; }
 
-.view-close-btn:hover {
-  background: #dc2626;
-}
-
-/* Animation */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-.village-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-.village-table th,
-.village-table td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: left;
-}
-
-.village-table th {
-  background: #f3f4f6;
-  font-weight: 600;
-}
-
-.village-table tr:hover {
-  background: #f9fafb;
-}
-
-.smart-badge {
-  background: #10b981;
-  color: white;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-}
-
-/* Action column buttons */
-.village-table td:last-child {
+/* ── View Modal Close Button (inside modal top-right) ── */
+.view-modal-close-btn {
+  position: absolute;
+  top: 12px;
+  right: -14px;
+  z-index: 10;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #fecaca;
+  background: white;
+  color: #ef4444;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: background 0.2s, transform 0.15s;
+}
+
+.view-modal-close-btn:hover {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+  transform: scale(1.08);
+}
+
+/* ============================================================
+   ASSIGN DEVELOPMENT — Modern Form (inside Edit Modal)
+   ============================================================ */
+
+.assign-dev-wrapper {
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.assign-dev-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 18px 0;
+}
+
+.assign-field {
+  margin-bottom: 16px;
+}
+
+.assign-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+/* Phase Pills */
+.phase-pills {
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
-/* Common button style */
-.village-table button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 5px;
+.phase-pill {
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1.5px solid #e2e8f0;
+  background: white;
   font-size: 13px;
+  font-weight: 600;
+  color: #374151;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.phase-pill:hover { border-color: #2563eb; color: #2563eb; }
+
+.phase-pill-active {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: white !important;
+}
+
+.phase-pill-add {
+  border-style: dashed;
+  color: #16a34a;
+  border-color: #16a34a;
+}
+
+.phase-pill-add:hover { background: #f0fdf4; }
+
+/* Project Radio List */
+.project-radio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.project-radio-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #fafbfc;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.project-radio-item input[type="radio"] { display: none; }
+
+.project-radio-item:hover { border-color: #2563eb; background: #eff6ff; }
+
+.project-radio-selected {
+  border-color: #2563eb !important;
+  background: #eff6ff !important;
+}
+
+.project-radio-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e0;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.project-radio-selected .project-radio-dot {
+  border-color: #2563eb;
+  background: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+.project-radio-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Progress Slider */
+.progress-val-badge {
+  background: #2563eb;
   color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
 }
 
-/* View - Grey */
-.village-table button:nth-child(1) {
-  background: #6b7280;
+.progress-slider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(to right, #2563eb var(--val, 0%), #e2e8f0 var(--val, 0%));
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+  margin-bottom: 6px;
 }
 
-/* Edit - Green */
-.village-table button:nth-child(2) {
-  background: #22c55e;
+.progress-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 3px solid white;
+  box-shadow: 0 1px 6px rgba(37,99,235,0.35);
+  cursor: pointer;
 }
 
-/* Delete - Red */
-.village-table button:nth-child(3) {
-  background: #ef4444;
+.slider-marks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 600;
 }
 
-.village-tabs{
-display:flex;
-gap:10px;
-margin-bottom:20px;
+/* Textarea */
+.assign-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #374151;
+  resize: vertical;
+  outline: none;
+  font-family: 'Segoe UI', sans-serif;
+  transition: border 0.2s;
+  box-sizing: border-box;
 }
 
-.village-tabs button{
-padding:8px 16px;
-border:none;
-background:#e5e7eb;
-cursor:pointer;
-border-radius:6px;
+.assign-textarea:focus { border-color: #2563eb; }
+
+/* Input */
+.assign-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #374151;
+  outline: none;
+  transition: border 0.2s;
+  box-sizing: border-box;
 }
 
-.active-tab{
-background:#2563eb;
-color:white;
+.assign-input:focus { border-color: #2563eb; }
+
+/* Media Section */
+.assign-media-section {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 18px;
+  border: 1px solid #f1f5f9;
 }
+
+.assign-media-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0 0 14px 0;
+}
+
+/* File Upload Label */
+.assign-file-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 2px dashed #cbd5e0;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #64748b;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.assign-file-label:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+
+/* Image Preview */
+.assign-img-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.assign-img-preview img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+}
+
+/* Action Buttons */
+.assign-action-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.assign-clear-btn {
+  padding: 11px 22px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.assign-clear-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+.assign-submit-btn {
+  flex: 1;
+  padding: 11px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #16a34a, #2563eb);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  letter-spacing: 0.2px;
+}
+
+.assign-submit-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* ============================================================
+   SMART GAON SECTION — Edit Modal Extended Form
+   ============================================================ */
+
+.sg-section { padding-top: 4px; }
+
+.sg-section-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 18px 0;
+}
+
+.sg-sub-head {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 12px 0;
+}
+
+/* ── Assigned Dev Row Cards (Image 2 style) ── */
+.sg-assigned-wrap { margin-bottom: 8px; }
+
+.sg-dev-row-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  gap: 12px;
+  transition: box-shadow 0.2s;
+}
+
+.sg-dev-row-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+
+.sg-dev-row-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sg-dev-thumb {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #dbeafe, #dcfce7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  border: 1.5px solid #e2e8f0;
+}
+
+.sg-dev-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sg-dev-row-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.sg-dev-row-phase {
+  font-size: 11px;
+  font-weight: 600;
+  color: #2563eb;
+  margin: 2px 0 4px;
+}
+
+.sg-dev-row-progress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sg-mini-bar {
+  width: 80px;
+  height: 5px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.sg-mini-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2563eb, #16a34a);
+  border-radius: 10px;
+}
+
+.sg-dev-row-progress span {
+  font-size: 11px;
+  font-weight: 700;
+  color: #374151;
+}
+
+/* ── Fields ── */
+.sg-field { margin-bottom: 14px; }
+
+.sg-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+/* ── Phase Pills ── */
+.sg-phase-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sg-phase-pill {
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sg-phase-pill:hover { border-color: #2563eb; color: #2563eb; }
+
+.sg-phase-active {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: white !important;
+}
+
+.sg-phase-add {
+  border-style: dashed;
+  color: #16a34a;
+  border-color: #16a34a;
+}
+
+.sg-phase-add:hover { background: #f0fdf4; }
+
+/* ── Add Dev Button ── */
+.sg-add-dev-btn {
+  padding: 9px 18px;
+  background: white;
+  border: 1.5px dashed #2563eb;
+  color: #2563eb;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sg-add-dev-btn:hover { background: #eff6ff; }
+
+/* ── Add Dev Inline Form ── */
+.sg-add-dev-form {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+  border: 1px solid #e2e8f0;
+}
+
+.sg-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 13px;
+  color: #374151;
+  outline: none;
+  transition: border 0.2s;
+  box-sizing: border-box;
+  background: white;
+}
+
+.sg-input:focus { border-color: #2563eb; }
+
+.sg-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 13px;
+  color: #374151;
+  outline: none;
+  resize: vertical;
+  font-family: 'Segoe UI', sans-serif;
+  transition: border 0.2s;
+  box-sizing: border-box;
+  background: white;
+}
+
+.sg-textarea:focus { border-color: #2563eb; }
+
+.sg-add-confirm-btn {
+  padding: 9px 20px;
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 4px;
+}
+
+.sg-add-confirm-btn:hover { background: #15803d; }
+
+/* ── Project Radio List ── */
+.sg-project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding-right: 4px;
+}
+
+.sg-project-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sg-project-item:hover { border-color: #2563eb; background: #eff6ff; }
+
+.sg-project-active {
+  border-color: #2563eb !important;
+  background: #eff6ff !important;
+}
+
+.sg-project-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e0;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.sg-project-active .sg-project-dot {
+  border-color: #2563eb;
+  background: #2563eb;
+}
+
+.sg-project-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* ── Progress Slider ── */
+.sg-progress-badge {
+  background: #2563eb;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.sg-slider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e2e8f0;
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.sg-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 3px solid white;
+  box-shadow: 0 1px 6px rgba(37,99,235,0.35);
+  cursor: pointer;
+}
+
+.sg-slider-marks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* ── Media Box ── */
+.sg-media-box {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #f1f5f9;
+}
+
+.sg-media-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0 0 12px 0;
+}
+
+.sg-file-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: 2px dashed #cbd5e0;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #64748b;
+  background: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.sg-file-label:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+
+.sg-img-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.sg-img-preview img {
+  width: 58px;
+  height: 58px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+}
+
+/* ── Action Row ── */
+.sg-action-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.sg-clear-btn {
+  padding: 11px 22px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sg-clear-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+.sg-submit-btn {
+  flex: 1;
+  padding: 11px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #16a34a, #2563eb);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.sg-submit-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* ── Phase Management ── */
+.sg-phase-management {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0 16px 0;
+  gap: 12px;
+}
+
+.sg-add-phase-modal-btn {
+  padding: 9px 16px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.sg-add-phase-modal-btn:hover { background: #1d4ed8; }
+
+/* ── Modal Overlay ── */
+.sg-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+
+.sg-modal-box {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  width: 450px;
+  max-width: 92vw;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.sg-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  border-bottom: 1.5px solid #f1f5f9;
+  padding-bottom: 12px;
+}
+
+.sg-modal-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+}
+
+.sg-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #94a3b8;
+  transition: color 0.2s;
+}
+
+.sg-modal-close:hover { color: #1a202c; }
+
+.sg-modal-body {
+  margin-bottom: 18px;
+}
+
+.sg-modal-body .sg-label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.sg-modal-body .sg-input {
+  width: 100%;
+}
+
+.sg-modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.sg-modal-cancel-btn {
+  padding: 10px 18px;
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sg-modal-cancel-btn:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e0;
+}
+
+.sg-modal-save-btn {
+  padding: 10px 18px;
+  background: #2563eb;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sg-modal-save-btn:hover { background: #1d4ed8; }
+
+/* ============================================================
+   EDIT MODAL — GaonConnect Form Style
+   ============================================================ */
+
+.edit-modal-card {
+  background: white;
+  border-radius: 20px;
+  width: 600px;
+  max-width: 94vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.edit-modal-header {
+  background: linear-gradient(135deg, #1e3a5f, #16a34a);
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.edit-modal-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: white;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.edit-modal-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: white;
+  margin: 0 0 2px 0;
+}
+
+.edit-modal-subtitle {
+  font-size: 12px;
+  color: rgba(255,255,255,0.75);
+  margin: 0;
+}
+
+.edit-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.edit-modal-close:hover { background: rgba(255,255,255,0.35); }
+
+/* ── Scrollable Body ── */
+.edit-modal-body {
+  padding: 22px 24px;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 transparent;
+}
+
+.edit-modal-body::-webkit-scrollbar { width: 5px; }
+.edit-modal-body::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; }
+
+/* ── Form Fields ── */
+.ef-field { margin-bottom: 14px; }
+
+.ef-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.ef-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #374151;
+  background: #fafbfc;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.ef-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+  background: white;
+}
+
+.ef-textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #374151;
+  background: #fafbfc;
+  outline: none;
+  resize: vertical;
+  font-family: 'Segoe UI', sans-serif;
+  transition: border 0.2s;
+  box-sizing: border-box;
+}
+
+.ef-textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+  background: white;
+}
+
+.ef-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+/* ── SmartGaon Toggle + Update button row ── */
+.ef-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  margin-bottom: 6px;
+  gap: 12px;
+}
+
+.ef-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.ef-toggle {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: #e2e8f0;
+  position: relative;
+  transition: background 0.25s;
+  flex-shrink: 0;
+}
+
+.ef-toggle-on { background: #16a34a; }
+
+.ef-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform 0.25s;
+}
+
+.ef-toggle-on .ef-toggle-knob { transform: translateX(20px); }
+
+.ef-toggle-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.ef-update-btn {
+  padding: 10px 22px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.ef-update-btn:hover { background: #1d4ed8; transform: translateY(-1px); }

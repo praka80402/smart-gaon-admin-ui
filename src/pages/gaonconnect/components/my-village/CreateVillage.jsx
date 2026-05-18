@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createVillage } from "./service/villageservice";
 import "./createVillage.css";
 
 export default function CreateVillage() {
@@ -24,32 +25,67 @@ export default function CreateVillage() {
 
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+
     e.preventDefault();
 
-    console.log({
-      ...formData,
-      images,
+    try {
+
+      const data = new FormData();
+      data.append("name", formData.villageName);
+      data.append("city", formData.district);
+      data.append("state", formData.state);
+      data.append("description", formData.description);
+      data.append("smartGaon", formData.smartGaon);
+
+      Array.from(images).forEach(img => data.append("images", img));
+
+      await createVillage(data);
+
+      alert("Village Created Successfully ✅");
+
+      handleClear();
+
+    } catch (err) {
+
+      console.error(err);
+      alert("Failed to create village. Please try again.");
+
+    }
+
+  };
+
+  const handleClear = () => {
+
+    setFormData({
+      villageName: "",
+      district: "",
+      state: "",
+      description: "",
+      smartGaon: false,
     });
+
+    setImages([]);
+
+    // reset file input
+    const fileInput = document.getElementById("villageImages");
+    if (fileInput) fileInput.value = "";
+
   };
 
   return (
 
     <div className="sg-village-page-wrapper">
 
-      <div className="sg-village-top-header">
+      <div className="sg-village-heading-wrapper">
 
-        <div>
+        <h1 className="sg-village-main-heading">
+          Create Village
+        </h1>
 
-          <h1 className="sg-village-main-heading">
-            Create Village
-          </h1>
-
-          <p className="sg-village-main-subheading">
-            Add and manage your SmartGaon village details.
-          </p>
-
-        </div>
+        <p className="sg-village-main-subheading">
+          Add and manage your SmartGaon village details.
+        </p>
 
       </div>
 
@@ -188,6 +224,7 @@ export default function CreateVillage() {
             <button
               type="button"
               className="sg-village-clear-btn"
+              onClick={handleClear}
             >
               Clear
             </button>

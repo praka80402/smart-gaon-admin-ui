@@ -381,57 +381,73 @@ justify-content:space-between;
 align-items:center;
 gap:20px;
 margin-bottom:26px;
-flex-wrap:wrap;
+flex-wrap:nowrap;
 padding:0 4px;
 }
 
-.sg-forum-heading {
-  margin: 0;
-  font-size: 38px;
-  font-weight: 700;
-  color: #0f172a;
+.sg-forum-heading{
+margin:0;
+font-size:32px;
+font-weight:800;
+color:#0f172a;
+line-height:1;
+position:relative;
+top:-26px;   
+}
+.sg-forum-heading-wrap{
+display:flex;
+align-items:center;
+gap:28px;
+flex-wrap:nowrap;
 }
 
-.sg-forum-subheading {
-  margin-top: 8px;
-  color: #64748b;
-  font-size: 15px;
+.sg-forum-subheading{
+margin:0;
+color:#64748b;
+font-size:14px;
+font-weight:500;
+line-height:1.2;
+padding-bottom:36px; 
 }
 
 .sg-forum-total-card{
-min-width:220px;
-height:100px;
+min-width:170px;
+width:170px;
+height:82px;
 background:#ffffff;
-border-radius:24px;
+border-radius:20px;
 border:1px solid #e2e8f0;
 display:flex;
 align-items:center;
-justify-content:flex-start;
-gap:18px;
-padding:20px 24px;
+gap:14px;
+padding:14px 18px;
 box-shadow:0 6px 18px rgba(15,23,42,0.05);
+position:relative;
+top:-20px;
 }
 
-.sg-forum-total-icon {
-  width: 54px;
-  height: 54px;
-  border-radius: 16px;
-  background: #dcfce7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
+.sg-forum-total-icon{
+width:44px;
+height:44px;
+border-radius:14px;
+background:#dcfce7;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:18px;
 }
+
 
 .sg-forum-total-label {
   margin: 0;
   color: #64748b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .sg-forum-total-value {
   margin: 6px 0 0;
-  font-size: 30px;
+  font-size: 22px;
+  font-weight:700;
   color: #0f172a;
 }
 
@@ -446,6 +462,8 @@ gap:14px;
 margin-bottom:26px;
 box-shadow:0 4px 14px rgba(0,0,0,0.03);
 align-items:center;
+position:relative;
+top:-22px;
 }
 
 .sg-forum-search-input,
@@ -472,12 +490,13 @@ box-sizing:border-box;
 height:50px;
 border:none;
 border-radius:16px;
-background:linear-gradient(135deg,#15803d,#22c55e);
-color:#fff;
+background:#ecfdf5;
+color:#10b981;
 font-size:14px;
 font-weight:700;
 cursor:pointer;
-transition:0.2s;
+transition:all .25s ease;
+border:2px solid #bbf7d0;
 }
 
 .sg-forum-search-btn:hover {
@@ -489,12 +508,41 @@ transition:0.2s;
 height:50px;
 border:none;
 border-radius:16px;
-background:#f1f5f9;
-color:#0f172a;
+background:#ecfdf5;
+color:#10b981;
 font-size:14px;
 font-weight:700;
 cursor:pointer;
-transition:0.2s;
+transition:all .25s ease;
+border:2px solid #cbd5e1;
+}
+
+/* Glow Animation */
+.sg-forum-search-btn,
+.sg-forum-clear-btn{
+position:relative;
+overflow:hidden;
+transition:all .25s ease;
+}
+
+.sg-forum-search-btn.active-glow{
+background:rgb(47, 81, 205);
+color:#ffffff;
+border:2px solid #10b981;
+box-shadow:
+0 0 12px rgba(16,185,129,.45),
+0 0 24px rgba(16,185,129,.25);
+transform:translateY(-1px) scale(1.02);
+}
+
+.sg-forum-clear-btn.active-glow{
+background:rgb(47, 81, 205);
+color:#ffffff;
+border:2px solid #10b981;
+box-shadow:
+0 0 12px rgba(16,185,129,.45),
+0 0 24px rgba(16,185,129,.25);
+transform:translateY(-1px) scale(1.02);
 }
 
 .sg-forum-list {
@@ -511,6 +559,8 @@ transition:0.2s;
   border: 1px solid #e2e8f0;
   border-radius: 28px;
   box-shadow: 0 8px 26px rgba(15, 23, 42, 0.05);
+  position:relative;
+  top:-40px;
 }
 
 .sg-forum-card {
@@ -1007,14 +1057,6 @@ transition:0.2s;
     flex-direction: column;
   }
 
-  .sg-forum-heading {
-    font-size: 28px;
-  }
-
- .sg-forum-filter-wrap{
-grid-template-columns:1fr;
-}
-
   .sg-forum-post-container {
     padding: 16px;
     border-radius: 22px;
@@ -1035,6 +1077,7 @@ grid-template-columns:1fr;
     flex-direction: column;
   }
 }
+
 /* =========================================
    REPORT MODAL – FULL SLIDESHOW
    ========================================= */
@@ -1305,4 +1348,28 @@ grid-template-columns:1fr;
 .sg-forum-status-badge--rejected {
   background: #fee2e2;
   color: #dc2626;
+}
+
+/* ===============================
+FORUM FILTER FIX
+=============================== */
+
+.sg-forum-filter-wrap{
+position:sticky;
+top:10px;
+z-index:20;
+background:#fff;
+}
+
+.sg-forum-search-input{
+font-weight:600;
+}
+
+.sg-forum-search-input::placeholder{
+color:#94a3b8;
+}
+
+.sg-forum-search-btn,
+.sg-forum-clear-btn{
+min-width:120px;
 }

@@ -101,34 +101,38 @@ const ReportModal = ({
         {selectedPost && (
           <div className="gc-forum-moderation-bar">
             <div className="gc-forum-moderation-status">
-              Status: {selectedPost.moderationStatus || "PENDING"}
+              Status: {selectedPost.status || "PENDING"}
             </div>
 
+  { selectedPost.status !== "DELETED" && (
             <button
-              className={`gc-forum-approve-btn ${selectedPost?.moderationStatus === "APPROVED" ? "dimmed" : ""}`}
+              className={`gc-forum-approve-btn ${selectedPost?.status === "APPROVED" ? "dimmed" : ""}`}
               onClick={onOpenApprove}
               disabled={moderationLoading}
             >
-              {selectedPost?.moderationStatus === "APPROVED" ? "✓ Approved" : "Approve"}
+              {selectedPost?.status === "APPROVED" ? "✓ Approved" : "Approve"}
             </button>
+            )}
 
+{ selectedPost.status !== "DELETED" && (
             <button
-              className={`gc-forum-reject-btn ${selectedPost?.moderationStatus === "REJECTED" ? "dimmed" : ""}`}
+              className={`gc-forum-reject-btn ${selectedPost?.status === "REJECTED" ? "dimmed" : ""}`}
               onClick={onOpenReject}
               disabled={moderationLoading}
             >
-              {selectedPost?.moderationStatus === "REJECTED" ? "✗ Rejected" : "Reject"}
+              {selectedPost?.status === "REJECTED" ? "✗ Rejected" : "Reject"}
             </button>
+            )}
           </div>
         )}
 
         {/* Admin comment display */}
-        {selectedPost?.moderationStatus === "APPROVED" && selectedPost?.adminComment && (
+        {selectedPost?.status === "APPROVED" && selectedPost?.adminComment && (
           <div className="gc-forum-admin-comment gc-forum-admin-comment--approved">
             ✅ Approval Reason: {selectedPost.adminComment}
           </div>
         )}
-        {selectedPost?.moderationStatus === "REJECTED" && selectedPost?.adminComment && (
+        {selectedPost?.status === "REJECTED" && selectedPost?.adminComment && (
           <div className="gc-forum-admin-comment">
             ❌ Rejection Reason: {selectedPost.adminComment}
           </div>

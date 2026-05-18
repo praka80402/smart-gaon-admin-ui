@@ -1,126 +1,406 @@
-/* Page */
-.admin-container {
-  padding: 40px;
+/* ============================================================
+   SUGGESTION PAGE — FIXED & POLISHED
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
+
+/* ── Root ── */
+.suggestion-page {
+  padding: 28px 40px 48px;
+  background: #eef5f5;
   min-height: 100vh;
-  background: #f4f7fb;
-  font-family: Arial, sans-serif;
+  font-family: 'Nunito', sans-serif;
 }
 
-/* Title */
-.admin-title {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 25px;
-  color: #2c3e50;
+.suggestion-container {
+  width: 90%;
+  max-width: 1100px;
+  margin: auto;
+  background: #ffffff;
+  padding: 32px 36px;
+  border-radius: 28px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.07);
 }
 
-/* Wrapper */
-.table-wrapper {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  overflow-x: auto;
-  padding: 15px;
+/* ── Header ── */
+.suggestion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
 }
 
-/* Table */
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 1000px;
+.suggestion-header h1 {
+  font-size: 36px;
+  font-weight: 800;
+  margin: 0;
+  color: #111827;
+  letter-spacing: -0.5px;
 }
 
-/* Header */
-.admin-table thead {
-  background: #1f2937;
-  color: white;
+.suggestion-header p {
+  margin-top: 6px;
+  color: #6b7280;
+  font-size: 14px;
 }
 
-.admin-table th {
-  padding: 14px 16px;
-  text-align: left;
+/* ── Stat Cards ── */
+.suggestion-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-/* Body */
-.admin-table td {
-  padding: 14px 16px;
-  color: #374151;
-  border-bottom: 1px solid #e5e7eb;
+.suggestion-stat-card {
+  min-width: 140px;
+  background: #f8fafc;
+  padding: 16px 20px;
+  border-radius: 16px;
+  border-left: 5px solid #2563eb;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s;
 }
 
-/* Hover */
-.admin-table tbody tr:hover {
-  background: #f1f5f9;
+.suggestion-stat-card:hover {
+  transform: translateY(-2px);
 }
 
-/* Description */
-.desc-cell {
-  max-width: 300px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.suggestion-stat-card.new {
+  border-left-color: #f59e0b;
 }
 
-/* Status */
-.status-select {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  cursor: pointer;
+.suggestion-stat-card.completed {
+  border-left-color: #10b981;
 }
 
-.status-select:focus {
-  outline: none;
-  border-color: #2563eb;
+.suggestion-stat-card h3 {
+  margin: 0 0 4px;
+  font-size: 30px;
+  font-weight: 800;
+  color: #111827;
 }
 
-/* Delete */
-.delete-btn {
-  background: #dc2626;
-  color: white;
-  border: none;
-  padding: 7px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.delete-btn:hover {
-  background: #b91c1c;
-}
-
-/* Empty */
-.empty-msg {
-  padding: 30px;
-  text-align: center;
+.suggestion-stat-card span {
+  font-size: 13px;
+  font-weight: 600;
   color: #6b7280;
 }
 
-/* Loading */
-.loading-text {
+/* ── Grid ── */
+.suggestion-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-top: 8px;
+  align-items: stretch; /* all cards same height per row */
+}
+
+/* ── Card wrapper — gradient glow border trick ── */
+.suggestion-card-wrapper {
+  border-radius: 20px;
+  padding: 2px; /* border thickness */
+  background: linear-gradient(135deg, #6ee7b7, #3b82f6, #a78bfa, #f472b6);
+  background-size: 300% 300%;
+  animation: gradientShift 5s ease infinite;
+  box-shadow: 0 0 18px rgba(99, 102, 241, 0.25);
+  transition: box-shadow 0.3s, transform 0.25s;
+}
+
+.suggestion-card-wrapper:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 32px rgba(99, 102, 241, 0.45);
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Card inner ── */
+.suggestion-card {
+  background: #fff;
+  border-radius: 18px; /* slightly less than wrapper */
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%; /* fill wrapper height */
+  box-sizing: border-box;
+  min-height: 260px; /* consistent minimum height */
+}
+
+/* ── Card Top ── */
+.suggestion-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.suggestion-id {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.suggestion-card h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.35;
+  word-break: break-word;      /* FIX: long titles wrap properly */
+}
+
+/* ── Status Dropdown ── */
+.suggestion-status {
+  flex-shrink: 0;
+  width: 130px;                /* FIX: consistent width */
+  padding: 7px 10px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 12px;
+  outline: none;
+  cursor: pointer;
   text-align: center;
-  padding: 40px;
-  font-size: 18px;
+  appearance: auto;
 }
 
-/* Full description */
-.desc-full {
-  max-width: 300px;
-  white-space: normal;
-  word-wrap: break-word;
-  line-height: 1.4;
+/* Status colours (also used on cards) */
+.suggestion-status.new,
+select.new  { background: #fef3c7; color: #92400e; }
+
+.suggestion-status.review,
+select.review { background: #dbeafe; color: #1d4ed8; }
+
+.suggestion-status.in_progress,
+select.in_progress { background: #ede9fe; color: #6d28d9; }
+
+.suggestion-status.completed,
+select.completed { background: #dcfce7; color: #166534; }
+
+/* ── Description ── */
+.suggestion-desc {
+  flex: 1;
 }
 
-/* View button */
-.view-btn {
+.suggestion-desc-short {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.65;
+  word-break: break-word;      /* FIX: long Urdu/Hindi text wraps */
+}
+
+.suggestion-desc-full {
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.75;
+  word-break: break-word;
+}
+
+.suggestion-view-btn {
   background: none;
   border: none;
   color: #2563eb;
+  font-weight: 700;
+  font-size: 13px;
   cursor: pointer;
-  font-size: 12px;
+  margin-top: 6px;
   padding: 0;
+  display: inline-block;
+}
+
+.suggestion-view-btn:hover {
+  text-decoration: underline;
+}
+
+/* ── Details ── */
+.suggestion-details {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #374151;
+  font-weight: 600;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+/* ── Actions ── */
+.suggestion-actions {
+  display: flex;
+  justify-content: flex-end;
   margin-top: 4px;
 }
 
-.view-btn:hover {
-  text-decoration: underline;
+.suggestion-delete-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.suggestion-delete-btn:hover {
+  background: #dc2626;
+  transform: scale(1.03);
+}
+
+/* ── Empty State ── */
+.suggestion-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: #9ca3af;
+}
+
+.suggestion-empty-icon {
+  font-size: 52px;
+  margin-bottom: 14px;
+}
+
+.suggestion-empty h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #6b7280;
+  margin: 0 0 6px;
+}
+
+.suggestion-empty p {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ── Pagination ── */
+.suggestion-pagination {
+  margin-top: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.suggestion-pagination button {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #374151;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+
+.suggestion-pagination button:hover:not(:disabled) {
+  background: #2563eb;
+  color: white;
+  transform: scale(1.05);
+}
+
+.suggestion-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.suggestion-pages {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.active-page {
+  background: #2563eb !important;
+  color: white !important;
+}
+
+/* ── Loading ── */
+.loading-text {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #6b7280;
+  gap: 12px;
+}
+
+.loading-text::after {
+  content: '';
+  width: 22px;
+  height: 22px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .suggestion-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .suggestion-page {
+    padding: 16px;
+  }
+
+  .suggestion-container {
+    width: 100%;
+    padding: 20px 16px;
+    border-radius: 20px;
+  }
+
+  .suggestion-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .suggestion-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .suggestion-header h1 {
+    font-size: 28px;
+  }
+
+  .suggestion-stats {
+    width: 100%;
+  }
+
+  .suggestion-stat-card {
+    flex: 1;
+    min-width: 100px;
+  }
+
+  .suggestion-status {
+    width: 110px;
+    font-size: 11px;
+  }
 }

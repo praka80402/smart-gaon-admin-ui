@@ -1,196 +1,25 @@
-// import React, { useEffect, useState } from "react";
-// //import axios from "axios";
-// import "./suggestion.css";
-// import {api} from "../../services/apiConfig"
-
-
-// export default function AdminSuggestions() {
-  
-//   const [suggestions, setSuggestions] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   // Store which row is expanded
-//   const [expandedId, setExpandedId] = useState(null);
-
-
-//   useEffect(() => {
-//     fetchSuggestions();
-//   }, []);
-
-//   const fetchSuggestions = async () => {
-//     try {
-//       const res = await api.get(`/api/admin/suggestions`);
-//       setSuggestions(res.data);
-//     } catch (err) {
-//       console.error(err);
-//       alert("Failed to load suggestions");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const updateStatus = async (id, status) => {
-//     try {
-//       await api.put(
-//         `/api/admin/suggestions/${id}/status`,
-//         { status }
-//       );
-
-//       fetchSuggestions();
-//     } catch (err) {
-//       console.error(err);
-//       alert("Update failed");
-//     }
-//   };
-
-//   const deleteSuggestion = async (id) => {
-//     if (!window.confirm("Are you sure you want to delete?")) return;
-
-//     try {
-//       await api.delete(`/api/admin/suggestions/${id}`);
-//       fetchSuggestions();
-//     } catch (err) {
-//       console.error(err);
-//       alert("Delete failed");
-//     }
-//   };
-
-//   const toggleDescription = (id) => {
-//     setExpandedId(expandedId === id ? null : id);
-//   };
-
-//   if (loading) {
-//     return <div className="loading-text">Loading...</div>;
-//   }
-
-//   return (
-//     <div className="admin-container">
-
-//       <h1 className="admin-title">User Suggestions</h1>
-
-//       <div className="table-wrapper">
-
-//         <table className="admin-table">
-
-//           <thead>
-//             <tr>
-//               <th>ID</th>
-//               <th>Title</th>
-//               <th>Description</th>
-//               <th>Phone</th>
-//               <th>Pincode</th>
-//               <th>Status</th>
-//               <th>Actions</th>
-//             </tr>
-//           </thead>
-
-//           <tbody>
-//             {suggestions.map((item) => {
-//               const isExpanded = expandedId === item.id;
-
-//               return (
-//                 <tr key={item.id}>
-
-//                   <td>{item.id}</td>
-//                   <td>{item.title}</td>
-
-//                   <td>
-//                     <div
-//                       className={
-//                         isExpanded
-//                           ? "desc-full"
-//                           : "desc-cell"
-//                       }
-//                     >
-//                       {item.description}
-//                     </div>
-
-//                     {item.description?.length > 10 && (
-//                       <button
-//                         className="view-btn"
-//                         onClick={() =>
-//                           toggleDescription(item.id)
-//                         }
-//                       >
-//                         {isExpanded ? "View Less" : "View More"}
-//                       </button>
-//                     )}
-//                   </td>
-
-//                   <td>{item.phone}</td>
-//                   <td>{item.pincode}</td>
-
-//                   <td>
-//                     <select
-//                       className="status-select"
-//                       value={item.status}
-//                       onChange={(e) =>
-//                         updateStatus(item.id, e.target.value)
-//                       }
-//                     >
-//                       <option value="NEW">NEW</option>
-//                       <option value="REVIEW">REVIEW</option>
-//                       <option value="IN_PROGRESS">IN_PROGRESS</option>
-//                       <option value="COMPLETED">COMPLETED</option>
-//                     </select>
-//                   </td>
-
-//                   <td>
-//                     <button
-//                       className="delete-btn"
-//                       onClick={() => deleteSuggestion(item.id)}
-//                     >
-//                       Delete
-//                     </button>
-//                   </td>
-
-//                 </tr>
-//               );
-//             })}
-
-//             {suggestions.length === 0 && (
-//               <tr>
-//                 <td colSpan="7" className="empty-msg">
-//                   No suggestions found
-//                 </td>
-//               </tr>
-//             )}
-
-//           </tbody>
-
-//         </table>
-
-//       </div>
-//     </div>
-//   );
-// }
-
-
 import React, { useEffect, useState } from "react";
 import "./suggestion.css";
 import { api } from "../../services/apiConfig";
 
 export default function AdminSuggestions() {
-
   const role = localStorage.getItem("adminRole");
-
-  const canManage =
-    role === "SUPER_ADMIN" || role === "STATE_ADMIN";
+  const canManage = role === "SUPER_ADMIN" || role === "STATE_ADMIN";
 
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
-
   const [page, setPage] = useState(1);
-const pageSize = 5;
+  const pageSize = 6; // FIX: 6 so 3-col grid stays even (2 full rows)
 
   useEffect(() => {
     fetchSuggestions();
   }, []);
 
+  // Reset to page 1 whenever suggestions list changes
   useEffect(() => {
     setPage(1);
-  }, [suggestions]);
+  }, [suggestions.length]);
 
   const fetchSuggestions = async () => {
     try {
@@ -205,18 +34,12 @@ const pageSize = 5;
   };
 
   const updateStatus = async (id, status) => {
-
     if (!canManage) {
       alert("You are not authorized to update status.");
       return;
     }
-
     try {
-      await api.put(
-        `/api/admin/suggestions/${id}/status`,
-        { status }
-      );
-
+      await api.put(`/api/admin/suggestions/${id}/status`, { status });
       fetchSuggestions();
     } catch (err) {
       console.error(err);
@@ -225,14 +48,11 @@ const pageSize = 5;
   };
 
   const deleteSuggestion = async (id) => {
-
     if (!canManage) {
       alert("You are not authorized to delete.");
       return;
     }
-
-    if (!window.confirm("Are you sure you want to delete?")) return;
-
+    if (!window.confirm("Are you sure you want to delete this suggestion?")) return;
     try {
       await api.delete(`/api/admin/suggestions/${id}`);
       fetchSuggestions();
@@ -246,158 +66,152 @@ const pageSize = 5;
     setExpandedId(expandedId === id ? null : id);
   };
 
-  const totalPages = Math.ceil(suggestions.length / pageSize);
+  // FIX: normalize status to lowercase for CSS class matching
+  const statusClass = (status) => status?.toLowerCase().replace("_", "_");
 
-const paginatedSuggestions = suggestions.slice(
-  (page - 1) * pageSize,
-  page * pageSize
-);
+  const totalPages = Math.ceil(suggestions.length / pageSize);
+  const paginatedSuggestions = suggestions.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
 
   if (loading) {
-    return <div className="loading-text">Loading...</div>;
+    return <div className="loading-text"></div>;
   }
 
-
-
   return (
-    <div className="admin-container">
+    <div className="suggestion-page">
+      <div className="suggestion-container">
 
-      <h1 className="admin-title">User Suggestions</h1>
+        {/* ===== HEADER ===== */}
+        <div className="suggestion-header">
+          <div>
+            <h1>User Suggestions</h1>
+            <p>Manage citizen suggestions & feedback reports</p>
+          </div>
 
-      <div className="table-wrapper">
+          <div className="suggestion-stats">
+            <div className="suggestion-stat-card">
+              <h3>{suggestions.length}</h3>
+              <span>Total Suggestions</span>
+            </div>
+            <div className="suggestion-stat-card new">
+              <h3>{suggestions.filter((s) => s.status === "NEW").length}</h3>
+              <span>New</span>
+            </div>
+            <div className="suggestion-stat-card completed">
+              <h3>{suggestions.filter((s) => s.status === "COMPLETED").length}</h3>
+              <span>Completed</span>
+            </div>
+          </div>
+        </div>
 
-        <table className="admin-table">
+        {/* ===== GRID ===== */}
+        <div className="suggestion-grid">
 
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Title</th>
-              <th>Description</th>
-              <th>Phone</th>
-              <th>Pincode</th>
-              <th>Status</th>
-              {canManage && <th>Actions</th>}
-            </tr>
-          </thead>
-
-          <tbody>
-            {/* {suggestions.map((item) => { */}
-           {paginatedSuggestions.map((item) => {
+          {/* FIX: Empty state when no suggestions */}
+          {paginatedSuggestions.length === 0 ? (
+            <div className="suggestion-empty">
+              <div className="suggestion-empty-icon">📭</div>
+              <h3>No Suggestions Yet</h3>
+              <p>When citizens submit suggestions, they'll appear here.</p>
+            </div>
+          ) : (
+            paginatedSuggestions.map((item) => {
               const isExpanded = expandedId === item.id;
+              // FIX: proper CSS class for status (in_progress, new, etc.)
+              const cls = item.status?.toLowerCase().replace("_", "_") ?? "new";
 
               return (
-                <tr key={item.id}>
+                <div className="suggestion-card-wrapper" key={item.id}>
+                <div className="suggestion-card">
 
-                  <td>{item.id}</td>
-                  <td>{item.title}</td>
-
-                  <td>
-                    <div className={isExpanded ? "desc-full" : "desc-cell"}>
-                      {item.description}
+                  {/* TOP */}
+                  <div className="suggestion-top">
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="suggestion-id">Suggestion #{item.id}</div>
+                      {/* FIX: h3 has word-break in CSS so long titles wrap */}
+                      <h3>{item.title}</h3>
                     </div>
 
-                    {item.description?.length > 10 && (
-                      <button
-                        className="view-btn"
-                        onClick={() => toggleDescription(item.id)}
-                      >
-                        {isExpanded ? "View Less" : "View More"}
-                      </button>
-                    )}
-                  </td>
-
-                  <td>{item.phone}</td>
-                  <td>{item.pincode}</td>
-
-                  <td>
+                    {/* FIX: fixed-width dropdown with consistent styling */}
                     <select
-                      className="status-select"
+                      className={`suggestion-status ${cls}`}
                       value={item.status}
                       disabled={!canManage}
-                      onChange={(e) =>
-                        updateStatus(item.id, e.target.value)
-                      }
+                      onChange={(e) => updateStatus(item.id, e.target.value)}
                     >
                       <option value="NEW">NEW</option>
                       <option value="REVIEW">REVIEW</option>
-                      <option value="IN_PROGRESS">IN_PROGRESS</option>
+                      <option value="IN_PROGRESS">IN PROGRESS</option>
                       <option value="COMPLETED">COMPLETED</option>
                     </select>
-                  </td>
+                  </div>
 
-                  {canManage && (
-                    <td>
+                  {/* DESCRIPTION */}
+                  <div className="suggestion-desc">
+                    <p className={isExpanded ? "suggestion-desc-full" : "suggestion-desc-short"}>
+                      {item.description}
+                    </p>
+                    {item.description?.length > 80 && (
                       <button
-                        className="delete-btn"
+                        className="suggestion-view-btn"
+                        onClick={() => toggleDescription(item.id)}
+                      >
+                        {isExpanded ? "View Less ↑" : "View More ↓"}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* DETAILS — FIX: inside a pill background box */}
+                  <div className="suggestion-details">
+                    <span>📞 {item.phone}</span>
+                    <span>📍 {item.pincode}</span>
+                  </div>
+
+                  {/* ACTION */}
+                  {canManage && (
+                    <div className="suggestion-actions">
+                      <button
+                        className="suggestion-delete-btn"
                         onClick={() => deleteSuggestion(item.id)}
                       >
                         Delete
                       </button>
-                    </td>
+                    </div>
                   )}
 
-                </tr>
+                </div>
+                </div>
               );
-            })}
+            })
+          )}
+        </div>
 
-            {/* {suggestions.length === 0 && ( */}
-             {paginatedSuggestions.length === 0 && (
-              <tr>
-                <td colSpan={canManage ? "7" : "6"} className="empty-msg">
-                  No suggestions found
-                </td>
-              </tr>
-            )}
-
-          </tbody>
-
-        </table>
-
-
+        {/* ===== PAGINATION ===== */}
         {totalPages > 1 && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "20px",
-              marginTop: "20px"
-            }}
-          >
-            <button
-              disabled={page === 1}
-              onClick={() => setPage(page - 1)}
-              style={{
-                padding: "6px 14px",
-                backgroundColor: "#6c757d",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer"
-              }}
-            >
-              Prev
+          <div className="suggestion-pagination">
+            <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+              ← Prev
             </button>
 
-            <span>Page {page} of {totalPages}</span>
+            <div className="suggestion-pages">
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setPage(index + 1)}
+                  className={page === index + 1 ? "active-page" : ""}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
 
-            <button
-              disabled={page === totalPages}
-              onClick={() => setPage(page + 1)}
-              style={{
-                padding: "6px 14px",
-                backgroundColor: "#0d6efd",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer"
-              }}
-            >
-              Next
+            <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+              Next →
             </button>
           </div>
         )}
-
 
       </div>
     </div>
