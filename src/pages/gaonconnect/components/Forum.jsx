@@ -140,6 +140,7 @@ const MediaPreviewStrip = ({ allMedia }) => {
 const Forum = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [activeBtn,setActiveBtn]=useState("");
 
   const [searchPhone, setSearchPhone] = useState("");
   const [fromDate, setFromDate] = useState("");
@@ -166,15 +167,19 @@ const Forum = () => {
 
   /* LOAD */
   const load = useCallback(
-    async (pageNo = page) => {
+    async (pageNo = page, filters = {}) => {
       setLoading(true);
       try {
+        const phone = filters.phone ?? searchPhone;
+        const startDate = filters.fromDate ?? fromDate;
+        const endDate = filters.toDate ?? toDate;
+
         const res = await getAllForumPosts({
           page: pageNo,
           size: pageSize,
-          phone: searchPhone || undefined,
-          fromDate: fromDate || undefined,
-          toDate: toDate || undefined,
+          phone: phone || undefined,
+          fromDate: startDate || undefined,
+          toDate: endDate || undefined,
         });
         const data = res.data;
         setItems(data?.content || []);
@@ -238,13 +243,13 @@ const Forum = () => {
       setItems((prev) =>
         prev.map((i) =>
           i.postId === selectedReportPost.postId
-            ? { ...i, moderationStatus: "APPROVED", adminComment: comment }
+            ? { ...i, status: "APPROVED", adminComment: comment }
             : i
         )
       );
       
       setSelectedReportPost((prev) =>
-        prev ? { ...prev, moderationStatus: "APPROVED", adminComment: comment } : prev
+        prev ? { ...prev, status: "APPROVED", adminComment: comment } : prev
       );
     } catch (e) {
       console.error(e);
@@ -273,14 +278,14 @@ const Forum = () => {
       setItems((prev) =>
         prev.map((i) =>
           i.postId === selectedReportPost.postId
-            ? { ...i, moderationStatus: "REJECTED", adminComment: rejectRemark }
+            ? { ...i, status: "REJECTED", adminComment: rejectRemark }
             : i
         )
       );
       
       setSelectedReportPost((prev) =>
         prev
-          ? { ...prev, moderationStatus: "REJECTED", adminComment: rejectRemark }
+          ? { ...prev, status: "REJECTED", adminComment: rejectRemark }
           : prev
       );
       setShowRejectBox(false);
@@ -299,12 +304,12 @@ const Forum = () => {
 
         {/* HEADER */}
         <div className="sg-forum-topbar">
-          <div>
-            <h2 className="sg-forum-heading">Forum Posts</h2>
-            <p className="sg-forum-subheading">
-              Manage and moderate community discussions.
-            </p>
-          </div>
+          <div className="sg-forum-heading-wrap">
+  <h2 className="sg-forum-heading">Forum Posts</h2>
+  <p className="sg-forum-subheading">
+    Manage and moderate community discussions.
+  </p>
+</div>
           <div className="sg-forum-total-card">
             <div className="sg-forum-total-icon">&#x1F4AC;</div>
             <div>
@@ -335,20 +340,30 @@ const Forum = () => {
             onChange={(e) => setToDate(e.target.value)}
             className="sg-forum-date-input"
           />
-          <button className="sg-forum-search-btn" onClick={() => load(0)}>
-            Search
-          </button>
+         <button
+className={`sg-forum-search-btn ${activeBtn==="search"?"active-glow":""}`}
+onClick={()=>{
+setActiveBtn("search");
+load(0);
+setTimeout(()=>setActiveBtn(""),2000);
+}}
+>
+Search
+</button>
+
           <button
-            className="sg-forum-clear-btn"
-            onClick={() => {
-              setSearchPhone("");
-              setFromDate("");
-              setToDate("");
-              load(0);
-            }}
-          >
-            Clear
-          </button>
+className={`sg-forum-clear-btn ${activeBtn==="clear"?"active-glow":""}`}
+onClick={()=>{
+setActiveBtn("clear");
+setSearchPhone("");
+setFromDate("");
+setToDate("");
+load(0, { phone: "", fromDate: "", toDate: "" });
+setTimeout(()=>setActiveBtn(""),2000);
+}}
+>
+Clear
+</button>
         </div>
 
         {/* POSTS CONTAINER */}
@@ -440,15 +455,20 @@ const Forum = () => {
                       {/* Status badge on card */}
                       <div className={`sg-forum-status-badge sg-forum-status-badge--${(item.status || "PENDING").toLowerCase()}`}>
                         {item.status === "APPROVED" ? "✓ Approved" :
-                         item.status === "REJECTED" ? "✗ Rejected" : "⏳ Pending"}
+                         item.status === "REJECTED" ? "✗ Rejected" :
+                         item.status === "DELETED" ? "✗ Deleted" : "⏳ Pending"}
+
                       </div>
+                     
                       <button
                         className="sg-forum-view-btn"
                         onClick={() => handleViewReports(item)}
                       >
                         Action
                       </button>
-                      {canDelete && (
+                       
+
+                      {canDelete && item.status === "PENDING" && (
                         <button
                           className="sg-forum-delete-btn"
                           onClick={() => handleDelete(item.postId)}
