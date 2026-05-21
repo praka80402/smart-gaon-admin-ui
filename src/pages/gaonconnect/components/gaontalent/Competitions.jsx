@@ -198,25 +198,7 @@ const [showCategoryInput,
 
       let totalParticipants = 0;
 
-      try {
-
-        const participantRes =
-          await getCompetitionEntries(
-            c.id
-          );
-
-        totalParticipants =
-          participantRes?.data?.length || 0;
-
-      }
-
-      catch (err) {
-
-        console.error(
-          "Participant Count Error:",
-          err
-        );
-      }
+     
 
       return {
         ...c,
@@ -713,7 +695,7 @@ const totalParticipantPages =
 
             <div className="competition-participant-chip">
 
-              👥 {c.totalParticipants || 0}
+              👥 {c.noOfParticipant|| 0}
 
             </div>
 
