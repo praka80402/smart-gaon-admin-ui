@@ -7,7 +7,6 @@ export default function AdminSuggestions() {
   const canManage = role === "SUPER_ADMIN" || role === "STATE_ADMIN";
 
   const [suggestions, setSuggestions] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
   const [page, setPage] = useState(1);
   const pageSize = 6; // FIX: 6 so 3-col grid stays even (2 full rows)
@@ -28,8 +27,6 @@ export default function AdminSuggestions() {
     } catch (err) {
       console.error(err);
       alert("Failed to load suggestions");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -74,10 +71,6 @@ export default function AdminSuggestions() {
     (page - 1) * pageSize,
     page * pageSize
   );
-
-  if (loading) {
-    return <div className="loading-text"></div>;
-  }
 
   return (
     <div className="suggestion-page">

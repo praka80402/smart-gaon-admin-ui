@@ -22,6 +22,12 @@ export default function Engagement() {
 
   const [users, setUsers] = useState([]);
   const [competitions, setCompetitions] = useState([]);
+  const [stats, setStats] = useState({
+  totalPosts: 0,
+  totalCompetitions: 0,
+  reportedPosts: 0,
+  totalWinners: 0,
+});
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedPost, setSelectedPost] = useState(null);
 
@@ -50,10 +56,23 @@ export default function Engagement() {
       setCompetitions(compRes.data || []);
 
       const res = await getTalentEntriesWithReports({
-        page: 0,
-        size: 50,
-      });
+  page: 0,
+  size: 50,
+});
 
+const responseData = res.data || {};
+
+setUsers(responseData.content || []);
+
+setStats({
+  totalPosts: responseData.totalElements || 0,
+  totalCompetitions:
+    responseData.totalCompetitionsCount || 0,
+  reportedPosts:
+    responseData.reportedPostsCount || 0,
+  totalWinners:
+    responseData.totalWinnerCount || 0,
+});
       setUsers(res.data?.content || []);
     } catch (error) {
       console.log("Error loading engagement data:", error);
@@ -96,6 +115,11 @@ export default function Engagement() {
 
   const isYouTubeShort = (url) => {
     return url?.includes("/shorts/");
+  };
+
+  const isWinnerDeclarationDisabled = (status) => {
+    const normalized = (status || "PENDING").toUpperCase();
+    return normalized === "PENDING" || normalized === "REJECTED";
   };
 
   /* ================= FIXED YOUTUBE SHORTS SUPPORT ================= */
@@ -379,7 +403,7 @@ const handleReject = async () => {
         </p>
 
        <h2 className="eng-stat-value">
-          {users.length}
+          {stats.totalPosts}
         </h2>
 
        <span className="eng-stat-subtext">
@@ -405,7 +429,7 @@ const handleReject = async () => {
         </p>
 
         <h2 className="eng-stat-value">
-          {competitions.length}
+          {stats.totalCompetitions}
         </h2>
 
         <span className="eng-stat-subtext">
@@ -431,11 +455,7 @@ const handleReject = async () => {
         </p>
 
         <h2 className="eng-stat-value">
-          {
-            users.filter(
-              (u) => u.reportCount > 0
-            ).length
-          }
+         {stats.reportedPosts}
         </h2>
 
         <span className="eng-stat-subtext">
@@ -461,11 +481,7 @@ const handleReject = async () => {
         </p>
 
         <h2 className="eng-stat-value">
-          {
-            users.filter(
-              (u) => u.winner
-            ).length
-          }
+          {stats.totalWinners}
         </h2>
 
         <span className="eng-stat-subtext">
@@ -615,7 +631,8 @@ const handleReject = async () => {
                           {!u.winner ? (
                             <button
                               onClick={() => markAsWinner(u.id)}
-                              className="btn-declare-winner"
+                              className={`btn-declare-winner ${isWinnerDeclarationDisabled(u.moderationStatus) ? "disabled-btn" : ""}`}
+                              disabled={isWinnerDeclarationDisabled(u.moderationStatus)}
                             >
                               Declare Winner
                             </button>

@@ -11,7 +11,6 @@ export default function AdminProblems() {
     role === "STATE_ADMIN";
 
   const [problems, setProblems] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
   const [page, setPage] = useState(1);
   const [previewImages, setPreviewImages] = useState([]);
@@ -35,8 +34,6 @@ export default function AdminProblems() {
     } catch (err) {
       console.error(err);
       alert("Failed to load problems");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -95,14 +92,6 @@ export default function AdminProblems() {
   const paginatedProblems = problems.slice((page - 1) * pageSize, page * pageSize);
 
   // Single spinner only — no text
-  if (loading) {
-    return (
-      <div className="loader-wrapper">
-        <div className="modern-loader"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="problem-page">
       <div className="problem-container-box">
