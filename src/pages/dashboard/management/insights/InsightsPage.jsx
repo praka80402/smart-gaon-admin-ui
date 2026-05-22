@@ -63,7 +63,7 @@ const InsightsPage = () => {
 
   return (
     <div className="insights-container">
-      <h2>SmartGaon Insights</h2>
+      <h2>Gaon Talent Engagement</h2>
 
       {/* 🔹 FORM */}
       <div className="insight-form">

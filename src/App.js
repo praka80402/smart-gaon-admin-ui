@@ -131,9 +131,9 @@ function App() {
   path="/dashboard/management"
   element={isLoggedIn ? <DashboardManagement /> : <Navigate to="/login" />}
 >
-  <Route index element={<Navigate to="impact" />} />
-  <Route path="impact" element={<ImpactPage />} />
-  <Route path="insights" element={<InsightsPage />} />
+  <Route index element={<Navigate to="competition" />} />
+  <Route path="competition" element={<ImpactPage />} />
+  <Route path="engagement" element={<InsightsPage />} />
 </Route>
 
 <Route path="/users" element={<UserManagement />} />

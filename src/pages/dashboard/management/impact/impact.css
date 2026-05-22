@@ -324,65 +324,116 @@
   cursor: pointer;
 }
 
-/* 🔹 MODAL */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-
-  background: rgba(0,0,0,0.4);
-
-  display: flex;
-
-  justify-content: flex-start;   /* 🔥 LEFT ALIGN */
-  align-items: center;           /* vertically center */
-
-  padding-left: 40px;            /* 🔥 left spacing */
-}
-.modal {
-  width: 400px !important;
-  max-width: 400px !important;
-  padding: 10px 14px;
-  height: auto !important;
-  max-height: fit-content !important;
-  display: flex;
-  flex-direction: column;
-
-  gap: 6px;
-
-  height: auto;       
-  min-height: unset;  
+.modal-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.45);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:99999;
 }
 
-.modal input {
-  width: 70%;              /* 🔥 full width nahi */
-  max-width: 320px;        /* control width */
-  
-  padding: 6px 10px;       /* 🔥 height kam */
-  font-size: 14px;
 
-  border-radius: 8px;
-  border: 1px solid #ccc;
+.modal{
+  width:420px;
 
-  margin: 0 auto;          /* 🔥 center align */
-  display: block;
+  background:#ffffff;
+
+  border-radius:18px;
+
+  padding:1024px;   /* 👈 reduced */
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.25);
+
+  display:flex;
+  flex-direction:column;
+
+  gap:10px;            /* 👈 smaller gap */
+
+  position:relative;
+
+  animation:modalPop .25s ease;
+
+  min-height:auto;     /* 👈 important */
 }
-.modal h3 {
-  font-size: 16px;
-  margin: 4px 0;
-  text-align: center;
+
+.modal input{
+  width:100%;
+
+  height:42px;
+
+  padding:0 12px;
+
+  border:1px solid #d1d5db;
+  border-radius:10px;
+
+  font-size:14px;
+
+  outline:none;
+
+  margin:0;   /* 👈 remove extra space */
 }
-.modal-actions {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 8px;
+/* TITLE */
+.modal h3{
+  margin:0 0 2px;   /* 👈 less top-bottom space */
+
+  text-align:center;
+
+  font-size:18px;
+  font-weight:700;
+
+  color:#111827;
 }
-.modal-actions button {
-  padding: 5px 10px;
-  font-size: 13px;
+.modal-actions{
+  display:flex;
+  justify-content:center;
+
+  gap:10px;
+
+  margin-top:2px;   /* 👈 reduced */
+}
+
+.modal-actions button{
+  min-width:100px;
+  height:40px;      /* 👈 smaller */
+
+  border:none;
+  border-radius:10px;
+
+  font-size:14px;
+  font-weight:600;
+
+  cursor:pointer;
+}
+.modal-actions button:first-child{
+  background:#16a34a;
+  color:white;
+}
+
+/* SECOND BUTTON */
+.modal-actions button:last-child{
+  background:#e5e7eb;
+  color:#111827;
+}
+
+/* POP EFFECT */
+@keyframes modalPop{
+
+  from{
+    opacity:0;
+    transform:scale(.92);
+  }
+
+  to{
+    opacity:1;
+    transform:scale(1);
+  }
+
 }
 .pagination {
   margin-top: 15px;
@@ -401,4 +452,27 @@
 
 .pagination button:disabled {
   background: #ccc;
+}
+/* TOP ACTIONS */
+.table-header-actions{
+  display:flex;
+  align-items:center;
+  gap:14px;
+
+  margin-bottom:18px;
+}
+
+/* SEARCH */
+.search-input{
+  width:280px;
+  height:42px;
+
+  padding:0 14px;
+
+  border:1px solid #d1d5db;
+  border-radius:10px;
+
+  outline:none;
+
+  font-size:14px;
 }

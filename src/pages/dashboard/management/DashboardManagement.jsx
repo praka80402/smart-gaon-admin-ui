@@ -2,49 +2,113 @@ import { NavLink, Outlet } from "react-router-dom";
 import "./dashboardManagement.css";
 
 export default function DashboardManagement() {
+
   return (
-    <div className="management-wrapper">
+
+    <div className="dashboard-management-wrapper">
 
       {/* HEADER */}
-      <div className="management-header">
+      <div className="dashboard-management-header">
 
-        {/* LEFT: Title */}
-        <div className="management-left">
-          <h2 className="management-title">
+        {/* TITLE */}
+        <div className="dashboard-management-left">
+
+          <h2 className="dashboard-management-title">
             Dashboard Management
           </h2>
+
         </div>
 
-        {/* RIGHT: Tabs */}
-        <div className="management-right">
-          <div className="tabs">
+        {/* TABS */}
+        <div className="dashboard-management-right">
+
+          <div className="dashboard-tabs">
+
+            {/* COMPETITION TAB */}
             <NavLink
-              to="impact"
+              to="competition"
               className={({ isActive }) =>
-                isActive ? "tab active" : "tab"
+                isActive
+                  ? "dashboard-tab active-dashboard-tab"
+                  : "dashboard-tab"
               }
             >
-              SmartGaon Impact
+
+              {/* ICON */}
+              <div className="dashboard-tab-icon">
+                🏅
+              </div>
+
+              {/* CONTENT */}
+              <div className="dashboard-tab-content">
+
+                <h3>
+                  SmartGaon Impact
+                </h3>
+
+                <p>
+                  Manage contests
+                </p>
+
+              </div>
+
+              {/* BADGE */}
+              <div className="dashboard-tab-badge">
+                LIVE
+              </div>
+
             </NavLink>
 
+            {/* ENGAGEMENT TAB */}
             <NavLink
-              to="insights"
+              to="engagement"
               className={({ isActive }) =>
-                isActive ? "tab active" : "tab"
+                isActive
+                  ? "dashboard-tab active-dashboard-tab"
+                  : "dashboard-tab"
               }
             >
-              SmartGaon Insights
+
+              {/* ICON */}
+              <div className="dashboard-tab-icon">
+                🤝
+              </div>
+
+              {/* CONTENT */}
+              <div className="dashboard-tab-content">
+
+                <h3>
+                  SmartGaon Insights
+                </h3>
+
+                <p>
+                  Track Counts & Engagement
+                </p>
+
+              </div>
+
+              {/* ADMIN */}
+              <div className="dashboard-tab-admin">
+                LIVE
+              </div>
+
             </NavLink>
+
           </div>
+
         </div>
 
       </div>
 
-      {/* CONTENT CARD */}
-      <div className="management-card">
+      {/* CONTENT */}
+      <div className="dashboard-management-card">
+
         <Outlet />
+
       </div>
 
     </div>
+
   );
+
 }
