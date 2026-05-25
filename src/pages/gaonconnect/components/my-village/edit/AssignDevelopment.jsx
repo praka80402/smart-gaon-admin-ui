@@ -1,341 +1,558 @@
-// import { useState } from "react";
-// import { assignDevelopmentToVillage } from "../service/villageDevelopmentService";
+import React,{
+  useEffect,
+  useMemo,
+  useState
+} from "react";
 
-// export default function AssignDevelopment({
-//   selectedVillage,
-//   phases,
-//   getByPhase,
-//   refreshDevelopment
-// }) {
+import "./AssignDevelopment.css";
 
-//   const [phase,setPhase] = useState("");
-//   const [projects,setProjects] = useState([]);
-//   const [selectedProject,setSelectedProject] = useState(null);
-
-//   const [progress,setProgress] = useState("");
-//   const [remarks,setRemarks] = useState("");
-
-//   const [images,setImages] = useState([]);
-//   const [videoUrl,setVideoUrl] = useState("");
-//   const [reports,setReports] = useState([]);
-
-//   const handlePhaseChange = async(value)=>{
-
-//     setPhase(value);
-//     setSelectedProject(null);
-
-//     if(!value){
-//       setProjects([]);
-//       return;
-//     }
-
-//     const res = await getByPhase(value);
-//     setProjects(res.data);
-
-//   };
-
-//   const handleAssign = async()=>{
-
-//     if(!selectedProject){
-//       alert("Select project");
-//       return;
-//     }
-
-//     if(!progress){
-//       alert("Enter progress");
-//       return;
-//     }
-
-//     try{
-
-//       const formData = new FormData();
-
-//       formData.append("villageId", selectedVillage.id);
-//       formData.append("developmentId", selectedProject.id);
-//       formData.append("progress", Number(progress));
-//       formData.append("remarks", remarks || "");
-//       formData.append("videoUrl", videoUrl || "");
-
-//       if(images.length > 0){
-//         images.forEach(img=>{
-//           formData.append("images", img);
-//         });
-//       }
-
-//       if(reports.length > 0){
-//         reports.forEach(pdf=>{
-//           formData.append("reports", pdf);
-//         });
-//       }
-
-//       await assignDevelopmentToVillage(formData);
-
-//       alert("Development Assigned Successfully");
-
-//       await refreshDevelopment();
-
-//       setProgress("");
-//       setRemarks("");
-//       setImages([]);
-//       setReports([]);
-//       setVideoUrl("");
-//       setSelectedProject(null);
-
-//     }catch(err){
-
-//       console.error(err);
-//       alert("Assign development failed");
-
-//     }
-
-//   };
-
-//   return (
-//     <div>
-
-//       <h4>Add Development</h4>
-
-//       <select
-//         value={phase}
-//         onChange={(e)=>handlePhaseChange(e.target.value)}
-//       >
-//         <option value="">Select Phase</option>
-
-//         {phases.map(p=>(
-//           <option key={p} value={p}>
-//             Phase {p}
-//           </option>
-//         ))}
-
-//       </select>
-
-//       {projects.map(p=>(
-//         <div key={p.id}>
-
-//           <input
-//             type="radio"
-//             name="project"
-//             checked={selectedProject?.id === p.id}
-//             onChange={()=>setSelectedProject(p)}
-//           />
-
-//           {p.master?.title}
-
-//         </div>
-//       ))}
-
-//       <input
-//         type="number"
-//         placeholder="Progress %"
-//         value={progress}
-//         onChange={(e)=>setProgress(e.target.value)}
-//       />
-
-//       <input
-//         placeholder="Remarks"
-//         value={remarks}
-//         onChange={(e)=>setRemarks(e.target.value)}
-//       />
-
-//       <input
-//         type="file"
-//         multiple
-//         accept="image/*"
-//         onChange={(e)=>setImages(Array.from(e.target.files))}
-//       />
-
-//       <input
-//         placeholder="YouTube Video URL"
-//         value={videoUrl}
-//         onChange={(e)=>setVideoUrl(e.target.value)}
-//       />
-
-//       <input
-//         type="file"
-//         multiple
-//         accept="application/pdf"
-//         onChange={(e)=>setReports(Array.from(e.target.files))}
-//       />
-
-//       <button onClick={handleAssign}>
-//         Assign Development
-//       </button>
-
-//     </div>
-//   );
-// }
-
-import { useState } from "react";
-import { assignDevelopmentToVillage } from "../service/villageDevelopmentService";
-
-export default function AssignDevelopment({
+const AssignDevelopment = ({
   selectedVillage,
-  phases,
-  getByPhase,
-  refreshDevelopment
-}) {
+  developments = [],
+  assigned = [],
+  onAssign,
+  onUpdate,
+  onDelete,
+  loading
+})=>{
 
-  const [phase, setPhase] = useState("");
-  const [projects, setProjects] = useState([]);
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [phaseCards,setPhaseCards] = useState([1]);
 
-  const [progress, setProgress] = useState("");
-  const [remarks, setRemarks] = useState("");
+  const [phaseProjects,setPhaseProjects] = useState({});
 
-  const [images, setImages] = useState([]);
-  const [videoUrl, setVideoUrl] = useState("");
-  const [reports, setReports] = useState([]);
+  const [selectedPhase,setSelectedPhase] =
+    useState(1);
 
-  const handlePhaseChange = async (value) => {
+  const [selectedDevelopment,setSelectedDevelopment] =
+    useState(null);
 
-    setPhase(value);
-    setSelectedProject(null);
+  const [progress,setProgress] = useState(0);
 
-    if (!value) {
-      setProjects([]);
-      return;
+  const [remarks,setRemarks] = useState("");
+
+  const [gallery,setGallery] = useState([]);
+
+  const [reports,setReports] = useState([]);
+
+  const [videoUrl,setVideoUrl] = useState("");
+
+  const [editingId,setEditingId] = useState(null);
+
+  useEffect(()=>{
+
+    if(
+      assigned &&
+      assigned.length
+    ){
+
+      const existingPhases = [
+        ...new Set(
+          assigned.map(item=>
+            Number(item.phase || 1)
+          )
+        )
+      ].sort((a,b)=>a-b);
+
+      if(existingPhases.length){
+
+        setPhaseCards(existingPhases);
+
+      }
+
+      const grouped = {};
+
+      assigned.forEach(item=>{
+
+        const phaseNo =
+          Number(item.phase || 1);
+
+        grouped[phaseNo] = {
+
+          selectedProject:{
+            id:item.developmentId,
+            title:item.title
+          }
+
+        };
+
+      });
+
+      setPhaseProjects(grouped);
+
     }
 
-    const res = await getByPhase(value);
-    setProjects(res.data);
+  },[assigned]);
+
+  const handleAddPhase = ()=>{
+
+    setPhaseCards(prev=>{
+
+      const lastPhase = prev.length
+        ? Math.max(...prev)
+        : 0;
+
+      return [...prev,lastPhase + 1];
+
+    });
 
   };
 
-  const handleAssign = async () => {
+  const handleSelectPhase = phaseNo=>{
 
-    if (!selectedProject) {
-      alert("Select project");
+    setSelectedPhase(phaseNo);
+
+  };
+
+  const handleProjectSelect = (
+    phaseNo,
+    project
+  )=>{
+
+    setSelectedDevelopment(project);
+
+    setSelectedPhase(phaseNo);
+
+    setPhaseProjects(prev=>({
+
+      ...prev,
+
+      [phaseNo]:{
+        ...prev[phaseNo],
+        selectedProject:project
+      }
+
+    }));
+
+  };
+
+  const handleImageUpload = e=>{
+
+    const files =
+      Array.from(e.target.files);
+
+    setGallery(files);
+
+  };
+
+  const handleReportUpload = e=>{
+
+    const files =
+      Array.from(e.target.files);
+
+    setReports(files);
+
+  };
+
+  const resetForm = ()=>{
+
+    setProgress(0);
+
+    setRemarks("");
+
+    setGallery([]);
+
+    setReports([]);
+
+    setVideoUrl("");
+
+    setEditingId(null);
+
+  };
+
+  const handleSubmit = ()=>{
+
+    if(
+      !selectedDevelopment
+    ){
+      alert(
+        "Select development first"
+      );
       return;
     }
 
-    if (!progress) {
-      alert("Enter progress");
-      return;
-    }
+    const payload = {
 
-    try {
+      villageId:selectedVillage?.id,
 
-      const formData = new FormData();
+      developmentId:
+        selectedDevelopment?.id,
 
-      formData.append("developmentId", selectedProject.id);
-      formData.append("progress", Number(progress));
-      formData.append("remarks", remarks || "");
-      formData.append("videoUrl", videoUrl || "");
+      phase:selectedPhase,
 
-      images.forEach(img => {
-        formData.append("images", img);
-      });
+      progressPercent:progress,
 
-      reports.forEach(pdf => {
-        formData.append("reports", pdf);
-      });
+      remarks,
 
-      await assignDevelopmentToVillage(
-        selectedVillage.id,
-        formData
+      gallery,
+
+      reports,
+
+      videoUrl
+
+    };
+
+    if(editingId){
+
+      onUpdate &&
+      onUpdate(
+        editingId,
+        payload
       );
 
-      alert("Development Assigned Successfully");
+    }else{
 
-      await refreshDevelopment();
-
-      setProgress("");
-      setRemarks("");
-      setImages([]);
-      setReports([]);
-      setVideoUrl("");
-      setSelectedProject(null);
-
-    } catch (err) {
-
-      console.error(err);
-      alert("Assign development failed");
+      onAssign &&
+      onAssign(payload);
 
     }
 
+    resetForm();
+
   };
 
-  return (
+  const handleEdit = item=>{
 
-    <div>
+    setEditingId(item.id);
 
-      <h4>Add Development</h4>
+    setSelectedPhase(
+      Number(item.phase || 1)
+    );
 
-      <select
-        value={phase}
-        onChange={(e) => handlePhaseChange(e.target.value)}
-      >
+    setProgress(
+      item.progressPercent || 0
+    );
 
-        <option value="">Select Phase</option>
+    setRemarks(
+      item.remarks || ""
+    );
 
-        {phases.map(p => (
-          <option key={p} value={p}>
-            Phase {p}
-          </option>
-        ))}
+    setVideoUrl(
+      item.videoUrl || ""
+    );
 
-      </select>
+    setSelectedDevelopment({
+      id:item.developmentId,
+      title:item.title
+    });
 
-      {projects.map(p => (
+  };
 
-        <div key={p.id}>
+  const groupedAssigned = useMemo(()=>{
 
-          <input
-            type="radio"
-            name="project"
-            checked={selectedProject?.id === p.id}
-            onChange={() => setSelectedProject(p)}
-          />
+    const map = {};
 
-          {p.master?.title}
+    assigned.forEach(item=>{
+
+      const phaseNo =
+        Number(item.phase || 1);
+
+      if(!map[phaseNo]){
+
+        map[phaseNo] = [];
+
+      }
+
+      map[phaseNo].push(item);
+
+    });
+
+    return map;
+
+  },[assigned]);
+
+  return(
+
+    <div className="assign-development-container">
+
+      <div className="assign-development-header">
+
+        <div>
+
+          <h2>
+            Edit Village
+          </h2>
+
+          <p>
+            Update village details below
+          </p>
 
         </div>
 
-      ))}
+        <button
+          type="button"
+          className="add-phase-btn"
+          onClick={handleAddPhase}
+        >
+          + Add Phase
+        </button>
 
-      <input
-        type="number"
-        placeholder="Progress %"
-        value={progress}
-        onChange={(e) => setProgress(e.target.value)}
-      />
+      </div>
 
-      <input
-        placeholder="Remarks"
-        value={remarks}
-        onChange={(e) => setRemarks(e.target.value)}
-      />
+      <div className="phase-tabs">
 
-      <input
-        type="file"
-        multiple
-        accept="image/*"
-        onChange={(e) =>
-          setImages(Array.from(e.target.files))
-        }
-      />
+        {phaseCards.map(phaseNo=>(
 
-      <input
-        placeholder="YouTube Video URL"
-        value={videoUrl}
-        onChange={(e) => setVideoUrl(e.target.value)}
-      />
+          <button
+            key={phaseNo}
+            type="button"
+            className={`phase-tab ${
+              selectedPhase === phaseNo
+                ? "active"
+                : ""
+            }`}
+            onClick={()=>
+              handleSelectPhase(
+                phaseNo
+              )
+            }
+          >
+            Phase {phaseNo}
+          </button>
 
-      <input
-        type="file"
-        multiple
-        accept="application/pdf"
-        onChange={(e) =>
-          setReports(Array.from(e.target.files))
-        }
-      />
+        ))}
 
-      <button onClick={handleAssign}>
-        Assign Development
-      </button>
+      </div>
+
+      <div className="development-section">
+
+        <h4>
+          Select Development
+        </h4>
+
+        <div className="development-list">
+
+          {developments.map(dev=>(
+
+            <div
+              key={dev.id}
+              className={`development-item ${
+                phaseProjects[selectedPhase]
+                  ?.selectedProject?.id === dev.id
+                  ? "active"
+                  : ""
+              }`}
+              onClick={()=>handleProjectSelect(
+                selectedPhase,
+                dev
+              )}
+            >
+
+              {dev.title}
+
+            </div>
+
+          ))}
+
+        </div>
+
+      </div>
+
+      <div className="progress-section">
+
+        <h4>
+          Add Progress
+        </h4>
+
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={progress}
+          onChange={e=>
+            setProgress(
+              Number(e.target.value)
+            )
+          }
+        />
+
+        <div className="progress-value">
+
+          {progress}%
+
+        </div>
+
+      </div>
+
+      <div className="remarks-section">
+
+        <textarea
+          placeholder="Add remarks"
+          value={remarks}
+          onChange={e=>
+            setRemarks(
+              e.target.value
+            )
+          }
+        />
+
+      </div>
+
+      <div className="media-section">
+
+        <div className="upload-box">
+
+          <label>
+            Add Images
+          </label>
+
+          <input
+            type="file"
+            multiple
+            onChange={
+              handleImageUpload
+            }
+          />
+
+        </div>
+
+        <div className="upload-box">
+
+          <label>
+            Add Reports
+          </label>
+
+          <input
+            type="file"
+            multiple
+            onChange={
+              handleReportUpload
+            }
+          />
+
+        </div>
+
+        <div className="video-input">
+
+          <input
+            type="text"
+            placeholder="Video URL"
+            value={videoUrl}
+            onChange={e=>
+              setVideoUrl(
+                e.target.value
+              )
+            }
+          />
+
+        </div>
+
+      </div>
+
+      <div className="submit-section">
+
+        <button
+          type="button"
+          className="submit-btn"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+
+          {editingId
+            ? "Update Development"
+            : "Assign Development"}
+
+        </button>
+
+      </div>
+
+      <div className="assigned-development-section">
+
+        {phaseCards.map(phaseNo=>(
+
+          <div
+            className="phase-card"
+            key={phaseNo}
+          >
+
+            <h3>
+              Phase {phaseNo}
+            </h3>
+
+            <div className="assigned-list">
+
+              {groupedAssigned[phaseNo]
+                ?.length ? (
+
+                groupedAssigned[phaseNo]
+                .map(item=>(
+
+                  <div
+                    className="assigned-card"
+                    key={item.id}
+                  >
+
+                    <div className="assigned-title">
+
+                      {item.title}
+
+                    </div>
+
+                    <div className="assigned-progress">
+
+                      Progress:
+                      {" "}
+                      {
+                        item.progressPercent
+                      }%
+
+                    </div>
+
+                    <div className="assigned-remarks">
+
+                      {item.remarks}
+
+                    </div>
+
+                    <div className="dev-action-btns">
+
+                      <button
+                        type="button"
+                        className="edit-btn"
+                        onClick={()=>handleEdit(
+                          item
+                        )}
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        className="delete-btn"
+                        onClick={()=>onDelete &&
+                          onDelete(item.id)
+                        }
+                      >
+                        Delete
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                ))
+
+              ) : (
+
+                <div className="empty-phase">
+
+                  No development assigned
+
+                </div>
+
+              )}
+
+            </div>
+
+          </div>
+
+        ))}
+
+      </div>
 
     </div>
 
   );
 
-}
+};
+
+export default AssignDevelopment;

@@ -1,251 +1,259 @@
-// // src/pages/communityNews/tabs/CreatePost.jsx
-// import React, { useState } from "react";
-// import { createNewsWithImage } from "../../../services/newsService";
-// import { createEventWithMedia } from "../../../services/eventsService";
+import React,{useState} from "react";
+import {createNewsWithImage} from "../../../services/newsService";
+import {createEventWithMedia} from "../../../services/eventsService";
 
-// export default function CreatePost() {
-//   const [type, setType] = useState("news"); // "news" or "event"
+export default function CreatePost(){
 
-//   const [title, setTitle] = useState("");
-//   const [body, setBody] = useState("");
-//   const [images, setImages] = useState([]);
-//   const [video, setVideo] = useState(null);
+const role=localStorage.getItem("adminRole");
 
-//   const resetForm = () => {
-//     setTitle("");
-//     setBody("");
-//     setImages([]);
-//     setVideo(null);
-//   };
+const canCreate=
+role==="SUPER_ADMIN"||role==="STATE_ADMIN";
 
-//   const formatDate = () => new Date().toISOString().slice(0, 19);
+const [type,setType]=useState("news");
+const [title,setTitle]=useState("");
+const [body,setBody]=useState("");
+const [images,setImages]=useState([]);
+const [video,setVideo]=useState(null);
 
-//   const handleSubmit = async () => {
-//     if (!title.trim() || !body.trim()) {
-//       alert("Required fields missing");
-//       return;
-//     }
+const resetForm=()=>{
+setTitle("");
+setBody("");
+setImages([]);
+setVideo(null);
+};
 
-//     // Event image validation
-//     if (type === "event" && images.length === 0) {
-//       alert("Event requires at least 1 image");
-//       return;
-//     }
+const formatDate=()=>
+new Date().toISOString().slice(0,19);
 
-//     if (type === "news") {
-//       // ------- CREATE NEWS -------
-//       await createNewsWithImage(
-//         {
-//           category: "General",
-//           title,
-//           summary: body.slice(0, 150),
-//           content: body,
-//           author: "Admin",
-//         },
-//         images,
-//         video
-//       );
+const handleSubmit=async()=>{
 
-//       alert("News Posted!");
-//     } else {
-//       // ------- CREATE EVENT -------
-//       await createEventWithMedia(
-//         {
-//           title,
-//           description: body,
-//           startDateTime: formatDate(),
-//           endDateTime: formatDate(),
-//           location: "Village",
-//           contactInfo: "Admin",
-//         },
-//         images,
-//         video
-//       );
+if(!canCreate){
+alert("You are not authorized to create posts.");
+return;
+}
 
-//       alert("Event Posted!");
-//     }
+if(!title.trim()||!body.trim()){
+alert("Required fields missing");
+return;
+}
 
-//     resetForm();
-//   };
+if(type==="event"&&images.length===0){
+alert("Event requires at least 1 image");
+return;
+}
 
-//   return (
-//     <div className="cn-form">
-//       <h2>Create News / Event</h2>
+try{
 
-//       {/* TYPE DROPDOWN */}
-//       <label>Select Type</label>
-//       <select value={type} onChange={(e) => setType(e.target.value)}>
-//         <option value="news">News</option>
-//         <option value="event">Event</option>
-//       </select>
+if(type==="news"){
 
-//       {/* TITLE */}
-//       <label>{type === "news" ? "Headline" : "Event Title"}</label>
-//       <input value={title} onChange={(e) => setTitle(e.target.value)} />
+await createNewsWithImage(
+{
+category:"General",
+title,
+summary:body.slice(0,150),
+content:body,
+author:"Admin",
+},
+images,
+video
+);
 
-//       {/* BODY */}
-//       <label>{type === "news" ? "Body" : "Event Description"}</label>
-//       <textarea value={body} onChange={(e) => setBody(e.target.value)} />
+alert("News Posted!");
 
-//       {/* IMAGES */}
-//       <label>{type === "news" ? "Images (0–5)" : "Images (1–5)"}</label>
-//       <input
-//         type="file"
-//         multiple
-//         accept="image/*"
-//         onChange={(e) => setImages([...e.target.files])}
-//       />
+}else{
 
-//       {/* VIDEO */}
-//       <label>Video (optional)</label>
-//       <input
-//         type="file"
-//         accept="video/*"
-//         onChange={(e) => setVideo(e.target.files?.[0])}
-//       />
+await createEventWithMedia(
+{
+title,
+description:body,
+startDateTime:formatDate(),
+endDateTime:formatDate(),
+location:"Village",
+contactInfo:"Admin",
+},
+images,
+video
+);
 
-//       {/* SUBMIT */}
-//       <button className="submit" onClick={handleSubmit}>
-//         {type === "news" ? "Submit News" : "Submit Event"}
-//       </button>
-//     </div>
-//   );
-// }
+alert("Event Posted!");
+}
 
+resetForm();
 
-import React, { useState } from "react";
-import { createNewsWithImage } from "../../../services/newsService";
-import { createEventWithMedia } from "../../../services/eventsService";
+}catch(error){
+console.error(error);
+alert("Failed to create post");
+}
+};
 
-export default function CreatePost() {
+if(!canCreate){
+return(
+<div style={{padding:"40px",textAlign:"center"}}>
+<h2>Access Denied</h2>
+<p>You are not authorized to create News or Events.</p>
+</div>
+);
+}
 
-  const role = localStorage.getItem("adminRole");
+return(
+<div className="cn-modern-page">
 
-  const canCreate =
-    role === "SUPER_ADMIN" || role === "STATE_ADMIN";
+<div className="cn-modern-wrapper">
 
-  const [type, setType] = useState("news");
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [images, setImages] = useState([]);
-  const [video, setVideo] = useState(null);
+<div className="cn-modern-header">
 
-  const resetForm = () => {
-    setTitle("");
-    setBody("");
-    setImages([]);
-    setVideo(null);
-  };
+<div>
+<h1 className="cn-title">
+Create News / Event
+</h1>
 
-  const formatDate = () => new Date().toISOString().slice(0, 19);
+<p className="cn-subtitle">
+Manage community announcements, updates and local events
+</p>
+</div>
 
-  const handleSubmit = async () => {
+<div className="cn-badge">
+ADMIN PANEL
+</div>
 
-    if (!canCreate) {
-      alert("You are not authorized to create posts.");
-      return;
-    }
+</div>
 
-    if (!title.trim() || !body.trim()) {
-      alert("Required fields missing");
-      return;
-    }
+<div className="cn-form-card">
 
-    if (type === "event" && images.length === 0) {
-      alert("Event requires at least 1 image");
-      return;
-    }
+<div className="cn-field-grid">
 
-    try {
+<div className="cn-field">
 
-      if (type === "news") {
+<label>Select Type</label>
 
-        await createNewsWithImage(
-          {
-            category: "General",
-            title,
-            summary: body.slice(0, 150),
-            content: body,
-            author: "Admin",
-          },
-          images,
-          video
-        );
+<select
+value={type}
+onChange={(e)=>setType(e.target.value)}
+>
+<option value="news">News</option>
+<option value="event">Event</option>
+</select>
 
-        alert("News Posted!");
+</div>
 
-      } else {
+<div className="cn-field">
 
-        await createEventWithMedia(
-          {
-            title,
-            description: body,
-            startDateTime: formatDate(),
-            endDateTime: formatDate(),
-            location: "Village",
-            contactInfo: "Admin",
-          },
-          images,
-          video
-        );
+<label>
+{type==="news"
+?"Headline"
+:"Event Title"}
+</label>
 
-        alert("Event Posted!");
-      }
+<input
+value={title}
+placeholder={
+type==="news"
+?"Enter news headline"
+:"Enter event title"
+}
+onChange={(e)=>setTitle(e.target.value)}
+/>
 
-      resetForm();
+</div>
 
-    } catch (error) {
-      console.error(error);
-      alert("Failed to create post");
-    }
-  };
+</div>
 
-  /* 🔒 BLOCK UI IF NOT AUTHORIZED */
-  if (!canCreate) {
-    return (
-      <div style={{ padding: "40px", textAlign: "center" }}>
-        <h2>Access Denied</h2>
-        <p>You are not authorized to create News or Events.</p>
-      </div>
-    );
-  }
+<div className="cn-field">
 
-  return (
-    <div className="cn-form">
+<label>
+{type==="news"
+?"Body"
+:"Event Description"}
+</label>
 
-      <h2>Create News / Event</h2>
+<textarea
+value={body}
+placeholder={
+type==="news"
+?"Write full news content..."
+:"Write event details..."
+}
+onChange={(e)=>setBody(e.target.value)}
+/>
 
-      <label>Select Type</label>
-      <select value={type} onChange={(e) => setType(e.target.value)}>
-        <option value="news">News</option>
-        <option value="event">Event</option>
-      </select>
+</div>
 
-      <label>{type === "news" ? "Headline" : "Event Title"}</label>
-      <input value={title} onChange={(e) => setTitle(e.target.value)} />
+<div className="cn-upload-grid">
 
-      <label>{type === "news" ? "Body" : "Event Description"}</label>
-      <textarea value={body} onChange={(e) => setBody(e.target.value)} />
+<div className="cn-upload-card">
 
-      <label>{type === "news" ? "Images (0–5)" : "Images (1–5)"}</label>
-      <input
-        type="file"
-        multiple
-        accept="image/*"
-        onChange={(e) => setImages([...e.target.files])}
-      />
+<div className="cn-upload-icon">
+🖼️
+</div>
 
-      <label>Video (optional)</label>
-      <input
-        type="file"
-        accept="video/*"
-        onChange={(e) => setVideo(e.target.files?.[0])}
-      />
+<div className="cn-upload-content">
 
-      <button className="submit" onClick={handleSubmit}>
-        {type === "news" ? "Submit News" : "Submit Event"}
-      </button>
+<h4>
+{type==="news"
+?"Images (0–5)"
+:"Images (1–5)"}
+</h4>
 
-    </div>
-  );
+<p>
+Upload high quality images
+</p>
+
+<input
+type="file"
+multiple
+accept="image/*"
+onChange={(e)=>
+setImages([...e.target.files])
+}
+/>
+
+</div>
+
+</div>
+
+<div className="cn-upload-card">
+
+<div className="cn-upload-icon">
+🎥
+</div>
+
+<div className="cn-upload-content">
+
+<h4>
+Video (optional)
+</h4>
+
+<p>
+Upload short event/news video
+</p>
+
+<input
+type="file"
+accept="video/*"
+onChange={(e)=>
+setVideo(e.target.files?.[0])
+}
+/>
+
+</div>
+
+</div>
+
+</div>
+
+<button
+className="cn-submit-btn"
+onClick={handleSubmit}
+>
+{type==="news"
+?"Publish News"
+:"Publish Event"}
+</button>
+
+</div>
+
+</div>
+
+</div>
+);
 }

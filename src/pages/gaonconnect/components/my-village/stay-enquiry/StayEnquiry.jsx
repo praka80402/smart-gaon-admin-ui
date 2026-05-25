@@ -4,61 +4,125 @@ import StayTable from "./StayTable";
 import "./stay-enquiry.css";
 
 const StayEnquiry = () => {
-  const [data, setData] = useState([]);
-  const [phone, setPhone] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [page, setPage] = useState(1);
 
-  const limit = 5; // ✅ 5 per page
+  const [data,setData] = useState([]);
+
+  const [loading,setLoading] = useState(false);
+
+  const [phone,setPhone] = useState("");
+  const [fromDate,setFromDate] = useState("");
+  const [toDate,setToDate] = useState("");
+
+  const [page,setPage] = useState(1);
+
+  const limit = 5;
 
   // 🔹 Fetch Data
   const fetchData = async () => {
-    try {
+
+    try{
+
+      setLoading(true);
+
       const res = await getStayEnquiries();
-      console.log("DATA:", res);
+
+      console.log("DATA:",res);
+
       setData(res || []);
-    } catch (err) {
+
+    }catch(err){
+
       console.error(err);
+
+    }finally{
+
+      setLoading(false);
+
     }
+
   };
 
-  useEffect(() => {
+  useEffect(()=>{
+
     fetchData();
-  }, []);
+
+  },[]);
 
   // 🔹 Reset page on filter change
-  useEffect(() => {
-    setPage(1);
-  }, [phone, fromDate, toDate]);
+  useEffect(()=>{
 
-  // 🔹 Date validation
+    setPage(1);
+
+  },[phone,fromDate,toDate]);
+
+  // 🔹 Date Validation
   const isValidDateRange = () => {
-    if (fromDate && toDate) {
+
+    if(fromDate && toDate){
+
       return new Date(fromDate) <= new Date(toDate);
+
     }
+
     return true;
+
   };
 
   // 🔹 Filter Logic
-  const filteredData = data.filter((item) => {
+  const filteredData = data.filter((item)=>{
+
     const matchPhone =
-      phone === "" || item.phone.includes(phone);
+      phone === "" ||
+      item.phone?.includes(phone);
 
-    const itemCheckIn = item.checkIn ? new Date(item.checkIn) : null;
-    const itemCheckOut = item.checkOut ? new Date(item.checkOut) : null;
+    const itemCheckIn =
+      item.checkIn
+      ?
+      new Date(item.checkIn)
+      :
+      null;
 
-    const from = fromDate ? new Date(fromDate) : null;
-    const to = toDate ? new Date(toDate) : null;
+    const itemCheckOut =
+      item.checkOut
+      ?
+      new Date(item.checkOut)
+      :
+      null;
 
-    const matchFrom = !from || (itemCheckIn && itemCheckIn >= from);
-    const matchTo = !to || (itemCheckOut && itemCheckOut <= to);
+    const from =
+      fromDate
+      ?
+      new Date(fromDate)
+      :
+      null;
 
-    return matchPhone && matchFrom && matchTo;
+    const to =
+      toDate
+      ?
+      new Date(toDate)
+      :
+      null;
+
+    const matchFrom =
+      !from ||
+      (itemCheckIn && itemCheckIn >= from);
+
+    const matchTo =
+      !to ||
+      (itemCheckOut && itemCheckOut <= to);
+
+    return (
+      matchPhone &&
+      matchFrom &&
+      matchTo
+    );
+
   });
 
-  // 🔥 PAGINATION LOGIC (MISSING THA — अब add किया)
-  const totalPages = Math.ceil(filteredData.length / limit);
+  // 🔹 Pagination
+  const totalPages = Math.ceil(
+    filteredData.length / limit
+  );
 
   const paginatedData = filteredData.slice(
     (page - 1) * limit,
@@ -66,71 +130,133 @@ const StayEnquiry = () => {
   );
 
   return (
+
     <div className="stay-container">
 
-      <h2>Stay Enquiry</h2>
+      {/* 🔹 Header */}
+      <div className="stay-header">
 
-      {/* 🔹 Filters */}
+        <div>
+
+          <h2>
+            Stay Enquiry
+          </h2>
+
+          <p>
+            Manage and monitor all stay enquiries.
+          </p>
+
+        </div>
+
+        <div className="stay-count-card">
+
+          <span>
+            Total Enquiries
+          </span>
+
+          <h3>
+            {filteredData.length}
+          </h3>
+
+        </div>
+
+      </div>
+
+      {/* 🔹 Filter Box */}
       <div className="filter-box">
 
-        {/* Phone with clear */}
+        {/* Search Phone */}
         <div className="input-wrapper">
+
           <input
             type="text"
-            placeholder="Phone"
+            placeholder="Search by phone..."
             value={phone}
             maxLength={10}
-            onChange={(e) => {
+            onChange={(e)=>{
+
               const value = e.target.value;
-              if (/^\d*$/.test(value)) {
+
+              if(/^\d*$/.test(value)){
+
                 setPhone(value);
+
               }
+
             }}
           />
-          {phone && (
-            <span className="clear-btn" onClick={() => setPhone("")}>
+
+          {
+            phone &&
+            <span
+              className="clear-btn"
+              onClick={()=>setPhone("")}
+            >
               ×
             </span>
-          )}
+          }
+
         </div>
 
         {/* From Date */}
         <input
           type="date"
           value={fromDate}
-          onChange={(e) => setFromDate(e.target.value)}
+          onChange={(e)=>setFromDate(e.target.value)}
         />
 
         {/* To Date */}
         <input
           type="date"
           value={toDate}
-          onChange={(e) => setToDate(e.target.value)}
+          onChange={(e)=>setToDate(e.target.value)}
         />
 
-        {/* Search */}
+        {/* Search Button */}
         <button
-          onClick={() => {
-            if (!isValidDateRange()) {
-              alert("From Date should be before To Date");
+          className="stay-search-btn"
+          onClick={()=>{
+
+            if(!isValidDateRange()){
+
+              alert(
+                "From Date should be before To Date"
+              );
+
               return;
+
             }
+
             fetchData();
+
           }}
         >
           Search
         </button>
+
       </div>
 
       {/* 🔹 Table */}
-      <StayTable data={paginatedData} />
+      <div className="stay-table-card">
+
+        {
+          loading
+          ?
+          <div className="stay-loading">
+            Loading enquiries...
+          </div>
+          :
+          <StayTable data={paginatedData} />
+        }
+
+      </div>
 
       {/* 🔹 Pagination */}
       <div className="pagination">
 
         <button
           disabled={page === 1}
-          onClick={() => setPage(page - 1)}
+          onClick={()=>setPage(page - 1)}
         >
           Previous
         </button>
@@ -140,8 +266,11 @@ const StayEnquiry = () => {
         </span>
 
         <button
-          disabled={page === totalPages || totalPages === 0}
-          onClick={() => setPage(page + 1)}
+          disabled={
+            page === totalPages ||
+            totalPages === 0
+          }
+          onClick={()=>setPage(page + 1)}
         >
           Next
         </button>
@@ -149,7 +278,9 @@ const StayEnquiry = () => {
       </div>
 
     </div>
+
   );
+
 };
 
 export default StayEnquiry;

@@ -1,247 +1,249 @@
-// import { useEffect, useState } from "react";
-// import {
-//   getAllDevelopment,
-//   getByStatus,
-//   deleteDevelopment,
-// } from "././service/developmentservice";
-// import DevelopmentForm from "./DevelopmentForm";
-// import "./development.css";
-
-// export default function DevelopmentAdmin() {
-
-//   const [list, setList] = useState([]);
-//   const [filter, setFilter] = useState("ALL");
-//   const [selected, setSelected] = useState(null);
-
-//   const fetchData = async () => {
-//     if (filter === "ALL") {
-//       const res = await getAllDevelopment();
-//       setList(res.data);
-//     } else {
-//       const res = await getByStatus(filter);
-//       setList(res.data);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchData();
-//   }, [filter]);
-
-//   return (
-//     <div className="dev-container">
-
-//       <h2>Village Development Phases</h2>
-
-//       {/* FILTER */}
-//       <div className="dev-filter">
-//         <button onClick={() => setFilter("ALL")}>All</button>
-//         <button onClick={() => setFilter("ONGOING")}>Ongoing</button>
-//         <button onClick={() => setFilter("COMPLETE")}>Completed</button>
-//         <button onClick={() => setSelected({})}>+ Add Phase</button>
-//       </div>
-
-//       {/* FORM MODAL */}
-//       {selected !== null && (
-//         <DevelopmentForm
-//           data={selected.id ? selected : null}
-//           onClose={() => {
-//             setSelected(null);
-//             fetchData();
-//           }}
-//         />
-//       )}
-
-//       {/* LIST */}
-//       <div className="dev-grid">
-//         {list.map((item) => (
-//           <div className="dev-card" key={item.id}>
-
-//             <h4>Phase {item.phaseNumber}</h4>
-
-//             {item.mainImageUrl && (
-//               <img src={item.mainImageUrl} alt="" />
-//             )}
-
-//             <h3>{item.title}</h3>
-//             <p>{item.developmentArea}</p>
-
-//             {/* Progress */}
-//             <div className="progress-bar">
-//               <div
-//                 className="progress"
-//                 style={{ width: `${item.totalCompletion}%` }}
-//               />
-//             </div>
-//             <p>{item.totalCompletion}% Complete</p>
-
-//             <p>
-//               {item.startDate} → {item.endDate}
-//             </p>
-
-//             <span
-//               className={
-//                 item.status === "ONGOING"
-//                   ? "status ongoing"
-//                   : "status complete"
-//               }
-//             >
-//               {item.status}
-//             </span>
-
-//             <div className="card-actions">
-//               <button onClick={() => setSelected(item)}>Edit</button>
-//               <button
-//                 onClick={() => {
-//                   deleteDevelopment(item.id).then(fetchData);
-//                 }}
-//               >
-//                 Delete
-//               </button>
-//             </div>
-
-//           </div>
-//         ))}
-//       </div>
-
-//     </div>
-//   );
-// }
 import { useState } from "react";
 import { createVillage } from "./service/villageservice";
 import "./createVillage.css";
 
 export default function CreateVillage() {
 
-  const [form, setForm] = useState({
-    name: "",
-    city: "",
-    state: "",
-    description: "",
-    smartGaon: false
+  const [formData,setFormData] = useState({
+    villageName:"",
+    district:"",
+    state:"",
+    description:"",
+    smartGaon:false,
   });
 
-  const [images, setImages] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [images,setImages] = useState([]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
 
-    setForm({
-      ...form,
-      [name]: type === "checkbox" ? checked : value
+    const {name,value,type,checked} = e.target;
+
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
     });
+
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     try {
-      setLoading(true);
 
-      const formData = new FormData();
+      const data = new FormData();
+      data.append("name", formData.villageName);
+      data.append("city", formData.district);
+      data.append("state", formData.state);
+      data.append("description", formData.description);
+      data.append("smartGaon", formData.smartGaon);
 
-      formData.append("name", form.name);
-      formData.append("city", form.city);
-      formData.append("state", form.state);
-      formData.append("description", form.description);
-      formData.append("smartGaon", form.smartGaon);
+      Array.from(images).forEach(img => data.append("images", img));
 
-      for (let i = 0; i < images.length; i++) {
-        formData.append("images", images[i]);
-      }
-
-      await createVillage(formData);
+      await createVillage(data);
 
       alert("Village Created Successfully ✅");
 
-      setForm({
-        name: "",
-        city: "",
-        state: "",
-        description: "",
-        smartGaon: false
-      });
+      handleClear();
 
-      setImages([]);
+    } catch (err) {
 
-    } catch (error) {
-      console.error(error);
-      alert("Failed to create village ❌");
-    } finally {
-      setLoading(false);
+      console.error(err);
+      alert("Failed to create village. Please try again.");
+
     }
+
+  };
+
+  const handleClear = () => {
+
+    setFormData({
+      villageName: "",
+      district: "",
+      state: "",
+      description: "",
+      smartGaon: false,
+    });
+
+    setImages([]);
+
+    // reset file input
+    const fileInput = document.getElementById("villageImages");
+    if (fileInput) fileInput.value = "";
+
   };
 
   return (
-    <div className="village-container">
-      <div className="village-card">
 
-        <h2>Create Village</h2>
+    <div className="sg-village-page-wrapper">
 
-        <form onSubmit={handleSubmit} className="village-form">
+      <div className="sg-village-heading-wrapper">
 
-          <input
-            type="text"
-            name="name"
-            placeholder="Village Name"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
+        <h1 className="sg-village-main-heading">
+          Create Village
+        </h1>
 
-          <input
-            type="text"
-            name="city"
-            placeholder="City"
-            value={form.city}
-            onChange={handleChange}
-            required
-          />
+        <p className="sg-village-main-subheading">
+          Add and manage your SmartGaon village details.
+        </p>
 
-          <input
-            type="text"
-            name="state"
-            placeholder="State"
-            value={form.state}
-            onChange={handleChange}
-            required
-          />
+      </div>
 
-          <textarea
-            name="description"
-            placeholder="Village Description"
-            value={form.description}
-            onChange={handleChange}
-          />
+      <div className="sg-village-main-card">
 
-          {/* Smart Gaon Checkbox */}
-         {/* Smart Gaon Checkbox */}
-<div className="checkbox-group">
-  <label className="checkbox-label">
-    <input
-      type="checkbox"
-      name="smartGaon"
-      checked={form.smartGaon}
-      onChange={handleChange}
-    />
-    <span>Smart Gaon?</span>
-  </label>
-</div>
+        <form
+          className="sg-village-form-wrapper"
+          onSubmit={handleSubmit}
+        >
 
-          {/* Image Upload */}
-          <input
-            type="file"
-            multiple
-            onChange={(e) => setImages(e.target.files)}
-          />
+          <div className="sg-village-input-group">
 
-          <button type="submit" className="submit-btn" disabled={loading}>
-            {loading ? "Creating..." : "Create Village"}
-          </button>
+            <label>
+              Village Name
+            </label>
+
+            <input
+              type="text"
+              name="villageName"
+              placeholder="Enter village name"
+              value={formData.villageName}
+              onChange={handleChange}
+              required
+            />
+
+          </div>
+
+          <div className="sg-village-grid-layout">
+
+            <div className="sg-village-input-group">
+
+              <label>
+                District
+              </label>
+
+              <input
+                type="text"
+                name="district"
+                placeholder="Enter district"
+                value={formData.district}
+                onChange={handleChange}
+              />
+
+            </div>
+
+            <div className="sg-village-input-group">
+
+              <label>
+                State
+              </label>
+
+              <input
+                type="text"
+                name="state"
+                placeholder="Enter state"
+                value={formData.state}
+                onChange={handleChange}
+              />
+
+            </div>
+
+          </div>
+
+          <div className="sg-village-input-group">
+
+            <label>
+              Description
+            </label>
+
+            <textarea
+              name="description"
+              placeholder="Write village details..."
+              value={formData.description}
+              onChange={handleChange}
+            />
+
+          </div>
+
+          <div className="sg-village-bottom-grid">
+
+            <div className="sg-village-upload-box">
+
+              <label htmlFor="villageImages">
+                Upload Village Images
+              </label>
+
+              <input
+                id="villageImages"
+                type="file"
+                multiple
+                onChange={(e)=>setImages(e.target.files)}
+              />
+
+              {
+                images.length > 0 &&
+                <p className="sg-village-upload-count">
+                  {images.length} files selected
+                </p>
+              }
+
+            </div>
+
+            <div className="sg-village-smart-toggle-card">
+
+              <div>
+
+                <h3>
+                  Smart Gaon
+                </h3>
+
+                <p>
+                  Enable digital smart features.
+                </p>
+
+              </div>
+
+              <label className="sg-village-switch">
+
+                <input
+                  type="checkbox"
+                  name="smartGaon"
+                  checked={formData.smartGaon}
+                  onChange={handleChange}
+                />
+
+                <span className="sg-village-slider"></span>
+
+              </label>
+
+            </div>
+
+          </div>
+
+          <div className="sg-village-action-buttons">
+
+            <button
+              type="button"
+              className="sg-village-clear-btn"
+              onClick={handleClear}
+            >
+              Clear
+            </button>
+
+            <button
+              type="submit"
+              className="sg-village-submit-btn"
+            >
+              Create Village
+            </button>
+
+          </div>
 
         </form>
 
       </div>
+
     </div>
+
   );
+
 }
