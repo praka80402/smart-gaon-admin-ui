@@ -71,6 +71,7 @@ const getInitial = () => {
   { name: "Donation", path: "/donation" },
   { name: "Seva Bazar", path: "/seva-bazar" },
   { name: "Gaon Saathi", path: "/gaon-saathi" },
+  { name: "Media & Press", path: "/media_press" },
 ];
 
 const menuItems =
