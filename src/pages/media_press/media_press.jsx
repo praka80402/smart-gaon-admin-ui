@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./mediapress-admin.css";
 
-const API_BASE = "https://smartgaonadmin.duckdns.org/api/admin/media-gallery";
+// Admin base (write + read)
+const ADMIN_API_BASE = "https://smartgaonadmin.duckdns.org/api/admin/media-gallery";
+
+// Public base (read-only, from PDF)
+const PUBLIC_API_BASE = "/api/media-gallery"; // relative, will hit same origin backend
 
 const text = {
   title: "Media & Press",
@@ -22,24 +26,20 @@ const text = {
   confirmDelete: "Are you sure you want to delete this item?",
 };
 
+// Only Press + Video tabs
 const TABS = [
-  { key: "featured", label: text.featured },
   { key: "press", label: text.press },
   { key: "video", label: text.videos },
-  { key: "logo", label: text.logos },
 ];
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
 function getYoutubeEmbedUrl(url) {
   if (!url) return null;
-  // Shorts: https://youtube.com/shorts/ID
   const shortsMatch = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/);
   if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}`;
-  // Watch: https://youtube.com/watch?v=ID
   const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
   if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`;
-  // youtu.be/ID
   const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
   if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
   return null;
@@ -50,14 +50,17 @@ function isImageUrl(url) {
   return /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?.*)?$/i.test(url);
 }
 
-// ─── API Helpers ───────────────────────────────────────────────────────────────
+// ─── Generic fetch helpers ─────────────────────────────────────────────────────
 
-async function apiFetch(path, options = {}) {
+async function adminApiFetch(path, options = {}) {
   const token = localStorage.getItem("adminToken");
   const authHeader = token
-    ? (token.startsWith("Bearer ") ? token : "Bearer " + token)
+    ? token.startsWith("Bearer ")
+      ? token
+      : "Bearer " + token
     : null;
-  const res = await fetch(`${API_BASE}${path}`, {
+
+  const res = await fetch(`${ADMIN_API_BASE}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -65,6 +68,7 @@ async function apiFetch(path, options = {}) {
       ...(options.headers || {}),
     },
   });
+
   if (!res.ok) {
     let msg = `API error: ${res.status}`;
     try {
@@ -73,14 +77,44 @@ async function apiFetch(path, options = {}) {
     } catch (_) {}
     throw new Error(msg);
   }
+
   if (options.method === "DELETE") return null;
   const txt = await res.text();
   if (!txt) return null;
   return JSON.parse(txt);
 }
 
+// Public read-only APIs from PDF: list, details, filters, search, pagination [file:19]
+async function publicApiFetch(path, options = {}) {
+  const res = await fetch(`${PUBLIC_API_BASE}${path}`, {
+    ...options,
+  });
+
+  if (!res.ok) {
+    let msg = `Public API error: ${res.status}`;
+    try {
+      const body = await res.text();
+      if (body) msg += " — " + body;
+    } catch (_) {}
+    throw new Error(msg);
+  }
+
+  const txt = await res.text();
+  if (!txt) return null;
+  return JSON.parse(txt);
+}
+
+// ─── Mapping between API <-> UI ────────────────────────────────────────────────
+
+// PDF entity structure is: id, title, category, mediaType, sourceName, description,
+// mediaUrl, thumbnailUrl, active  [file:19]
 function mapFromApi(item) {
-  let date = "", duration = "", channelTag = "", summary = item.description || "";
+  let date = "",
+    duration = "",
+    channelTag = "",
+    summary = item.description || "";
+
+  // Admin-only meta wrapper support
   if (item.description && item.description.startsWith("__meta::")) {
     try {
       const metaEnd = item.description.indexOf("::/meta::");
@@ -95,6 +129,7 @@ function mapFromApi(item) {
       summary = item.description || "";
     }
   }
+
   return {
     id: item.id,
     title: item.title || "",
@@ -114,6 +149,7 @@ function mapFromApi(item) {
   };
 }
 
+// For admin create/update using same fields PDF backend exposes [file:19]
 function mapToApi(values, category) {
   const hasMeta = values.date || values.duration || values.channelTag;
   let description = values.summary || values.desc || "";
@@ -125,10 +161,12 @@ function mapToApi(values, category) {
     });
     description = "__meta::" + meta + "::/meta::" + description;
   }
+
   return {
+    id: values.id,
     title: values.title || values.name || "",
-    category: category,
-    mediaType: values.type || category,
+    category: category || values.category || "",
+    mediaType: values.type || category || "",
     sourceName: values.source || values.channel || "",
     description,
     mediaUrl: values.link || "",
@@ -140,7 +178,7 @@ function mapToApi(values, category) {
 // ─── Main Component ────────────────────────────────────────────────────────────
 
 export default function MediaPressAdminPage() {
-  const [activeTab, setActiveTab] = useState("featured");
+  const [activeTab, setActiveTab] = useState("press");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -148,34 +186,106 @@ export default function MediaPressAdminPage() {
   const [editingItem, setEditingItem] = useState(null);
   const [viewingItem, setViewingItem] = useState(null);
 
-  const fetchByCategory = useCallback(async (category) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await apiFetch("/category/" + category);
-      setItems((data || []).map(mapFromApi));
-    } catch (err) {
-      setError("Failed to load data. Please try again.");
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Optional: hooks for pagination/search/filters using public API [file:19]
+  const [page, setPage] = useState(0);
+  const [size] = useState(5);
+  const [totalPages, setTotalPages] = useState(0);
+  const [searchTitle, setSearchTitle] = useState("");
+  const [mediaTypeFilter, setMediaTypeFilter] = useState(""); // IMAGE / VIDEO / YOUTUBE
+  const [categoryFilter, setCategoryFilter] = useState(""); // e.g., "Video"
 
+  // Decide category by tab (for admin & public)
+  const getCategoryByTab = (tab) => {
+    if (tab === "press") return "press";
+    if (tab === "video") return "video";
+    return "";
+  };
+
+  // Admin fetch by category (for your existing admin list)
+  const fetchAdminByCategory = useCallback(
+    async (categoryKey) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await adminApiFetch("/category/" + categoryKey);
+        setItems((data || []).map(mapFromApi));
+      } catch (err) {
+        setError("Failed to load data. Please try again.");
+        setItems([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  // Example: Public API list with pagination from PDF [file:19]
+  const fetchPublicList = useCallback(
+    async (categoryKey) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const cat = getCategoryByTab(categoryKey);
+        let path = `?page=${page}&size=${size}`; // GET /api/media-gallery?page=0&size=5
+
+        if (searchTitle) {
+          // GET /api/media-gallery/search?title=... [file:19]
+          path = `/search?title=${encodeURIComponent(searchTitle)}`;
+        } else if (categoryFilter || cat) {
+          // GET /api/media-gallery/category/{category} [file:19]
+          const chosen = categoryFilter || cat;
+          path = `/category/${encodeURIComponent(chosen)}`;
+        } else if (mediaTypeFilter) {
+          // GET /api/media-gallery/media-type/{mediaType} [file:19]
+          path = `/media-type/${encodeURIComponent(mediaTypeFilter)}`;
+        }
+
+        const data = await publicApiFetch(path);
+        // Pagination shape from PDF: content, totalPages, totalElements, size, number [file:19]
+        const list = Array.isArray(data?.content) ? data.content : Array.isArray(data) ? data : [];
+        setItems(list.map(mapFromApi));
+        if (data && typeof data.totalPages === "number") {
+          setTotalPages(data.totalPages);
+        } else {
+          setTotalPages(1);
+        }
+      } catch (err) {
+        setError("Failed to load public data. Please try again.");
+        setItems([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [page, size, searchTitle, categoryFilter, mediaTypeFilter]
+  );
+
+  // You can decide whether admin tab should use admin or public fetch.
+  // Right now: admin category fetch is primary.
   useEffect(() => {
-    fetchByCategory(activeTab);
-  }, [activeTab, fetchByCategory]);
+    fetchAdminByCategory(activeTab);
+    // If later you want read-only to use public list instead, swap:
+    // fetchPublicList(activeTab);
+  }, [activeTab, fetchAdminByCategory]);
 
-  const openAddForm = () => { setEditingItem(null); setIsFormOpen(true); };
-  const openEditForm = (item) => { setEditingItem(item); setIsFormOpen(true); };
-  const closeForm = () => { setIsFormOpen(false); setEditingItem(null); };
+  const openAddForm = () => {
+    setEditingItem(null);
+    setIsFormOpen(true);
+  };
+  const openEditForm = (item) => {
+    setEditingItem(item);
+    setIsFormOpen(true);
+  };
+  const closeForm = () => {
+    setIsFormOpen(false);
+    setEditingItem(null);
+  };
   const openView = (item) => setViewingItem(item);
   const closeView = () => setViewingItem(null);
 
   const handleDelete = async (id) => {
     if (!window.confirm(text.confirmDelete)) return;
     try {
-      await apiFetch("/" + id, { method: "DELETE" });
+      await adminApiFetch("/" + id, { method: "DELETE" });
       setItems((prev) => prev.filter((i) => i.id !== id));
     } catch {
       alert("Delete failed. Please try again.");
@@ -186,13 +296,15 @@ export default function MediaPressAdminPage() {
     const payload = mapToApi(values, activeTab);
     try {
       if (editingItem) {
-        const updated = await apiFetch("/" + editingItem.id, {
+        const updated = await adminApiFetch("/" + editingItem.id, {
           method: "PUT",
           body: JSON.stringify({ ...payload, id: editingItem.id }),
         });
-        setItems((prev) => prev.map((i) => (i.id === editingItem.id ? mapFromApi(updated) : i)));
+        setItems((prev) =>
+          prev.map((i) => (i.id === editingItem.id ? mapFromApi(updated) : i))
+        );
       } else {
-        const created = await apiFetch("", {
+        const created = await adminApiFetch("", {
           method: "POST",
           body: JSON.stringify(payload),
         });
@@ -208,22 +320,21 @@ export default function MediaPressAdminPage() {
     try {
       const payload = mapToApi(item, activeTab);
       payload.active = !item.active;
-      const updated = await apiFetch("/" + item.id, {
+      const updated = await adminApiFetch("/" + item.id, {
         method: "PUT",
         body: JSON.stringify({ ...payload, id: item.id }),
       });
-      setItems((prev) => prev.map((i) => (i.id === item.id ? mapFromApi(updated) : i)));
+      setItems((prev) =>
+        prev.map((i) => (i.id === item.id ? mapFromApi(updated) : i))
+      );
     } catch {
       alert("Toggle failed. Please try again.");
     }
   };
 
-  const featuredItem = activeTab === "featured" ? items[0] || null : null;
-
   return (
     <div className="mp-admin-wrapper">
       <div className="mp-admin-container">
-
         <div className="mp-admin-header">
           <div>
             <h1>{text.title}</h1>
@@ -236,7 +347,9 @@ export default function MediaPressAdminPage() {
             <button
               key={tab.key}
               type="button"
-              className={"mp-admin-tab-btn" + (activeTab === tab.key ? " active" : "")}
+              className={
+                "mp-admin-tab-btn" + (activeTab === tab.key ? " active" : "")
+              }
               onClick={() => setActiveTab(tab.key)}
             >
               {tab.label}
@@ -250,146 +363,57 @@ export default function MediaPressAdminPage() {
           <div className="mp-admin-loading">Loading...</div>
         ) : (
           <>
-            {/* ── FEATURED ── */}
-            {activeTab === "featured" && (
-              <section className="mp-admin-section">
-                <div className="mp-admin-section-header">
-                  <h2>{text.featuredArticle}</h2>
-                  <button type="button" className="mp-admin-add-btn"
-                    onClick={featuredItem ? () => openEditForm(featuredItem) : openAddForm}>
-                    {featuredItem ? text.edit : text.add}
-                  </button>
-                </div>
-
-                {featuredItem ? (
-                  <div className="mp-admin-card">
-                    {featuredItem.image && (
-                      <div className="mp-admin-card-thumb">
-                        <img src={featuredItem.image} alt={featuredItem.title} />
-                      </div>
-                    )}
-                    <div className="mp-admin-card-main">
-                      <strong>{featuredItem.title}</strong>
-                      <p className="mp-admin-small">{featuredItem.source} · {featuredItem.date}</p>
-                      <p className="mp-admin-small">{featuredItem.summary}</p>
-                      {featuredItem.link && (
-                        <p className="mp-admin-small">
-                          <a href={featuredItem.link} target="_blank" rel="noreferrer" className="mp-admin-link">
-                            {featuredItem.link}
-                          </a>
-                        </p>
-                      )}
-                      <ActiveBadge active={featuredItem.active} />
-                    </div>
-                    <div className="mp-admin-card-actions">
-                      <button type="button" className="mp-admin-action-btn view" onClick={() => openView(featuredItem)}>
-                        {text.view}
-                      </button>
-                      <button type="button" className="mp-admin-action-btn" onClick={() => openEditForm(featuredItem)}>
-                        {text.edit}
-                      </button>
-                      <button type="button"
-                        className={"mp-admin-action-btn " + (featuredItem.active ? "toggle-off" : "toggle-on")}
-                        onClick={() => handleToggleActive(featuredItem)}>
-                        {featuredItem.active ? "Deactivate" : "Activate"}
-                      </button>
-                      <button type="button" className="mp-admin-action-btn danger"
-                        onClick={() => handleDelete(featuredItem.id)}>
-                        {text.delete}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="mp-admin-empty">No featured article added yet.</p>
-                )}
-              </section>
-            )}
-
-            {/* ── PRESS ── */}
+            {/* PRESS */}
             {activeTab === "press" && (
-              <AdminTable
-                title={text.press}
-                columns={["Title", "Source", "Date", "Type", "Status", "Actions"]}
-                emptyText="No press articles added yet."
-                items={items}
-                onAdd={openAddForm}
-                renderRow={(item) => (
-                  <div key={item.id} className="mp-admin-table-row press-row">
-                    <div className="mp-admin-cell-truncate">{item.title}</div>
-                    <div>{item.source}</div>
-                    <div>{item.date}</div>
-                    <div>{item.type}</div>
-                    <div><ActiveBadge active={item.active} /></div>
-                    <ActionButtons
-                      onView={() => openView(item)}
-                      onEdit={() => openEditForm(item)}
-                      onDelete={() => handleDelete(item.id)}
-                      onToggle={() => handleToggleActive(item)}
-                      active={item.active}
-                    />
-                  </div>
-                )}
-              />
-            )}
-
-            {/* ── VIDEOS ── */}
-            {activeTab === "video" && (
-              <AdminTable
-                title={text.videoCoverage}
-                columns={["Title", "Channel", "Date", "Duration", "Status", "Actions"]}
-                emptyText="No video coverage added yet."
-                items={items}
-                onAdd={openAddForm}
-                renderRow={(item) => (
-                  <div key={item.id} className="mp-admin-table-row video-row">
-                    <div className="mp-admin-cell-truncate">{item.title}</div>
-                    <div>{item.channel}</div>
-                    <div>{item.date}</div>
-                    <div>{item.duration}</div>
-                    <div><ActiveBadge active={item.active} /></div>
-                    <ActionButtons
-                      onView={() => openView(item)}
-                      onEdit={() => openEditForm(item)}
-                      onDelete={() => handleDelete(item.id)}
-                      onToggle={() => handleToggleActive(item)}
-                      active={item.active}
-                    />
-                  </div>
-                )}
-              />
-            )}
-
-            {/* ── LOGOS ── */}
-            {activeTab === "logo" && (
-              <AdminTable
-                title={text.mediaLogos}
-                columns={["Preview", "Name", "Status", "Actions"]}
-                emptyText="No media logos added yet."
-                items={items}
-                onAdd={openAddForm}
-                tableClassName="mp-admin-table logos"
-                renderRow={(item) => (
-                  <div key={item.id} className="mp-admin-table-row logo-row">
-                    <div>
-                      {item.image ? (
-                        <img src={item.image} alt={item.name} className="mp-admin-logo-thumb" />
-                      ) : (
-                        <span className="mp-admin-logo-placeholder">{item.name?.[0] || "L"}</span>
-                      )}
-                    </div>
-                    <div>{item.name}</div>
-                    <div><ActiveBadge active={item.active} /></div>
-                    <ActionButtons
-                      onView={() => openView(item)}
-                      onEdit={() => openEditForm(item)}
-                      onDelete={() => handleDelete(item.id)}
-                      onToggle={() => handleToggleActive(item)}
-                      active={item.active}
-                    />
-                  </div>
-                )}
-              />
-            )}
+  <AdminTable
+    title={text.press}
+    columns={["Title", "Source", "Type", "Status", "Actions"]}
+    emptyText="No press articles added yet."
+    items={items}
+    onAdd={openAddForm}
+    headerClassName="press-header"
+    renderRow={(item) => (
+      <div key={item.id} className="mp-admin-table-row press-row">
+        <div className="mp-admin-cell-truncate">{item.title}</div>
+        <div>{item.source}</div>
+        <div>{item.type}</div>
+        <div><ActiveBadge active={item.active} /></div>
+        <ActionButtons
+          onView={() => openView(item)}
+          onEdit={() => openEditForm(item)}
+          onDelete={() => handleDelete(item.id)}
+          onToggle={() => handleToggleActive(item)}
+          active={item.active}
+        />
+      </div>
+    )}
+  />
+)}
+            {/* VIDEOS */}
+      {activeTab === "video" && (
+  <AdminTable
+    title={text.videoCoverage}
+    columns={["Title", "Channel", "Status", "Actions"]}
+    emptyText="No video coverage added yet."
+    items={items}
+    onAdd={openAddForm}
+    headerClassName="video-header"
+    renderRow={(item) => (
+      <div key={item.id} className="mp-admin-table-row video-row">
+        <div className="mp-admin-cell-truncate">{item.title}</div>
+        <div>{item.channel}</div>
+        <div><ActiveBadge active={item.active} /></div>
+        <ActionButtons
+          onView={() => openView(item)}
+          onEdit={() => openEditForm(item)}
+          onDelete={() => handleDelete(item.id)}
+          onToggle={() => handleToggleActive(item)}
+          active={item.active}
+        />
+      </div>
+    )}
+  />
+)}
           </>
         )}
       </div>
@@ -404,11 +428,7 @@ export default function MediaPressAdminPage() {
       )}
 
       {viewingItem && (
-        <ViewModal
-          item={viewingItem}
-          type={activeTab}
-          onClose={closeView}
-        />
+        <ViewModal item={viewingItem} type={activeTab} onClose={closeView} />
       )}
     </div>
   );
@@ -418,7 +438,11 @@ export default function MediaPressAdminPage() {
 
 function ActiveBadge({ active }) {
   return (
-    <span className={"mp-admin-badge " + (active ? "badge-active" : "badge-inactive")}>
+    <span
+      className={
+        "mp-admin-badge " + (active ? "badge-active" : "badge-inactive")
+      }
+    >
       {active ? "Active" : "Inactive"}
     </span>
   );
@@ -426,7 +450,7 @@ function ActiveBadge({ active }) {
 
 // ─── AdminTable ────────────────────────────────────────────────────────────────
 
-function AdminTable({ title, columns, emptyText, items, onAdd, renderRow, tableClassName }) {
+function AdminTable({ title, columns, emptyText, items, onAdd, renderRow, tableClassName, headerClassName }) {
   return (
     <section className="mp-admin-section">
       <div className="mp-admin-section-header">
@@ -436,7 +460,7 @@ function AdminTable({ title, columns, emptyText, items, onAdd, renderRow, tableC
         </button>
       </div>
       <div className={tableClassName || "mp-admin-table"}>
-        <div className="mp-admin-table-header">
+        <div className={`mp-admin-table-header ${headerClassName || ""}`}>
           {columns.map((col) => <div key={col}>{col}</div>)}
         </div>
         {items.map(renderRow)}
@@ -451,18 +475,34 @@ function AdminTable({ title, columns, emptyText, items, onAdd, renderRow, tableC
 function ActionButtons({ onView, onEdit, onDelete, onToggle, active }) {
   return (
     <div className="mp-admin-action-group">
-      <button type="button" className="mp-admin-action-btn view" onClick={onView}>
+      <button
+        type="button"
+        className="mp-admin-action-btn view"
+        onClick={onView}
+      >
         {text.view}
       </button>
-      <button type="button" className="mp-admin-action-btn" onClick={onEdit}>
+      <button
+        type="button"
+        className="mp-admin-action-btn"
+        onClick={onEdit}
+      >
         {text.edit}
       </button>
-      <button type="button"
-        className={"mp-admin-action-btn " + (active ? "toggle-off" : "toggle-on")}
-        onClick={onToggle}>
+      <button
+        type="button"
+        className={
+          "mp-admin-action-btn " + (active ? "toggle-off" : "toggle-on")
+        }
+        onClick={onToggle}
+      >
         {active ? "Deactivate" : "Activate"}
       </button>
-      <button type="button" className="mp-admin-action-btn danger" onClick={onDelete}>
+      <button
+        type="button"
+        className="mp-admin-action-btn danger"
+        onClick={onDelete}
+      >
         {text.delete}
       </button>
     </div>
@@ -474,24 +514,31 @@ function ActionButtons({ onView, onEdit, onDelete, onToggle, active }) {
 function ViewModal({ item, type, onClose }) {
   const embedUrl = getYoutubeEmbedUrl(item.link);
   const isVideo = type === "video";
-  const isLogo = type === "logo";
   const hasImage = !!item.image;
   const hasLink = !!item.link;
 
   return (
     <div className="mp-view-backdrop" onClick={onClose}>
-      <div className="mp-view-box" onClick={(e) => e.stopPropagation()}>
-
-        {/* Header */}
+      <div
+        className="mp-view-box"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="mp-view-header">
           <div className="mp-view-header-left">
             <ActiveBadge active={item.active} />
-            <span className="mp-view-type-tag">{item.type || type}</span>
+            <span className="mp-view-type-tag">
+              {item.type || type}
+            </span>
           </div>
-          <button type="button" className="mp-admin-form-close" onClick={onClose}>✕</button>
+          <button
+            type="button"
+            className="mp-admin-form-close"
+            onClick={onClose}
+          >
+            ✕
+          </button>
         </div>
 
-        {/* Media preview */}
         {isVideo && embedUrl ? (
           <div className="mp-view-video-wrap">
             <iframe
@@ -505,40 +552,32 @@ function ViewModal({ item, type, onClose }) {
           <div className="mp-view-img-wrap">
             <img src={item.image} alt={item.title} />
           </div>
-        ) : isLogo && hasImage ? (
-          <div className="mp-view-logo-wrap">
-            <img src={item.image} alt={item.name} />
-          </div>
         ) : hasImage ? (
           <div className="mp-view-img-wrap">
             <img src={item.image} alt={item.title} />
           </div>
         ) : null}
 
-        {/* Content */}
         <div className="mp-view-content">
-          <h2 className="mp-view-title">{item.title || item.name}</h2>
+          <h2 className="mp-view-title">
+            {item.title || item.name}
+          </h2>
 
           <div className="mp-view-meta">
             {(item.source || item.channel) && (
               <span className="mp-view-meta-item">
-                <span className="mp-view-meta-label">{isVideo ? "Channel" : "Source"}:</span>
+                <span className="mp-view-meta-label">
+                  {isVideo ? "Channel" : "Source"}:
+                </span>
                 {item.source || item.channel}
-              </span>
-            )}
-            {item.date && (
-              <span className="mp-view-meta-item">
-                <span className="mp-view-meta-label">Date:</span>{item.date}
-              </span>
-            )}
-            {item.duration && (
-              <span className="mp-view-meta-item">
-                <span className="mp-view-meta-label">Duration:</span>{item.duration}
               </span>
             )}
             {item.channelTag && (
               <span className="mp-view-meta-item">
-                <span className="mp-view-meta-label">Tag:</span>{item.channelTag}
+                <span className="mp-view-meta-label">
+                  Tag:
+                </span>
+                {item.channelTag}
               </span>
             )}
           </div>
@@ -558,20 +597,29 @@ function ViewModal({ item, type, onClose }) {
             </a>
           )}
 
-          {/* Image URL preview for logo/image */}
           {hasImage && !isVideo && (
             <div className="mp-view-url-row">
-              <span className="mp-view-meta-label">Image URL:</span>
-              <a href={item.image} target="_blank" rel="noreferrer" className="mp-admin-link mp-view-url-text">
+              <span className="mp-view-meta-label">
+                Image URL:
+              </span>
+              <a
+                href={item.image}
+                target="_blank"
+                rel="noreferrer"
+                className="mp-admin-link mp-view-url-text"
+              >
                 {item.image}
               </a>
             </div>
           )}
         </div>
 
-        {/* Footer */}
         <div className="mp-view-footer">
-          <button type="button" className="mp-admin-form-btn secondary" onClick={onClose}>
+          <button
+            type="button"
+            className="mp-admin-form-btn secondary"
+            onClick={onClose}
+          >
             Close
           </button>
         </div>
@@ -586,9 +634,20 @@ function MediaPressAdminForm({ type, initialData, onCancel, onSubmit }) {
   const [formValues, setFormValues] = useState(() => {
     if (initialData) return { ...initialData };
     return {
-      title: "", source: "", type: "newspaper", summary: "",
-      image: "", date: "", link: "", channel: "",
-      channelTag: "", duration: "", name: "", icon: "", active: true,
+      id: undefined,
+      title: "",
+      source: "",
+      type: "newspaper",
+      summary: "",
+      image: "",
+      date: "",
+      link: "",
+      channel: "",
+      channelTag: "",
+      duration: "",
+      name: "",
+      icon: "",
+      active: true,
     };
   });
 
@@ -601,32 +660,46 @@ function MediaPressAdminForm({ type, initialData, onCancel, onSubmit }) {
     onSubmit(formValues);
   };
 
-  const isFeatured = type === "featured";
   const isPress = type === "press";
   const isVideo = type === "video";
-  const isLogo = type === "logo";
 
   return (
     <div className="mp-admin-form-backdrop" onClick={onCancel}>
-      <div className="mp-admin-form-box" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="mp-admin-form-box"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="mp-admin-form-header">
           <h3>{initialData ? "Edit Item" : "Add Item"}</h3>
-          <button type="button" className="mp-admin-form-close" onClick={onCancel}>✕</button>
+          <button
+            type="button"
+            className="mp-admin-form-close"
+            onClick={onCancel}
+          >
+            ✕
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="mp-admin-form">
-
-          {(isFeatured || isPress || isVideo) && (
+          {(isPress || isVideo) && (
             <>
               <label className="mp-admin-label">
                 Title
-                <input type="text" value={formValues.title || ""} onChange={handleChange("title")} required />
+                <input
+                  type="text"
+                  value={formValues.title || ""}
+                  onChange={handleChange("title")}
+                  required
+                />
               </label>
 
               {isPress && (
                 <label className="mp-admin-label">
                   Type
-                  <select value={formValues.type || "newspaper"} onChange={handleChange("type")}>
+                  <select
+                    value={formValues.type || "newspaper"}
+                    onChange={handleChange("type")}
+                  >
                     <option value="newspaper">Newspaper</option>
                     <option value="magazine">Magazine</option>
                   </select>
@@ -637,69 +710,55 @@ function MediaPressAdminForm({ type, initialData, onCancel, onSubmit }) {
                 {isVideo ? "Channel" : "Source"}
                 <input
                   type="text"
-                  value={isVideo ? formValues.channel || "" : formValues.source || ""}
+                  value={
+                    isVideo
+                      ? formValues.channel || ""
+                      : formValues.source || ""
+                  }
                   onChange={handleChange(isVideo ? "channel" : "source")}
                   required
                 />
               </label>
 
-              <label className="mp-admin-label">
-                Date
-                <input type="text" value={formValues.date || ""} onChange={handleChange("date")} placeholder="June 1, 2026" />
-              </label>
-
               {isVideo && (
-                <>
-                  <label className="mp-admin-label">
-                    Duration
-                    <input type="text" value={formValues.duration || ""} onChange={handleChange("duration")} placeholder="12:34" />
-                  </label>
-                  <label className="mp-admin-label">
-                    Channel Tag
-                    <input type="text" value={formValues.channelTag || ""} onChange={handleChange("channelTag")} placeholder="DD NEWS" />
-                  </label>
-                </>
+                <label className="mp-admin-label">
+                  Channel Tag
+                  <input
+                    type="text"
+                    value={formValues.channelTag || ""}
+                    onChange={handleChange("channelTag")}
+                    placeholder="DD NEWS"
+                  />
+                </label>
               )}
 
-              <label className="mp-admin-label">
-                {isVideo ? "Thumbnail URL" : "Image URL"}
-                <input
-                  type="text"
-                  value={formValues.image || ""}
-                  onChange={(e) => setFormValues((prev) => ({ ...prev, image: e.target.value, thumb: e.target.value }))}
-                  placeholder="https://..."
-                />
-              </label>
+              {/* Date, Duration, Thumbnail URL, Image URL removed from UI as per your request */}
 
               <label className="mp-admin-label">
                 {isVideo ? "YouTube / Shorts URL" : "Article Link"}
-                <input type="text" value={formValues.link || ""} onChange={handleChange("link")} placeholder="https://youtube.com/..." />
+                <input
+                  type="text"
+                  value={formValues.link || ""}
+                  onChange={handleChange("link")}
+                  placeholder={
+                    isVideo ? "https://youtube.com/..." : "https://..."
+                  }
+                />
               </label>
 
               <label className="mp-admin-label">
                 {isVideo ? "Description" : "Summary"}
                 <textarea
                   value={formValues.summary || ""}
-                  onChange={(e) => setFormValues((prev) => ({ ...prev, summary: e.target.value, desc: e.target.value }))}
+                  onChange={(e) =>
+                    setFormValues((prev) => ({
+                      ...prev,
+                      summary: e.target.value,
+                      desc: e.target.value,
+                    }))
+                  }
                   rows={3}
                 />
-              </label>
-            </>
-          )}
-
-          {isLogo && (
-            <>
-              <label className="mp-admin-label">
-                Logo Name
-                <input type="text" value={formValues.name || formValues.title || ""} onChange={handleChange("name")} required />
-              </label>
-              <label className="mp-admin-label">
-                Logo Image URL
-                <input type="text" value={formValues.image || formValues.icon || ""} onChange={handleChange("image")} placeholder="https://..." />
-              </label>
-              <label className="mp-admin-label">
-                Website Link
-                <input type="text" value={formValues.link || ""} onChange={handleChange("link")} placeholder="https://..." />
               </label>
             </>
           )}
@@ -709,16 +768,28 @@ function MediaPressAdminForm({ type, initialData, onCancel, onSubmit }) {
             <input
               type="checkbox"
               checked={formValues.active ?? true}
-              onChange={(e) => setFormValues((prev) => ({ ...prev, active: e.target.checked }))}
+              onChange={(e) =>
+                setFormValues((prev) => ({
+                  ...prev,
+                  active: e.target.checked,
+                }))
+              }
               className="mp-admin-checkbox"
             />
           </label>
 
           <div className="mp-admin-form-actions">
-            <button type="button" className="mp-admin-form-btn secondary" onClick={onCancel}>
+            <button
+              type="button"
+              className="mp-admin-form-btn secondary"
+              onClick={onCancel}
+            >
               {text.cancel}
             </button>
-            <button type="submit" className="mp-admin-form-btn primary">
+            <button
+              type="submit"
+              className="mp-admin-form-btn primary"
+            >
               {text.save}
             </button>
           </div>
