@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./mediapress-admin.css";
 
-const API_BASE = "http://smartgaonadmin.duckdns.org:9090/api/admin/media-gallery";
+const API_BASE = "http://smartgaonadmin.duckdns.org/api/admin/media-gallery";
 
 const text = {
   title: "Media & Press",
