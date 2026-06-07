@@ -17,6 +17,7 @@ import DonationAdmin from "./pages/donation/DonationAdmin";
 import NcertMain from "./pages/shikshasahayak/Shikshsahayak";
 import SevaBazarAdmin from "./pages/sevabazar/SevaBazarAdmin";
 import GaonSathiManager from "./pages/gaon-sathi/GaonSathiManager";
+import MediaPressAdminPage from "./pages/media_press/media_press";
 
 import "./App.css";
 import ProfilePage from "./components/profilepage";
@@ -122,6 +123,14 @@ function App() {
             }
           />
 
+          {/* MEDIA & PRESS */}
+          <Route
+            path="/media_press"
+            element={
+              isLoggedIn ? <MediaPressAdminPage /> : <Navigate to="/login" />
+            }
+          />
+
 <Route
   path="/profilepage"
   element={isLoggedIn ? <ProfilePage /> : <Navigate to="/login" />}
@@ -135,8 +144,6 @@ function App() {
   <Route path="competition" element={<ImpactPage />} />
   <Route path="engagement" element={<InsightsPage />} />
 </Route>
-
-<Route path="/users" element={<UserManagement />} />
         </Routes>
       </main>
     </Router>

@@ -17,19 +17,7 @@ export default function DevelopmentMain() {
           marginBottom: "30px"
         }}
       >
-        <button
-          onClick={() => setActiveTab("create")}
-          style={{
-            padding: "10px 20px",
-            background: activeTab === "create" ? "#2c3e50" : "#ccc",
-            color: activeTab === "create" ? "white" : "black",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer"
-          }}
-        >
-          Create Project
-        </button>
+
 
         {/* <button
           onClick={() => setActiveTab("list")}
