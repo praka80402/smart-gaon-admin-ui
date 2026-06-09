@@ -39,29 +39,22 @@
 
 /* TAB CARD */
 .dashboard-tab{
-  min-width:340px;
-  width:420px;
-
+  min-width:260px;
+  width:280px;
   position:relative;
   overflow:hidden;
-
   display:flex;
   align-items:center;
-
-  padding:22px;
-
+  padding:18px;
   border-radius:26px;
-
   text-decoration:none;
-
   background:white;
-
   border:none;
-
   box-shadow:0 6px 18px rgba(0,0,0,0.06);
-
   transition:0.28s ease;
   cursor:pointer;
+  justify-content:center;
+  flex-wrap:wrap;
 }
 
 /* ACTIVE TAB */

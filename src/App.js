@@ -19,6 +19,9 @@ import SevaBazarAdmin from "./pages/sevabazar/SevaBazarAdmin";
 import GaonSathiManager from "./pages/gaon-sathi/GaonSathiManager";
 import MediaPressAdminPage from "./pages/media_press/media_press";
 
+import BannerManagement from "./pages/dashboard/management/banner/BannerManagement";
+import EventManagement from "./pages/dashboard/management/event/EventManagement";
+
 import "./App.css";
 import ProfilePage from "./components/profilepage";
 
@@ -140,10 +143,18 @@ function App() {
   path="/dashboard/management"
   element={isLoggedIn ? <DashboardManagement /> : <Navigate to="/login" />}
 >
-  <Route index element={<Navigate to="competition" />} />
-  <Route path="competition" element={<ImpactPage />} />
-  <Route path="engagement" element={<InsightsPage />} />
+  <Route index element={<Navigate to="banner" />} />
+
+  <Route path="banner" element={<BannerManagement />} />
+
+  <Route path="event" element={<EventManagement />} />
+
+  <Route path="impact" element={<ImpactPage />} />
+
+  <Route path="insight" element={<InsightsPage />} />
+
 </Route>
+
         </Routes>
       </main>
     </Router>
