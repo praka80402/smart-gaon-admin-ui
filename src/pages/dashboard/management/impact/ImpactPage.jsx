@@ -95,6 +95,7 @@ const ImpactPage = () => {
 
   return (
     <div className="impact-container">
+      <h2>Gaon Talent Competition</h2>
 
       <div className="impact-main-card">
 
@@ -113,30 +114,30 @@ const ImpactPage = () => {
           </div>
         </div>
 
-        {/* 🔹 ADD BUTTON */}
-        <div className="table-actions">
-          <button
-            className="add-btn"
-            onClick={() => {
-              setStateName("");
-              setCount("");
-              setEditId(null);
-              setIsModalOpen(true);
-            }}
-          >
-            + Add State
-          </button>
-        </div>
+       {/* 🔹 TOP ACTIONS */}
+<div className="table-header-actions">
 
-        {/* 🔹 SEARCH */}
-        <div className="table-top">
-          <input
-            type="text"
-            placeholder="Search state..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+  <button
+    className="add-btn"
+    onClick={() => {
+      setStateName("");
+      setCount("");
+      setEditId(null);
+      setIsModalOpen(true);
+    }}
+  >
+    + Add State
+  </button>
+
+  <input
+    type="text"
+    placeholder="Search state..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="search-input"
+  />
+
+</div>
 
         {/* 🔹 TABLE */}
         {loading ? (
