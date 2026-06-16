@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import GaonSathiGallery from "./gaonsathiAvatar";
 import GaonSathiQA from "./GaonSathiQA";
+import NavigationTab from "./NavigationTab";
 import "./gaonsathi.css";
-function GaonSathiManager() {
 
+function GaonSathiManager() {
   const [activeTab, setActiveTab] = useState("gallery");
 
   return (
@@ -23,11 +24,19 @@ function GaonSathiManager() {
         >
           Question & Answer Upload
         </button>
+
+        <button
+          className={activeTab === "navigation" ? "active" : ""}
+          onClick={() => setActiveTab("navigation")}
+        >
+          Navigation
+        </button>
       </div>
 
       <div className="tab-content">
         {activeTab === "gallery" && <GaonSathiGallery />}
         {activeTab === "qa" && <GaonSathiQA />}
+        {activeTab === "navigation" && <NavigationTab />}
       </div>
 
     </div>
