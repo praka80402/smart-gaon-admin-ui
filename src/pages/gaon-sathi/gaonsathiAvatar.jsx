@@ -1,9 +1,8 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../gaonconnect/services/apiConfig";
 import "./gaonsathi.css";
 
 function GaonSathiGallery() {
-
   const [images, setImages] = useState([]);
   const [file, setFile] = useState(null);
 
@@ -12,8 +11,15 @@ function GaonSathiGallery() {
   }, []);
 
   const fetchImages = async () => {
-    const res = await api.get("/admin/gaon-sathi/images");
-    setImages(res.data);
+    try {
+      const res = await api.get(
+        "/admin/gaon-sathi/images"
+      );
+
+      setImages(res.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleFileChange = (e) => {
@@ -21,44 +27,81 @@ function GaonSathiGallery() {
   };
 
   const uploadImage = async () => {
-
     if (!file) {
-      alert("Please select an image");
+      alert("Please select image");
       return;
     }
 
     const formData = new FormData();
     formData.append("image", file);
 
-    await api.post("/admin/gaon-sathi/upload", formData, {
-      headers: { "Content-Type": "multipart/form-data" }
-    });
+    try {
+      await api.post(
+        "/admin/gaon-sathi/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type":
+              "multipart/form-data",
+          },
+        }
+      );
 
-    setFile(null);
-    fetchImages();
+      setFile(null);
+      fetchImages();
+
+      alert(
+        "Image uploaded successfully"
+      );
+    } catch (error) {
+      console.log(error);
+      alert("Upload failed");
+    }
   };
 
   return (
     <div className="gallery-container">
+      <h2 className="page-title">
+        Gaon Sathi Avatar Selection
+      </h2>
 
-      <h2 className="page-title">Gaon Sathi Avatar Selection</h2>
-
+      {/* Upload Section */}
       <div className="upload-box">
-        <input type="file" onChange={handleFileChange} />
-        <button onClick={uploadImage}>Upload</button>
+        <input
+          type="file"
+          onChange={handleFileChange}
+        />
+
+        <button onClick={uploadImage}>
+          Upload
+        </button>
       </div>
 
-      <h3 className="list-title">Image List</h3>
-
+      {/* Images */}
       <div className="image-grid">
-        {images.map((img) => (
-          <div key={img.id} className="image-card">
-            <img src={img.imageUrl} alt="avatar" />
-            
-          </div>
-        ))}
-      </div>
+        {images.length === 0 ? (
+          <p>No avatars found</p>
+        ) : (
+          images.map((img) => (
+            <div
+              key={img.id}
+              className="image-card"
+            >
+              <img
+                src={img.imageUrl}
+                alt="avatar"
+              />
 
+              <div className="image-info">
+                <h4>
+                  {img.name ||
+                    `Avatar ${img.id}`}
+                </h4>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
