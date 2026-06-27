@@ -98,7 +98,11 @@
 .stats-card:hover .stats-click {
   color: #ffffff;
 }
-
+.stats-card.color-7:hover {
+  background: linear-gradient(135deg, #f6ad55, #f5c58a);
+  color: #ffffff;
+  box-shadow: 0 18px 40px rgba(235, 202, 94, 0.45);
+}
 /* ── Typography ── */
 .stats-title {
   font-size: 20px;
