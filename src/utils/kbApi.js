@@ -6,7 +6,7 @@
  */
 import axios from 'axios';
 
-const TOKEN_KEY = 'token'; // ← change to your localStorage key, e.g. 'admin_token'
+const TOKEN_KEY = 'adminToken'; // ← change to your localStorage key, e.g. 'admin_token'
 const BASE_URL  = process.env.REACT_APP_API_URL || 'http://localhost:9090';
 
 const kbApi = axios.create({ baseURL: `${BASE_URL}/api/knowledge-bank`, timeout: 30000 });
