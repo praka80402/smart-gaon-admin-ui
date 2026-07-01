@@ -9,6 +9,7 @@ import Loader from "./Loader";
 import ImpactPage from "./pages/dashboard/management/impact/ImpactPage";
 import InsightsPage from "./pages/dashboard/management/insights/InsightsPage";
 import DashboardManagement from "./pages/dashboard/management/DashboardManagement";
+import KnowledgeBank from "./pages/kno-bank/KnowledgeBank";
 
 
 // ✅ ADD THESE IMPORTS
@@ -133,6 +134,12 @@ function App() {
               isLoggedIn ? <MediaPressAdminPage /> : <Navigate to="/login" />
             }
           />
+          <Route path="/admin" element={<Dashboard />} />
+ <Route 
+ path="/admin/KnowledgeBank" 
+ element={isLoggedIn ? <KnowledgeBank /> : <Navigate to="/login"/>} 
+ />
+
 
 <Route
   path="/profilepage"
