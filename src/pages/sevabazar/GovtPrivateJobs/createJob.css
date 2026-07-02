@@ -1,0 +1,105 @@
+.create-job-page {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+  background: #eef3ec;
+  min-height: 100vh;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* ================= GLOW BORDER (same as Job Admin) ================= */
+@keyframes glowRotate {
+  0% { --glow-angle: 0deg; }
+  100% { --glow-angle: 360deg; }
+}
+
+@property --glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.create-job-card {
+  position: relative;
+  width: 500px;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  z-index: 0;
+}
+
+.create-job-card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 16px;
+  padding: 2px;
+  background: conic-gradient(from var(--glow-angle), #3B6D11, #7ac142, #3B6D11, #1f4008, #3B6D11);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: glowRotate 4s linear infinite;
+  z-index: -1;
+}
+
+.create-job-title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.cj-label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: block;
+  color: #374151;
+}
+
+.cj-input,
+.cj-textarea,
+.cj-select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cj-input:focus,
+.cj-textarea:focus,
+.cj-select:focus {
+  outline: none;
+  border-color: #3B6D11;
+  box-shadow: 0 0 0 3px rgba(59, 109, 17, 0.15);
+}
+
+.cj-textarea {
+  height: 80px;
+  resize: vertical;
+}
+
+.cj-submit-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: linear-gradient(135deg, #3B6D11, #1f4008);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.cj-submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 10px 3px rgba(59, 109, 17, 0.5);
+}
