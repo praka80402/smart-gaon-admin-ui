@@ -68,6 +68,47 @@
   background: #d8d8d8;
 }
 
+.mp-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.mp-toolbar-search {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  background: #f9fafb;
+}
+.mp-toolbar-search:focus {
+  outline: none;
+  border-color: #3B6D11;
+}
+.mp-toolbar-filter {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  background: #f9fafb;
+  min-width: 160px;
+}
+.mp-toolbar-add-btn {
+  background: #3B6D11;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mp-toolbar-add-btn:hover {
+  background: #2d5309;
+}
+
 /* Sections */
 
 .mp-admin-section {
@@ -193,38 +234,42 @@
 
 /* Table layout */
 
-/* Table layout */
-
 .mp-admin-table {
   width: 100%;
-  overflow-x: auto;
-  border-collapse: collapse;
-  margin-top: 10px;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-/* Base header/row styles */
-.mp-admin-table-header,
-.mp-admin-table-row {
-  padding: 14px;
-  border-bottom: 1px solid #eee;
-  background: white;
-  min-width: 0;
+  overflow-x: visible;
+  margin-top: 4px;
+  background: transparent;
 }
 
 /* Header visual style */
 .mp-admin-table-header {
-  background: #f0f4f7;
-  font-size: 15px;
-  color: #34495e;
+  padding: 0 16px 10px;
+  min-width: 0;
+  background: transparent;
+  font-size: 13px;
+  color: #6b7280;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.mp-admin-card-row {
+  padding: 16px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  margin-bottom: 14px;
+  min-width: 0;
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.mp-admin-card-row:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
 }
 
 /* Press: 5 columns (Title, Source, Type, Status, Actions) */
 .mp-admin-table-header.press-header,
-.mp-admin-table-row.press-row {
+.mp-admin-card-row.press-row {
   display: grid;
   grid-template-columns: 3fr 1.5fr 1fr 1fr 2fr;
   align-items: center;
@@ -233,7 +278,7 @@
 
 /* Video: 4 columns (Title, Channel, Status, Actions) */
 .mp-admin-table-header.video-header,
-.mp-admin-table-row.video-row {
+.mp-admin-card-row.video-row {
   display: grid;
   grid-template-columns: 3fr 1.5fr 1fr 2fr;
   align-items: center;
@@ -241,7 +286,7 @@
 }
 
 /* Actions column: right align last cell */
-.mp-admin-table-row > div:last-child {
+.mp-admin-card-row > div:last-child {
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -262,12 +307,12 @@
   }
 
   .mp-admin-table-header.press-header,
-  .mp-admin-table-row.press-row {
+  .mp-admin-card-row.press-row {
     grid-template-columns: 2fr 1.4fr 1.2fr 1fr 1.5fr;
   }
 
   .mp-admin-table-header.video-header,
-  .mp-admin-table-row.video-row {
+  .mp-admin-card-row.video-row {
     grid-template-columns: 2fr 1.4fr 1fr 1.6fr;
   }
 }
@@ -427,13 +472,10 @@
   }
 
   .mp-admin-table-header,
-  .mp-admin-table-row {
+  .mp-admin-card-row {
     grid-template-columns: 2fr 1.4fr 1.2fr 1fr 1.5fr;
   }
 }
-/* ───────────────────────────────────────────────
-   New additions – API integration & enhancements
-─────────────────────────────────────────────── */
 
 /* Loading / Error states */
 
