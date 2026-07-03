@@ -10,9 +10,9 @@ import ImpactPage from "./pages/dashboard/management/impact/ImpactPage";
 import InsightsPage from "./pages/dashboard/management/insights/InsightsPage";
 import DashboardManagement from "./pages/dashboard/management/DashboardManagement";
 import KnowledgeBank from "./pages/kno-bank/KnowledgeBank";
-
-
-// ✅ ADD THESE IMPORTS
+import VillageList from "./pages/myvillage/VillageList";
+import CreateVillage from "./pages/myvillage/CreateVillage";
+import DevelopmentCatalogue from "./pages/myvillage/DevelopmentCatalogue";
 import UserManagement from "./pages/UserManagement";
 import DonationAdmin from "./pages/donation/DonationAdmin";
 import NcertMain from "./pages/shikshasahayak/Shikshsahayak";
@@ -145,7 +145,21 @@ function App() {
   path="/profilepage"
   element={isLoggedIn ? <ProfilePage /> : <Navigate to="/login" />}
 />
+{/* SMART GAON — VILLAGES */}
+<Route
+  path="/admin/villages"
+  element={isLoggedIn ? <VillageList /> : <Navigate to="/login" />}
+/>
 
+<Route
+  path="/admin/villages/create"
+  element={isLoggedIn ? <CreateVillage /> : <Navigate to="/login" />}
+/>
+
+<Route
+  path="/admin/developments"
+  element={isLoggedIn ? <DevelopmentCatalogue /> : <Navigate to="/login" />}
+/>
 <Route
   path="/dashboard/management"
   element={isLoggedIn ? <DashboardManagement /> : <Navigate to="/login" />}

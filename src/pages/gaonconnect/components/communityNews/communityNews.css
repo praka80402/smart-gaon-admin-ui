@@ -9,7 +9,10 @@
   font-family: "Inter", sans-serif;
 }
 
-
+.cn-modal {
+  max-height: 90vh;
+  overflow-y: auto;
+}
 /* -----------------------------------------------------
    TOP TABS (TEXT STYLE — NO BUTTON LOOK)
 ------------------------------------------------------ */
