@@ -12,23 +12,30 @@ role==="SUPER_ADMIN"||role==="STATE_ADMIN";
 const [type,setType]=useState("news");
 const [title,setTitle]=useState("");
 const [body,setBody]=useState("");
+
+const [startDate,setStartDate]=useState("");
+const [endDate,setEndDate]=useState("");
+
 const [images,setImages]=useState([]);
 const [video,setVideo]=useState(null);
 
 const resetForm=()=>{
 setTitle("");
 setBody("");
+setStartDate("");
+setEndDate("");
 setImages([]);
 setVideo(null);
 };
 
-const formatDate=()=>
-new Date().toISOString().slice(0,19);
+// datetime-local gives "2026-07-15T10:30" — add seconds for the backend
+const toDateTime=(v)=>
+v.length===16?`${v}:00`:v;
 
 const handleSubmit=async()=>{
 
 if(!canCreate){
-alert("You are not authorized to create posts.");
+alert("You are not authorized to create event.");
 return;
 }
 
@@ -37,9 +44,23 @@ alert("Required fields missing");
 return;
 }
 
-if(type==="event"&&images.length===0){
+if(type==="event"){
+
+if(!startDate||!endDate){
+alert("Select event start and end dates");
+return;
+}
+
+if(new Date(endDate)<new Date(startDate)){
+alert("End date cannot be before start date");
+return;
+}
+
+if(images.length===0){
 alert("Event requires at least 1 image");
 return;
+}
+
 }
 
 try{
@@ -66,8 +87,8 @@ await createEventWithMedia(
 {
 title,
 description:body,
-startDateTime:formatDate(),
-endDateTime:formatDate(),
+startDateTime:toDateTime(startDate),
+endDateTime:toDateTime(endDate),
 location:"Village",
 contactInfo:"Admin",
 },
@@ -82,7 +103,7 @@ resetForm();
 
 }catch(error){
 console.error(error);
-alert("Failed to create post");
+alert("Failed to create event");
 }
 };
 
@@ -177,6 +198,46 @@ onChange={(e)=>setBody(e.target.value)}
 />
 
 </div>
+
+{type==="event"&&(
+
+<div className="cn-field-grid">
+
+<div className="cn-field">
+
+<label>
+Start Date & Time
+</label>
+
+<input
+type="datetime-local"
+value={startDate}
+onChange={(e)=>
+setStartDate(e.target.value)
+}
+/>
+
+</div>
+
+<div className="cn-field">
+
+<label>
+End Date & Time
+</label>
+
+<input
+type="datetime-local"
+value={endDate}
+onChange={(e)=>
+setEndDate(e.target.value)
+}
+/>
+
+</div>
+
+</div>
+
+)}
 
 <div className="cn-upload-grid">
 

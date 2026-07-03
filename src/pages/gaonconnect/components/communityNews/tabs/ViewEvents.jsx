@@ -33,6 +33,22 @@ if (item?.imageUrl) return [item.imageUrl];
 return [];
 };
 
+// Format event date (single day or range), works with
+// startDate/endDate or startDateTime/endDateTime
+const formatEventDate = (item) => {
+const start = item?.startDate || item?.startDateTime;
+const end = item?.endDate || item?.endDateTime;
+if (!start) return null;
+
+const opts = { day: "numeric", month: "long", year: "numeric" };
+const s = new Date(start).toLocaleDateString("en-IN", opts);
+
+if (!end || end === start) return s;
+
+const e = new Date(end).toLocaleDateString("en-IN", opts);
+return e === s ? s : `${s} – ${e}`;
+};
+
 export default function ViewEvents(){
 
 const [items,setItems]=useState([]);
@@ -128,6 +144,14 @@ key={event.id}
 {event.title}
 </h3>
 
+{formatEventDate(event)&&(
+
+<p className="cn-event-date">
+📅 {formatEventDate(event)}
+</p>
+
+)}
+
 <p>
 {(
 event.description||""
@@ -141,7 +165,7 @@ event.description||""
 <div className="cn-news-actions">
 
 <button
-className="cn-view-btn"
+className="sg-btn sg-btn-ghost sg-btn-sm"
 onClick={()=>{
 setCurrentImageIndex(0);
 setViewItem(event);
@@ -151,7 +175,7 @@ View
 </button>
 
 <button
-className="cn-edit-btn"
+className="sg-btn sg-btn-ghost sg-btn-sm"
 onClick={()=>{
 setEditing(event);
 setEditVisible(true);
@@ -161,7 +185,7 @@ Edit
 </button>
 
 <button
-className="cn-delete-btn"
+className="sg-btn sg-btn-danger sg-btn-sm"
 onClick={async()=>{
 
 try{
@@ -306,6 +330,14 @@ setViewItem(null)
 <h2>
 {viewItem.title}
 </h2>
+
+{formatEventDate(viewItem)&&(
+
+<p className="cn-event-date">
+📅 {formatEventDate(viewItem)}
+</p>
+
+)}
 
 <p>
 {viewItem.description}
