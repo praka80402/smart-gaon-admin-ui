@@ -33,6 +33,8 @@ export default function ManageSyllabus() {
   const [alertType, setAlertType] = useState(""); // success | error | confirm
   const [confirmAction, setConfirmAction] = useState(null);
 
+  const selectedSubject = subjects.find(s => s.id == subjectId);
+
   /* Load Classes */
   useEffect(() => {
     getClasses().then(setClasses);
@@ -42,6 +44,10 @@ export default function ManageSyllabus() {
   useEffect(() => {
     if (classId) {
       getSubjects(classId).then(setSubjects);
+      setSubjectId("");
+      setChapters([]);
+    } else {
+      setSubjects([]);
       setSubjectId("");
       setChapters([]);
     }
@@ -71,22 +77,14 @@ export default function ManageSyllabus() {
 
   /* Delete Subject */
   const removeSubject = (id) => {
-
     showConfirm("Are you sure you want to delete this subject?", async () => {
-
       try {
-
         await deleteSubject(id);
-
         showAlert("Subject deleted successfully", "success");
-
         getSubjects(classId).then(setSubjects);
-
         setSubjectId("");
         setChapters([]);
-
       } catch (err) {
-
         showAlert("Cannot delete subject. Delete chapters first.", "error");
       }
     });
@@ -94,19 +92,12 @@ export default function ManageSyllabus() {
 
   /* Delete Chapter */
   const removeChapter = (id) => {
-
     showConfirm("Are you sure you want to delete this chapter?", async () => {
-
       try {
-
         await deleteChapter(id);
-
         showAlert("Chapter deleted successfully", "success");
-
         getChapters(subjectId).then(setChapters);
-
       } catch (err) {
-
         showAlert(
           err.message ||
           "If you want to delete, please delete URL first from NCERT syllabus list.",
@@ -118,7 +109,6 @@ export default function ManageSyllabus() {
 
   /* Open Edit Modal */
   const openEdit = (id, name, type) => {
-
     setEditId(id);
     setEditName(name);
     setEditType(type);
@@ -127,14 +117,12 @@ export default function ManageSyllabus() {
 
   /* Save Edit */
   const saveEdit = async () => {
-
     if (!editName.trim()) {
       showAlert("Name is required", "error");
       return;
     }
 
     try {
-
       if (editType === "subject") {
         await updateSubject(editId, editName);
         getSubjects(classId).then(setSubjects);
@@ -146,11 +134,9 @@ export default function ManageSyllabus() {
       }
 
       setShowModal(false);
-
       showAlert("Updated successfully", "success");
 
     } catch (err) {
-
       showAlert("Update failed", "error");
     }
   };
@@ -158,118 +144,150 @@ export default function ManageSyllabus() {
   return (
     <div className="syllabus-card">
 
-      <h3>Manage Subjects & Chapters</h3>
+      {/* ================= HEADER ================= */}
+      <div className="syllabus-header">
+        <h3>Manage Subjects &amp; Chapters</h3>
 
-      {/* ================= CLASS ================= */}
-      <select
-        onChange={e => {
-          setClassId(e.target.value);
-          setSubjectId("");
-          setChapters([]);
-        }}
-      >
-        <option value="">Select Class</option>
-
-        {classes.map(c => (
-          <option key={c.id} value={c.id}>
-            Class {c.classNumber}
-          </option>
-        ))}
-      </select>
-
-      {/* ================= SUBJECTS ================= */}
-      <h4>Subjects</h4>
-
-      {subjects.length === 0 && (
-        <p>No Subjects Found</p>
-      )}
-
-      {subjects.map(s => (
-
-        <div
-          key={s.id}
-          className={`syllabus-row ${subjectId == s.id ? "syllabus-active" : ""}`}
-          onClick={() => setSubjectId(s.id)}
+        <select
+          className="syllabus-class-select"
+          value={classId}
+          onChange={e => setClassId(e.target.value)}
         >
+          <option value="">Select Class</option>
 
-          <span>{s.name}</span>
+          {classes.map(c => (
+            <option key={c.id} value={c.id}>
+              Class {c.classNumber}
+            </option>
+          ))}
+        </select>
+      </div>
 
-          <div>
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                openEdit(s.id, s.name, "subject");
-              }}
-            >
-              Edit
-            </button>
-
-            <button
-              className="syllabus-delete"
-              onClick={(e) => {
-                e.stopPropagation();
-                removeSubject(s.id);
-              }}
-            >
-              Delete
-            </button>
-
-          </div>
-
+      {/* ================= EMPTY STATE (no class) ================= */}
+      {!classId && (
+        <div className="syllabus-empty-state">
+          <span className="syllabus-empty-icon">📚</span>
+          <p>Select a class to manage its subjects and chapters</p>
         </div>
-      ))}
-
-      {/* ================= CHAPTERS ================= */}
-      {subjectId && <h4>Chapters</h4>}
-
-      {subjectId && chapters.length === 0 && (
-        <p>No Chapters Found</p>
       )}
 
-      {chapters.map(c => (
+      {/* ================= TWO PANELS ================= */}
+      {classId && (
+        <div className="syllabus-panels">
 
-        <div key={c.id} className="syllabus-row">
+          {/* -------- SUBJECTS PANEL -------- */}
+          <div className="syllabus-panel">
+            <div className="syllabus-panel-title">
+              <span>Subjects</span>
+              <span className="syllabus-count">{subjects.length}</span>
+            </div>
 
-          <span>{c.name}</span>
+            {subjects.length === 0 && (
+              <p className="syllabus-empty">No Subjects Found</p>
+            )}
 
-          <div>
+            {subjects.map(s => (
+              <div
+                key={s.id}
+                className={`syllabus-row ${subjectId == s.id ? "syllabus-active" : ""}`}
+                onClick={() => setSubjectId(s.id)}
+              >
+                <span className="syllabus-row-name">{s.name}</span>
 
-            <button
-              onClick={() => openEdit(c.id, c.name, "chapter")}
-            >
-              Edit
-            </button>
+                <div className="syllabus-row-actions">
+                  <button
+                    className="syllabus-edit"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openEdit(s.id, s.name, "subject");
+                    }}
+                  >
+                    Edit
+                  </button>
 
-            <button
-              className="syllabus-delete"
-              onClick={() => removeChapter(c.id)}
-            >
-              Delete
-            </button>
+                  <button
+                    className="syllabus-delete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeSubject(s.id);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
 
+          {/* -------- CHAPTERS PANEL -------- */}
+          <div className="syllabus-panel">
+            <div className="syllabus-panel-title">
+              <span>
+                Chapters
+                {selectedSubject && (
+                  <span className="syllabus-subject-tag">
+                    {selectedSubject.name}
+                  </span>
+                )}
+              </span>
+              {subjectId && (
+                <span className="syllabus-count">{chapters.length}</span>
+              )}
+            </div>
+
+            {!subjectId && (
+              <p className="syllabus-empty">
+                Select a subject to view its chapters
+              </p>
+            )}
+
+            {subjectId && chapters.length === 0 && (
+              <p className="syllabus-empty">No Chapters Found</p>
+            )}
+
+            {chapters.map(c => (
+              <div key={c.id} className="syllabus-row syllabus-row-static">
+                <span className="syllabus-row-name">{c.name}</span>
+
+                <div className="syllabus-row-actions">
+                  <button
+                    className="syllabus-edit"
+                    onClick={() => openEdit(c.id, c.name, "chapter")}
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    className="syllabus-delete"
+                    onClick={() => removeChapter(c.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
 
         </div>
-      ))}
+      )}
 
       {/* ================= EDIT MODAL ================= */}
       {showModal && (
-
         <div className="syllabus-modal-bg">
-
           <div className="syllabus-modal">
 
-            <h3>Edit {editType}</h3>
+            <h3 className="syllabus-modal-title">
+              Edit {editType === "subject" ? "Subject" : "Chapter"}
+            </h3>
 
             <input
               value={editName}
               onChange={e => setEditName(e.target.value)}
               placeholder="Enter name"
+              autoFocus
             />
 
             <div className="syllabus-modal-actions">
-
               <button onClick={saveEdit}>
                 Save
               </button>
@@ -280,31 +298,29 @@ export default function ManageSyllabus() {
               >
                 Cancel
               </button>
-
             </div>
 
           </div>
-
         </div>
       )}
 
       {/* ================= ALERT MODAL ================= */}
       {alertOpen && (
-
         <div className="syllabus-modal-bg">
-
           <div className="syllabus-modal">
 
-            <h3>
-              {alertType === "success" && "Success"}
-              {alertType === "error" && "Error"}
+            <h3 className={`syllabus-modal-title ${
+              alertType === "success" ? "syllabus-modal-success" :
+              alertType === "error" ? "syllabus-modal-error" : ""
+            }`}>
+              {alertType === "success" && "✓ Success"}
+              {alertType === "error" && "✕ Error"}
               {alertType === "confirm" && "Confirm"}
             </h3>
 
-            <p style={{ margin: "15px 0" }}>{alertMsg}</p>
+            <p className="syllabus-modal-msg">{alertMsg}</p>
 
             <div className="syllabus-modal-actions">
-
               {alertType === "confirm" ? (
                 <>
                   <button
@@ -324,17 +340,13 @@ export default function ManageSyllabus() {
                   </button>
                 </>
               ) : (
-                <button
-                  onClick={() => setAlertOpen(false)}
-                >
+                <button onClick={() => setAlertOpen(false)}>
                   OK
                 </button>
               )}
-
             </div>
 
           </div>
-
         </div>
       )}
 

@@ -193,7 +193,8 @@ export default function MediaPressAdminPage() {
   const [searchTitle, setSearchTitle] = useState("");
   const [mediaTypeFilter, setMediaTypeFilter] = useState(""); // IMAGE / VIDEO / YOUTUBE
   const [categoryFilter, setCategoryFilter] = useState(""); // e.g., "Video"
-
+  const [tableSearch, setTableSearch] = useState("");
+  const [typeFilterUI, setTypeFilterUI] = useState("all");
   // Decide category by tab (for admin & public)
   const getCategoryByTab = (tab) => {
     if (tab === "press") return "press";
@@ -332,6 +333,14 @@ export default function MediaPressAdminPage() {
     }
   };
 
+  const filteredItems = items.filter((item) => {
+  const matchesSearch =
+    tableSearch.trim() === "" ||
+    (item.title || "").toLowerCase().includes(tableSearch.toLowerCase());
+  const matchesType = typeFilterUI === "all" || item.type === typeFilterUI;
+  return matchesSearch && matchesType;
+  });
+
   return (
     <div className="mp-admin-wrapper">
       <div className="mp-admin-container">
@@ -357,6 +366,30 @@ export default function MediaPressAdminPage() {
           ))}
         </div>
 
+        <div className="mp-toolbar">
+    <input
+    type="text"
+    className="mp-toolbar-search"
+    placeholder={activeTab === "press" ? "Search press articles..." : "Search videos..."}
+    value={tableSearch}
+    onChange={(e) => setTableSearch(e.target.value)}
+  />
+  {activeTab === "press" && (
+    <select
+      className="mp-toolbar-filter"
+      value={typeFilterUI}
+      onChange={(e) => setTypeFilterUI(e.target.value)}
+    >
+      <option value="all">All Types</option>
+      <option value="newspaper">Newspaper</option>
+      <option value="magazine">Magazine</option>
+    </select>
+  )}
+  <button type="button" className="mp-toolbar-add-btn" onClick={openAddForm}>
+    + {activeTab === "press" ? "Add Article" : "Add Video"}
+  </button>
+  </div>
+
         {error && <div className="mp-admin-error">{error}</div>}
 
         {loading ? (
@@ -369,11 +402,11 @@ export default function MediaPressAdminPage() {
     title={text.press}
     columns={["Title", "Source", "Type", "Status", "Actions"]}
     emptyText="No press articles added yet."
-    items={items}
+   items={filteredItems}
     onAdd={openAddForm}
     headerClassName="press-header"
     renderRow={(item) => (
-      <div key={item.id} className="mp-admin-table-row press-row">
+      <div key={item.id} className="mp-admin-card-row press-row">
         <div className="mp-admin-cell-truncate">{item.title}</div>
         <div>{item.source}</div>
         <div>{item.type}</div>
@@ -395,11 +428,11 @@ export default function MediaPressAdminPage() {
     title={text.videoCoverage}
     columns={["Title", "Channel", "Status", "Actions"]}
     emptyText="No video coverage added yet."
-    items={items}
+   items={filteredItems}
     onAdd={openAddForm}
     headerClassName="video-header"
     renderRow={(item) => (
-      <div key={item.id} className="mp-admin-table-row video-row">
+      <div key={item.id} className="mp-admin-card-row video-row">
         <div className="mp-admin-cell-truncate">{item.title}</div>
         <div>{item.channel}</div>
         <div><ActiveBadge active={item.active} /></div>
@@ -450,25 +483,20 @@ function ActiveBadge({ active }) {
 
 // ─── AdminTable ────────────────────────────────────────────────────────────────
 
-function AdminTable({ title, columns, emptyText, items, onAdd, renderRow, tableClassName, headerClassName }) {
+function AdminTable({ columns, emptyText, items, renderRow, headerClassName }) {
   return (
     <section className="mp-admin-section">
-      <div className="mp-admin-section-header">
-        <h2>{title}</h2>
-        <button type="button" className="mp-admin-add-btn" onClick={onAdd}>
-          {text.add}
-        </button>
+      <div className={`mp-admin-table-header ${headerClassName || ""}`}>
+        {columns.map((col) => <div key={col}>{col}</div>)}
       </div>
-      <div className={tableClassName || "mp-admin-table"}>
-        <div className={`mp-admin-table-header ${headerClassName || ""}`}>
-          {columns.map((col) => <div key={col}>{col}</div>)}
-        </div>
+      <div className="mp-admin-table">
         {items.map(renderRow)}
         {items.length === 0 && <div className="mp-admin-empty-row">{emptyText}</div>}
       </div>
     </section>
   );
 }
+
 
 // ─── ActionButtons ─────────────────────────────────────────────────────────────
 

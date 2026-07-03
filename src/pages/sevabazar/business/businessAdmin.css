@@ -1,182 +1,352 @@
-/* ── Container ── */
 .job-admin-container {
-  padding: 24px;
-  font-family: 'Inter', sans-serif;
+  padding: 20px;
+  background: #eef3ec;
+  min-height: 100vh;
 }
 
 .job-admin-container h2 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1a1a2e;
-  margin-bottom: 16px;
+  margin-bottom: 15px;
+  color: #1f2937;
 }
 
-/* ── Table ── */
-.job-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 12px;
+/* ================= LIST HEADER ================= */
+.job-list-header {
+  display: grid;
+  grid-template-columns: 90px 220px 130px 1fr 100px 100px 90px 220px;
+  padding: 0 20px;
+  margin-bottom: 10px;
   font-size: 13px;
-}
-
-.job-table th,
-.job-table td {
-  border: 1px solid #e2e8f0;
-  padding: 10px 12px;
-  text-align: center;
-  vertical-align: middle;
-  white-space: nowrap;
-}
-
-.job-table th {
-  background: #1a5c2a;
-  color: #ffffff;
   font-weight: 600;
-  font-size: 13px;
-  letter-spacing: 0.3px;
+  color: #6b7280;
 }
 
-.job-table tbody tr:nth-child(even) {
-  background: #f8fafc;
+.job-empty {
+  text-align: center;
+  padding: 30px;
+  color: #6b7280;
+  background: white;
+  border-radius: 14px;
 }
 
-.job-table tbody tr:hover {
-  background: #f0fdf4;
+/* ================= CARD LIST ================= */
+.job-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.job-table td {
+.job-card {
+  display: grid;
+  grid-template-columns: 90px 220px 130px 1fr 100px 100px 90px 220px;
+  align-items: center;
+  background: white;
+  border-radius: 14px;
+  padding: 26px 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.job-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1.5px #3B6D11, 0 4px 14px rgba(59, 109, 17, 0.25);
+}
+
+.job-col {
+  display: flex;
+  align-items: center;
+  padding-right: 8px;
+  font-size: 14px;
   color: #374151;
 }
 
-/* ── Buttons ── */
-.delete-btn,
-.view-btn {
+/* ✅ Status pill */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 5px 12px;
-  border: none;
-  border-radius: 6px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.status-pill.open {
+  background: #EAF3DE;
+  color: #3B6D11;
+}
+.status-pill.closed {
+  background: #FCEBEB;
+  color: #A32D2D;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ✅ Business details column */
+.job-col-details {
+  gap: 12px;
+}
+
+.job-icon-avatar {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: #EEEDFE;
+}
+
+.job-title {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.3;
+}
+
+.job-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #EEEDFE;
+  color: #534AB7;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+/* ✅ Created-at column */
+.job-col-timeline {
+  gap: 8px;
+  font-size: 12px;
+  color: #374151;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.timeline-icon {
+  font-size: 14px;
+}
+
+.timeline-label {
+  font-size: 10px;
+  color: #9ca3af;
+  text-transform: uppercase;
+}
+
+.timeline-end {
+  font-weight: 700;
+}
+
+/* ✅ Description column */
+.job-col-desc {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* ✅ Location pill */
+.location-pill {
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: #E6F1FB;
+  color: #185FA5;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ✅ Reports pill */
+.reports-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: #f1efe8;
+  color: #444441;
   font-size: 12px;
   font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s;
 }
 
+.reports-icon {
+  font-size: 12px;
+}
+
+/* ✅ Actions column */
+.job-col-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  background: #f8f9fb;
+  border: 1.5px solid #2E86FF;
+  border-radius: 12px;
+  padding: 8px;
+  
+}
+
+.detail-btn,
+.view-btn,
 .delete-btn {
-  background: #ef4444;
-  color: #ffffff;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  box-sizing: border-box;
+  border: none;
+  padding: 0 12px !important;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: white;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease;
 }
 
-.delete-btn:hover {
-  background: #dc2626;
+.detail-btn  { background: #185FA5; }
+.detail-btn:hover  {
+  background: #0C447C;
+  transform: translateY(-1px);
+  box-shadow: 0 0 8px 2px rgba(24, 95, 165, 0.5);
 }
 
-.view-btn {
-  background: #3b82f6;
-  color: #ffffff;
+.view-btn    { background: #17a2b8; }
+.view-btn:hover    {
+  background: #138496;
+  transform: translateY(-1px);
+  box-shadow: 0 0 8px 2px rgba(23, 162, 184, 0.6);
 }
 
-.view-btn:hover {
-  background: #2563eb;
+.delete-btn  { background: #dc3545; }
+.delete-btn:hover  {
+  background: #b02a37;
+  transform: translateY(-1px);
+  box-shadow: 0 0 8px 2px rgba(220, 53, 69, 0.6);
 }
 
-/* ── Pagination ── */
+/* ================= PAGINATION ================= */
 .pagination {
   margin-top: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
+  gap: 15px;
 }
-
 .pagination button {
-  padding: 7px 18px;
-  background: #1a5c2a;
-  color: #ffffff;
+  padding: 6px 16px;
+  background: #185FA5;
+  color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s;
 }
-
-.pagination button:hover:not(:disabled) {
-  background: #145222;
-}
-
 .pagination button:disabled {
-  background: #d1d5db;
-  color: #9ca3af;
+  background: #ccc;
   cursor: not-allowed;
 }
 
-.pagination span {
-  font-size: 13px;
-  color: #4b5563;
-  font-weight: 500;
+/* ================= GRADIENT GLOW BORDER EFFECT ================= */
+@keyframes glowRotate {
+  0% { --glow-angle: 0deg; }
+  100% { --glow-angle: 360deg; }
 }
 
-/* ── Modal Overlay ── */
+@property --glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* ================= MODAL ================= */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(3px);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 1000;
-  padding: 16px;
 }
 
-/* ── Modal Content ── */
 .modal-content {
   position: relative;
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 28px 24px 24px;
-  width: 100%;
-  max-width: 680px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  background: white;
+  padding: 30px 20px 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 95vh;
+  overflow: hidden !important;
+  box-sizing: border-box;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 0;
+}
+
+.modal-content::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 12px;
+  padding: 2px;
+  background: conic-gradient(from var(--glow-angle), #3B6D11, #7ac142, #3B6D11, #1f4008, #3B6D11);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: glowRotate 4s linear infinite;
+  z-index: -1;
 }
 
 .modal-content h3 {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1a1a2e;
-  margin-bottom: 16px;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
-/* ── Close Button ── */
 .close-btn {
   position: absolute;
-  top: 14px;
-  right: 14px;
-  background: transparent;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  width: 30px;
-  height: 30px;
+  top: 10px;
+  right: 10px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
   font-size: 14px;
-  color: #6b7280;
+  font-weight: bold;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
+}
+.close-btn:hover { background: #b02a37; }
+
+/* ================= JOB TABLE (used in Reports modal) ================= */
+.job-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
 }
 
-.close-btn:hover {
-  background: #fee2e2;
-  border-color: #ef4444;
-  color: #ef4444;
-}
-
-/* ── Loading ── */
-.job-admin-container > p {
+.job-table th,
+.job-table td {
+  border: 1px solid #ddd;
+  padding: 8px 10px;
   text-align: center;
-  color: #6b7280;
-  font-size: 14px;
-  margin: 20px 0;
+  font-size: 13px;
+}
+
+.job-table th {
+  background: #007bff;
+  color: white;
 }

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { createJob } from "./jobApi";
+import "./createJob.css";
 
 const CreateJob = () => {
 
@@ -42,66 +43,47 @@ const CreateJob = () => {
   };
 
   return (
-    <div style={{
-      display: "flex",
-      justifyContent: "center",
-      padding: "40px",
-      background: "#eef2f7",
-      minHeight: "100vh"
-    }}>
-
-      <div style={{
-        width: "500px",
-        background: "#ffffff",
-        padding: "25px",
-        borderRadius: "12px",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.1)"
-      }}>
-
-        <h3 style={{
-          textAlign: "center",
-          marginBottom: "20px"
-        }}>
-          Create Job
-        </h3>
+    <div className="create-job-page">
+      <div className="create-job-card">
+        <h3 className="create-job-title">Create Job</h3>
 
         {/* Title */}
-        <label style={labelStyle}>Job Title</label>
+        <label className="cj-label">Job Title</label>
         <input
           name="title"
           value={job.title}
           placeholder="Enter job title"
           onChange={handleChange}
-          style={inputStyle}
+          className="cj-input"
         />
 
         {/* Description */}
-        <label style={labelStyle}>Description</label>
+        <label className="cj-label">Description</label>
         <textarea
           name="description"
           value={job.description}
           placeholder="Enter job description"
           onChange={handleChange}
-          style={{ ...inputStyle, height: "80px" }}
+          className="cj-textarea"
         />
 
         {/* URL */}
-        <label style={labelStyle}>Apply URL</label>
+        <label className="cj-label">Apply URL</label>
         <input
           name="applyUrl"
           value={job.applyUrl}
           placeholder="Enter apply link"
           onChange={handleChange}
-          style={inputStyle}
+          className="cj-input"
         />
 
         {/* Dropdown */}
-        <label style={labelStyle}>Job Type</label>
+        <label className="cj-label">Job Type</label>
         <select
           name="jobType"
           value={job.jobType}
           onChange={handleChange}
-          style={inputStyle}
+          className="cj-select"
         >
           <option value="">Select Job Type</option>
           <option value="GOVT">Government</option>
@@ -111,65 +93,35 @@ const CreateJob = () => {
         {/* Company */}
         {job.jobType === "PRIVATE" && (
           <>
-            <label style={labelStyle}>Company Name</label>
+            <label className="cj-label">Company Name</label>
             <input
               name="companyName"
               value={job.companyName}
               placeholder="Enter company name"
               onChange={handleChange}
-              style={inputStyle}
+              className="cj-input"
             />
           </>
         )}
 
         {/* Location */}
-        <label style={labelStyle}>Location</label>
+        <label className="cj-label">Location</label>
         <input
           name="location"
           value={job.location}
           placeholder="Enter location"
           onChange={handleChange}
-          style={inputStyle}
+          className="cj-input"
         />
 
         {/* Button */}
-        <button
-          onClick={handleSubmit}
-          style={{
-            width: "100%",
-            padding: "12px",
-            marginTop: "10px",
-            background: "linear-gradient(135deg, #007bff, #0056d2)",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "600",
-            fontSize: "15px"
-          }}
-        >
+        <button onClick={handleSubmit} className="cj-submit-btn">
           Submit
         </button>
 
       </div>
     </div>
   );
-};
-
-const labelStyle = {
-  fontSize: "14px",
-  fontWeight: "500",
-  marginBottom: "5px",
-  display: "block"
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "10px",
-  marginBottom: "12px",
-  borderRadius: "6px",
-  border: "1px solid #ccc",
-  fontSize: "14px"
 };
 
 export default CreateJob;

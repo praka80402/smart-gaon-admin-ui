@@ -1,361 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-// import "./jobAdmin.css";
-
-//  const BASE_URL = "https://smartgaonadmin.duckdns.org/api/admin";
-// //const BASE_URL = "http://localhost:9090/api/admin";
-// const JobAdmin = () => {
-
-//   const role = localStorage.getItem("adminRole");
-//   const token = localStorage.getItem("adminToken");
-
-//   // ✅ Only SUPER + STATE can delete
-//   const canManage =
-//     role === "SUPER_ADMIN" || role === "STATE_ADMIN";
-
-//   const authHeader = {
-//     headers: {
-//       Authorization: "Bearer " + token,
-//     },
-//   };
-
-//   const [jobs, setJobs] = useState([]);
-//   const [page, setPage] = useState(0);
-//   const [size] = useState(5);
-//   const [totalPages, setTotalPages] = useState(0);
-//   const [loading, setLoading] = useState(false);
-
-//   const [showModal, setShowModal] = useState(false);
-//   const [reports, setReports] = useState([]);
-//   const [selectedJobId, setSelectedJobId] = useState(null);
-
-//   useEffect(() => {
-//     fetchJobs();
-//   }, [page]);
-
-//   // ================= FETCH JOBS =================
-//   const fetchJobs = async () => {
-
-//     setLoading(true);
-
-//     try {
-
-//       const res = await axios.get(
-//         `${BASE_URL}/jobs?page=${page}&size=${size}`,
-//         authHeader
-//       );
-
-//       const jobsData = res.data.content;
-
-//       const jobsWithCount = await Promise.all(
-//         jobsData.map(async (job) => {
-
-//           const countRes = await axios.get(
-//             `${BASE_URL}/jobs/${job.jobId}/reports/count`,
-//             authHeader
-//           );
-
-//           return {
-//             ...job,
-//             reportCount: countRes.data
-//           };
-//         })
-//       );
-
-//       setJobs(jobsWithCount);
-//       setTotalPages(res.data.totalPages);
-
-//     } catch (error) {
-//       console.error("Error loading jobs:", error);
-//       alert("Unauthorized or failed to load jobs");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   // ================= FETCH REPORTS =================
-//   const fetchReports = async (jobId) => {
-
-//     try {
-
-//       const res = await axios.get(
-//         `${BASE_URL}/jobs/${jobId}/reports?page=0&size=10`,
-//         authHeader
-//       );
-
-//       setReports(res.data.content);
-//       setSelectedJobId(jobId);
-//       setShowModal(true);
-
-//     } catch (error) {
-//       console.error("Report API Error:", error);
-//       alert("Failed to load reports");
-//     }
-//   };
-
-//   // ================= DELETE JOB =================
-//   const deleteJob = async (jobId) => {
-
-//     if (!canManage) return;
-
-//     if (!window.confirm("Are you sure you want to delete this job?")) {
-//       return;
-//     }
-
-//     try {
-
-//       await axios.delete(
-//         `${BASE_URL}/jobs/${jobId}`,
-//         authHeader
-//       );
-
-//       alert("Job deleted successfully");
-//       fetchJobs();
-
-//     } catch (error) {
-//       console.error("Delete error:", error);
-//       alert("Unauthorized or failed to delete job");
-//     }
-//   };
-
-//   return (
-
-//     <div className="job-admin-container">
-
-//       <h2>Job Management</h2>
-
-//       {loading && (
-//         <p style={{ textAlign: "center" }}>Loading...</p>
-//       )}
-
-//       <table className="job-table">
-
-//         {/* <thead>
-//           <tr>
-//             <th>S.No</th>
-//             <th>Title</th>
-//             <th>Employer</th>
-//             <th>Reports</th>
-//             {canManage && <th>Delete</th>}
-//             <th>Report</th>
-//           </tr>
-//         </thead> */}
-
-//         <thead>
-//   <tr>
-//     <th>ID</th>
-//     <th>Title</th>
-//     <th>Description</th>
-//     <th>Requirements</th>
-//     <th>Salary</th>
-//     <th>Type</th>
-//     <th>Location</th>
-//     <th>Contact</th>
-//     <th>Deadline</th>
-//     <th>Status</th>
-//     <th>Created At</th>
-//     <th>Posted By</th>
-//     <th>Reports</th>
-//     {canManage && <th>Delete</th>}
-//     <th>Report</th>
-//   </tr>
-// </thead>
-
-//         {/* <tbody>
-
-//           {!loading && jobs.length === 0 && (
-//             <tr>
-//               <td colSpan="6" style={{ textAlign: "center" }}>
-//                 No Jobs Found
-//               </td>
-//             </tr>
-//           )}
-
-//           {jobs.map((job) => (
-
-//             <tr key={job.jobId}>
-
-//               <td>{job.jobId}</td>
-//               <td>{job.title}</td>
-//               <td>{job.employerId}</td>
-//               <td>{job.reportCount}</td>
-
-//               {canManage && (
-//                 <td>
-//                   <button
-//                     className="delete-btn"
-//                     onClick={() => deleteJob(job.jobId)}
-//                   >
-//                     Delete
-//                   </button>
-//                 </td>
-//               )}
-
-//               <td>
-//                 <button
-//                   className="view-btn"
-//                   onClick={() => fetchReports(job.jobId)}
-//                 >
-//                   Report Details
-//                 </button>
-//               </td>
-
-//             </tr>
-//           ))}
-
-//         </tbody> */}
-
-//         <tbody>
-
-//   {!loading && jobs.length === 0 && (
-//     <tr>
-//       <td colSpan="15" style={{ textAlign: "center" }}>
-//         No Jobs Found
-//       </td>
-//     </tr>
-//   )}
-
-//   {jobs.map((job) => (
-
-//     <tr key={job.jobId}>
-
-//       <td>{job.jobId}</td>
-//       <td>{job.title}</td>
-//       <td>{job.description}</td>
-//       <td>{job.requirements}</td>
-//       <td>{job.salaryRange}</td>
-//       <td>{job.employmentType}</td>
-//       <td>{job.location}</td>
-//       <td>{job.contactNumber}</td>
-//       <td>{job.deadline}</td>
-//       <td>{job.status}</td>
-//       <td>
-//         {job.createdAt
-//           ? new Date(job.createdAt).toLocaleString()
-//           : "-"}
-//       </td>
-//       {/* <td>{job.employerId}</td> */}
-//       <td>{job.employerName || "N/A"}</td>
-//       <td>{job.reportCount}</td>
-
-//       {canManage && (
-//         <td>
-//           <button
-//             className="delete-btn"
-//             onClick={() => deleteJob(job.jobId)}
-//           >
-//             Delete
-//           </button>
-//         </td>
-//       )}
-
-//       <td>
-//         <button
-//           className="view-btn"
-//           onClick={() => fetchReports(job.jobId)}
-//         >
-//           Report Details
-//         </button>
-//       </td>
-
-//     </tr>
-//   ))}
-
-// </tbody>
-
-//       </table>
-
-//       {/* ================= PAGINATION ================= */}
-//       <div className="pagination">
-
-//         <button
-//           disabled={page === 0}
-//           onClick={() => setPage(page - 1)}
-//         >
-//           Prev
-//         </button>
-
-//         <span>
-//           Page {page + 1} of {totalPages}
-//         </span>
-
-//         <button
-//           disabled={page + 1 === totalPages}
-//           onClick={() => setPage(page + 1)}
-//         >
-//           Next
-//         </button>
-
-//       </div>
-
-//       {/* ================= REPORT MODAL ================= */}
-//       {showModal && (
-
-//         <div
-//           className="modal-overlay"
-//           onClick={() => setShowModal(false)}
-//         >
-
-//           <div
-//             className="modal-content"
-//             onClick={(e) => e.stopPropagation()}
-//           >
-
-//             <h3>Reports - Job #{selectedJobId}</h3>
-
-//             <button
-//               className="close-btn"
-//               onClick={() => setShowModal(false)}
-//             >
-//               ✕
-//             </button>
-
-//             <table className="job-table">
-
-//               <thead>
-//                 <tr>
-//                   <th>Reporter Name</th>
-//                   <th>Reason</th>
-//                   <th>Custom Reason</th>
-//                   <th>Date</th>
-//                 </tr>
-//               </thead>
-
-//               <tbody>
-
-//                 {reports.length === 0 && (
-//                   <tr>
-//                     <td colSpan="4" style={{ textAlign: "center" }}>
-//                       No Reports
-//                     </td>
-//                   </tr>
-//                 )}
-
-//                 {reports.map((r, index) => (
-//                   <tr key={index}>
-//                     <td>{r.reporterName || "Unknown"}</td>
-//                     <td>{r.reason}</td>
-//                     <td>{r.customReason || "-"}</td>
-//                     <td>{new Date(r.reportedAt).toLocaleString()}</td>
-//                   </tr>
-//                 ))}
-
-//               </tbody>
-
-//             </table>
-
-//           </div>
-
-//         </div>
-//       )}
-
-//     </div>
-//   );
-// };
-
-// export default JobAdmin;
-
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./jobAdmin.css";
@@ -455,81 +97,113 @@ const JobAdmin = () => {
     setShowDetailModal(true);
   };
 
+  // ================= CARD STYLE HELPERS =================
+  const typeStyles = {
+    "FULL_TIME": { emoji: "💼", bg: "#E6F1FB" },
+    "PART_TIME": { emoji: "🕒", bg: "#FAECE7" },
+    "CONTRACT": { emoji: "📄", bg: "#FBEAF0" },
+    "INTERNSHIP": { emoji: "🎓", bg: "#EAF3DE" },
+  };
+
+  const getTypeStyle = (type) => {
+    const key = (type || "").toUpperCase().replace(/\s+/g, "_");
+    return typeStyles[key] || { emoji: "🧰", bg: "#EEEDFE" };
+  };
+
+  const formatDate = (d) => {
+    if (!d) return "-";
+    return new Date(d).toLocaleDateString("en-GB");
+  };
+
   return (
     <div className="job-admin-container">
       <h2>Job Management</h2>
 
       {loading && <p style={{ textAlign: "center" }}>Loading...</p>}
 
-      <table className="job-table">
-        <thead>
-          <tr>
-            {/* <th>ID</th> */}
-            <th>Title</th>
-            <th>Location</th>
-            <th>Type</th>
-            <th>Salary</th>
-            <th>Status</th>
-            <th>Posted By</th>
-            <th>Reports</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
+      <div className="job-list-header">
+        <span>Status</span>
+        <span>Job Details</span>
+        <span>Timeline</span>
+        <span>Description</span>
+        <span>Location</span>
+        <span>Salary</span>
+        <span>Reports</span>
+        <span>Actions</span>
+      </div>
 
-        <tbody>
-          {!loading && jobs.length === 0 && (
-            <tr>
-              <td colSpan="9" style={{ textAlign: "center" }}>
-                No Jobs Found
-              </td>
-            </tr>
-          )}
+      {!loading && jobs.length === 0 && (
+        <div className="job-empty">No Jobs Found</div>
+      )}
 
-          {jobs.map((job) => (
-            <tr key={job.jobId}>
-              {/* <td>{job.jobId}</td> */}
-              <td>{job.title}</td>
-              <td>{job.location}</td>
-              <td>{job.employmentType}</td>
-              <td>{job.salaryRange}</td>
-              <td>
-                <span className={`status-badge ${job.status?.toLowerCase()}`}>
-                  {job.status}
+      <div className="job-card-list">
+        {jobs.map((job) => {
+          const style = getTypeStyle(job.employmentType);
+          const isOpen = job.status?.toUpperCase() === "OPEN";
+          return (
+            <div className="job-card" key={job.jobId}>
+              <div className="job-col job-col-status">
+                <span className={`status-pill ${isOpen ? "open" : "closed"}`}>
+                  <span className="status-dot" />
+                  {job.status || "N/A"}
                 </span>
-              </td>
-              <td>{job.employerName || "N/A"}</td>
-              <td>{job.reportCount}</td>
-              <td className="action-cell">
-                {/* ✅ View Details Button */}
-                <button
-                  className="detail-btn"
-                  onClick={() => openDetails(job)}
-                >
-                  Details
-                </button>
+              </div>
 
-                {/* Report Details Button */}
-                <button
-                  className="view-btn"
-                  onClick={() => fetchReports(job.jobId)}
-                >
+              <div className="job-col job-col-details">
+                <div className="job-icon-avatar" style={{ background: style.bg }}>
+                  <span>{style.emoji}</span>
+                </div>
+                <div>
+                  <p className="job-title">{job.title}</p>
+                  <span className="job-tag">{job.employmentType || "N/A"}</span>
+                </div>
+              </div>
+
+              <div className="job-col job-col-timeline">
+                <span className="timeline-icon">📅</span>
+                <div>
+                  <div>{formatDate(job.createdAt)}</div>
+                  <div className="timeline-to">to</div>
+                  <div className="timeline-end">{formatDate(job.deadline)}</div>
+                </div>
+              </div>
+
+              <div className="job-col job-col-desc">
+                {job.description || "-"}
+              </div>
+
+              <div className="job-col job-col-location">
+                <span className="location-pill">{job.location || "ALL"}</span>
+              </div>
+
+              <div className="job-col job-col-salary">
+                {job.salaryRange || "—"}
+              </div>
+
+              <div className="job-col job-col-reports">
+                <span className="reports-pill">
+                  <span className="reports-icon">🚩</span>
+                  {job.reportCount}
+                </span>
+              </div>
+
+              <div className="job-col job-col-actions">
+                <button className="detail-btn" onClick={() => openDetails(job)}>
+                  View Details
+                </button>
+                <button className="view-btn" onClick={() => fetchReports(job.jobId)}>
                   Reports
                 </button>
-
-                {/* Delete Button */}
                 {canManage && (
-                  <button
-                    className="delete-btn"
-                    onClick={() => deleteJob(job.jobId)}
-                  >
+                  <button className="delete-btn" onClick={() => deleteJob(job.jobId)}>
                     Delete
                   </button>
                 )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
       {/* ================= PAGINATION ================= */}
       <div className="pagination">
