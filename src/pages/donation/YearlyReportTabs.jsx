@@ -1,6 +1,7 @@
 import { useState } from "react";
 import YearlyReport from "./YearlyReport";
 import UploadYearlyCertificate from "./UploadYearlyCertificate";
+import MailDispatcher from "./MailDispatcher";
 import "./donation.css";
 
 export default function YearlyReportTabs(){
@@ -28,10 +29,18 @@ export default function YearlyReportTabs(){
           Upload Year Certificate
         </button>
 
+        <button
+          className={tab==="mail"?"active":""}
+          onClick={()=>setTab("mail")}
+        >
+          Send Mail
+        </button>
+
       </div>
 
       {tab==="report" && <YearlyReport/>}
       {tab==="upload" && <UploadYearlyCertificate/>}
+      {tab==="mail" && <MailDispatcher/>}
 
     </div>
   );
