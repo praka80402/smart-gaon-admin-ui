@@ -4,7 +4,7 @@ import "./quiz.css";
 import AddQuestion from "./components/AddQuestion";
 import UploadQuestions from "./components/UploadQuestions";
 import ManageQuestions from "./components/ManageQuestions";
-import ManageBatches from "./components/ManageBatches";
+import UploadHistory from "./components/UploadHistory";
 import ManageConfig from "./components/ManageConfig";
 import ResolveDuplicates from "./components/ResolveDuplicates";
 
@@ -54,10 +54,10 @@ export default function QuizDashboard() {
               Duplicates
             </button>
             <button
-              className={activeTab === "batches" ? "active" : ""}
-              onClick={() => setActiveTab("batches")}
+              className={activeTab === "history" ? "active" : ""}
+              onClick={() => setActiveTab("history")}
             >
-              Batches
+              Upload History
             </button>
             <button
               className={activeTab === "config" ? "active" : ""}
@@ -73,7 +73,7 @@ export default function QuizDashboard() {
       {isSuperOrState && activeTab === "upload" && <UploadQuestions />}
       {activeTab === "manage" && <ManageQuestions />}
       {isSuperOrState && activeTab === "duplicates" && <ResolveDuplicates />}
-      {isSuperOrState && activeTab === "batches" && <ManageBatches />}
+      {isSuperOrState && activeTab === "history" && <UploadHistory />}
       {isSuperOrState && activeTab === "config" && <ManageConfig />}
     </div>
   );
