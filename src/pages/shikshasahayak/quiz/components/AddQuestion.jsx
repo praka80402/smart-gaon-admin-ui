@@ -90,12 +90,16 @@ export default function AddQuestion() {
 
       {isAcademic ? (
         <>
-          <label className="quiz-label">Class Level (5–12)</label>
-          <input
-            placeholder="e.g. 10"
+          <label className="quiz-label">Class Category</label>
+          <select
             value={form.classLevel}
             onChange={(e) => set("classLevel", e.target.value)}
-          />
+          >
+            <option value="">Select Category</option>
+            <option value="UNDER_5">Under Class 5</option>
+            <option value="6_TO_8">Class 6 to 8</option>
+            <option value="9_TO_12">Class 9 to 12</option>
+          </select>
         </>
       ) : (
         <>
@@ -105,6 +109,8 @@ export default function AddQuestion() {
             onChange={(e) => set("competitionType", e.target.value)}
           >
             <option value="SSC">SSC</option>
+            <option value="RAILWAY">RAILWAY</option>
+            <option value="BANK">BANK</option>
             <option value="GENERAL">GENERAL</option>
             <option value="STATE_EXAM">STATE_EXAM</option>
           </select>

@@ -1,5 +1,5 @@
 const BASE_URL = "https://smartgaonadmin.duckdns.org/api/admin";
-// const BASE_URL = "http://localhost:9090/api/admin";
+ //const BASE_URL = "http://localhost:9090/api/admin";
  
 const authHeader = () => ({
   Authorization: "Bearer " + localStorage.getItem("adminToken"),
@@ -10,10 +10,13 @@ const authHeader = () => ({
 /* ===================================================== */
  
 /** Bulk Excel upload. Returns {inserted, duplicatesSkipped, invalidRowsSkipped, message} */
-export const uploadQuestionsExcel = async (file) => {
+export const uploadQuestionsExcel = async (file, segmentType, classLevel, competitionType) => {
   const form = new FormData();
   form.append("file", file);
-  const res = await fetch(`${BASE_URL}/questions/upload`, {
+  let url = `${BASE_URL}/questions/upload?segmentType=${segmentType}`;
+  if (classLevel) url += `&classLevel=${classLevel}`;
+  if (competitionType) url += `&competitionType=${competitionType}`;
+  const res = await fetch(url, {
     method: "POST",
     headers: authHeader(), // NOTE: no Content-Type — browser sets multipart boundary
     body: form,
@@ -95,64 +98,39 @@ export const resolveDuplicates = async (keepId, groupIds) => {
 };
  
 /* ===================================================== */
-/* ================= BATCHES =========================== */
+/* ================= UPLOAD HISTORY ==================== */
 /* ===================================================== */
- 
-/** How many batches for N days (days x 6). */
-export const getBatchesNeeded = async (days) => {
-  const res = await fetch(`${BASE_URL}/batches/needed?days=${days}`, {
+
+export const getUploadHistory = async () => {
+  const res = await fetch(`${BASE_URL}/questions/upload-history`, {
     headers: authHeader(),
   });
-  if (!res.ok) throw new Error("Failed to load batch count");
+  if (!res.ok) throw new Error("Failed to load upload history");
   return res.json();
 };
- 
-/** Build batches. request = {segmentKey, startDate, days, questionsPerBatch?, autoFill} */
-export const buildBatches = async (request) => {
-  const res = await fetch(`${BASE_URL}/batches/build`, {
-    method: "POST",
-    headers: { ...authHeader(), "Content-Type": "application/json" },
-    body: JSON.stringify(request),
-  });
-  if (!res.ok) throw new Error("Failed to build batches");
-  return res.json();
-};
- 
-/** Manually assign question ids to a batch. */
-export const assignBatchQuestions = async (batchId, questionIds) => {
-  const res = await fetch(`${BASE_URL}/batches/${batchId}/questions`, {
-    method: "PUT",
-    headers: { ...authHeader(), "Content-Type": "application/json" },
-    body: JSON.stringify(questionIds),
-  });
-  if (!res.ok) throw new Error("Failed to assign questions");
-  return res.json();
-};
- 
-export const getBatches = async (segmentKey) => {
-  const res = await fetch(
-    `${BASE_URL}/batches?segmentKey=${encodeURIComponent(segmentKey)}`,
-    { headers: authHeader() }
-  );
-  if (!res.ok) throw new Error("Failed to load batches");
-  return res.json();
-};
- 
-export const rotateBatch = async (segmentKey) => {
-  const res = await fetch(
-    `${BASE_URL}/batches/rotate?segmentKey=${encodeURIComponent(segmentKey)}`,
-    { method: "POST", headers: authHeader() }
-  );
-  if (!res.ok) throw new Error("Failed to rotate batch");
-  return res.json();
-};
- 
-export const getStock = async () => {
-  const res = await fetch(`${BASE_URL}/batches/stock`, {
+
+export const downloadUploadFile = async (id, fileName) => {
+  const res = await fetch(`${BASE_URL}/questions/upload-history/${id}/download`, {
     headers: authHeader(),
   });
-  if (!res.ok) throw new Error("Failed to load stock status");
-  return res.json();
+  if (!res.ok) throw new Error("Failed to download file");
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+};
+
+export const deleteUploadHistory = async (id) => {
+  const res = await fetch(`${BASE_URL}/questions/upload-history/${id}`, {
+    method: "DELETE",
+    headers: authHeader(),
+  });
+  if (!res.ok) throw new Error("Failed to delete upload history entry");
+  return res.text();
 };
  
 /* ===================================================== */
@@ -185,5 +163,20 @@ export const updateConfig = async (id, config) => {
   });
   if (!res.ok) throw new Error("Failed to update config");
   return res.json();
+};
+
+export const downloadSampleTemplate = async () => {
+  const res = await fetch(`${BASE_URL}/questions/sample-template`, {
+    headers: authHeader(),
+  });
+  if (!res.ok) throw new Error("Failed to download template");
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "quiz_template.xlsx";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 };
  
