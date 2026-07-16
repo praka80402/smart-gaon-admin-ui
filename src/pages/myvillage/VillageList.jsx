@@ -11,6 +11,194 @@ import { Toast } from "./ui";
 import "./admin.css";
 
 /* ══════════════════════════════════════════════
+   LIGHTBOX — shared image/video dialog with
+   close button + prev/next when multiple items
+══════════════════════════════════════════════ */
+function isEmbeddableVideo(url = "") {
+  return /youtube\.com|youtu\.be|facebook\.com/.test(url);
+}
+
+function toEmbedUrl(url = "") {
+  const ytMatch = url.match(/(?:youtu\.be\/|v=)([\w-]{11})/);
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+  if (url.includes("facebook.com")) {
+    return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}`;
+  }
+  return url;
+}
+
+function Lightbox({ items, index, onClose, onNav }) {
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight") onNav(1);
+      if (e.key === "ArrowLeft") onNav(-1);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose, onNav]);
+
+  if (!items || items.length === 0) return null;
+  const item = items[index];
+  const hasMultiple = items.length > 1;
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.85)",
+        zIndex: 2000,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: "relative",
+          maxWidth: "90vw",
+          maxHeight: "90vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {/* Cancel / close button */}
+        <button
+        onClick={onClose}
+        aria-label="Close"
+        style={{
+          position: "absolute",
+          top: 18,
+          right: 22,
+          background: "rgba(255,255,255,0.12)",
+          border: "none",
+          color: "#fff",
+          fontSize: 22,
+          width: 40,
+          height: 40,
+          borderRadius: "50%",
+          cursor: "pointer",
+          lineHeight: 1,
+        }}
+      >
+        ✕
+      </button>
+
+        {/* Prev */}
+        {hasMultiple && (
+          <button
+            onClick={() => onNav(-1)}
+            style={{
+              position: "absolute",
+              left: -56,
+              top: "50%",
+              transform: "translateY(-50%)",
+              background: "#ffffff",
+              color: "#111111",
+              border: "none",
+              borderRadius: "50%",
+              width: 40,
+              height: 40,
+              fontSize: 20,
+              cursor: "pointer",
+            }}
+          >
+            ‹
+          </button>
+        )}
+
+        {/* Content */}
+        {item.type === "video" ? (
+          isEmbeddableVideo(item.src) ? (
+            <iframe
+              src={toEmbedUrl(item.src)}
+              title="video"
+              allow="autoplay; fullscreen"
+              allowFullScreen
+              style={{
+                width: "80vw",
+                maxWidth: 900,
+                height: "45vw",
+                maxHeight: 500,
+                border: "none",
+                borderRadius: 8,
+                background: "#000",
+              }}
+            />
+          ) : (
+            <video
+              src={item.src}
+              controls
+              autoPlay
+              style={{
+                maxWidth: "80vw",
+                maxHeight: "80vh",
+                borderRadius: 8,
+                background: "#000",
+              }}
+            />
+          )
+        ) : (
+          <img
+            src={item.src}
+            alt=""
+            style={{
+              maxWidth: "80vw",
+              maxHeight: "80vh",
+              borderRadius: 8,
+              objectFit: "contain",
+            }}
+          />
+        )}
+
+        {/* Next */}
+        {hasMultiple && (
+          <button
+            onClick={() => onNav(1)}
+            style={{
+              position: "absolute",
+              right: -56,
+              top: "50%",
+              transform: "translateY(-50%)",
+              background: "#ffffff",
+              color: "#111111",
+              border: "none",
+              borderRadius: "50%",
+              width: 40,
+              height: 40,
+              fontSize: 20,
+              cursor: "pointer",
+            }}
+          >
+            ›
+          </button>
+        )}
+
+        {/* Counter */}
+        {hasMultiple && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: -32,
+              left: "50%",
+              transform: "translateX(-50%)",
+              color: "#fff",
+              fontSize: 13,
+            }}
+          >
+            {index + 1} / {items.length}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════
    VIEW MODAL — two-panel read-only (matches Edit)
 ══════════════════════════════════════════════ */
 function ViewModal({ village, onClose }) {
@@ -24,6 +212,20 @@ function ViewModal({ village, onClose }) {
   if (isSmart && village.stayEnquiry) sections.push(["stay", "🏠", "Stay Enquiry"]);
 
   const [section, setSection] = useState("basic");
+  const [lightbox, setLightbox] = useState(null); // { items: [{type,src}], index }
+
+  function openLightbox(items, index = 0) {
+    if (!items || items.length === 0) return;
+    setLightbox({ items, index });
+  }
+  function navLightbox(delta) {
+    setLightbox((prev) => {
+      if (!prev) return prev;
+      const len = prev.items.length;
+      const next = (prev.index + delta + len) % len;
+      return { ...prev, index: next };
+    });
+  }
 
   return (
     <div className="sg-overlay" onClick={onClose}>
@@ -68,7 +270,18 @@ function ViewModal({ village, onClose }) {
                 {village.images?.length > 0 && (
                   <div className="sg-view-strip" style={{ marginBottom: 18 }}>
                     {village.images.map((img, i) => (
-                      <img key={i} src={img} alt="" />
+                      <img
+                        key={i}
+                        src={img}
+                        alt=""
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                          openLightbox(
+                            village.images.map((src) => ({ type: "image", src })),
+                            i
+                          )
+                        }
+                      />
                     ))}
                   </div>
                 )}
@@ -86,29 +299,76 @@ function ViewModal({ village, onClose }) {
               <div>
                 <h3 className="sg-view-h" style={{ marginTop: 0 }}>Popular places</h3>
                 <div className="sg-dev-grid">
-                  {village.popularPlaces.map((p, i) => (
-                    <div className="sg-dev-card" key={i}>
-                      {p.photo ? (
-                        <img className="sg-dev-img" src={p.photo} alt="" />
-                      ) : (
-                        <div className="sg-dev-img-ph">📍</div>
-                      )}
-                      <div className="sg-dev-body">
-                        <p className="sg-dev-title">{p.name}</p>
-                        {p.description && (
-                          <p style={{ fontSize: 13, color: "var(--muted)", margin: "4px 0 0" }}>
-                            {p.description}
-                          </p>
+                  {village.popularPlaces.map((p, i) => {
+                    // Support either a `photos` array (multiple images)
+                    // or a single `photo` field, whichever the record has.
+                    const photos = Array.isArray(p.photos) && p.photos.length > 0
+                      ? p.photos
+                      : p.photo
+                      ? [p.photo]
+                      : [];
+                    const photoItems = photos.map((src) => ({ type: "image", src }));
+
+                    return (
+                      <div className="sg-dev-card" key={i}>
+                        {photos.length > 0 ? (
+                          <div style={{ position: "relative" }}>
+                            <img
+                              className="sg-dev-img"
+                              src={photos[0]}
+                              alt=""
+                              style={{ cursor: "pointer" }}
+                              onClick={() => openLightbox(photoItems, 0)}
+                            />
+                            {photos.length > 1 && (
+                              <span
+                                style={{
+                                  position: "absolute",
+                                  bottom: 6,
+                                  right: 6,
+                                  background: "rgba(0,0,0,0.65)",
+                                  color: "#fff",
+                                  fontSize: 11,
+                                  padding: "2px 6px",
+                                  borderRadius: 4,
+                                }}
+                              >
+                                +{photos.length - 1} more
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="sg-dev-img-ph">📍</div>
                         )}
-                        {p.videoUrl && (
-                          <a href={p.videoUrl} target="_blank" rel="noreferrer"
-                             style={{ fontSize: 13, color: "var(--green)" }}>
-                            ▶ Watch video
-                          </a>
-                        )}
+                        <div className="sg-dev-body">
+                          <p className="sg-dev-title">{p.name}</p>
+                          {p.description && (
+                            <p style={{ fontSize: 13, color: "var(--muted)", margin: "4px 0 0" }}>
+                              {p.description}
+                            </p>
+                          )}
+                          {p.videoUrl && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                openLightbox([{ type: "video", src: p.videoUrl }], 0)
+                              }
+                              style={{
+                                fontSize: 13,
+                                color: "var(--green)",
+                                background: "none",
+                                border: "none",
+                                padding: 0,
+                                cursor: "pointer",
+                              }}
+                            >
+                              ▶ Watch video
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -171,10 +431,22 @@ function ViewModal({ village, onClose }) {
                                   <div className="sg-bar-fill" style={{ width: `${pct}%` }} />
                                 </div>
                                 {a.videoUrl && (
-                                  <a href={a.videoUrl} target="_blank" rel="noreferrer"
-                                     style={{ fontSize: 12, color: "var(--green)" }}>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      openLightbox([{ type: "video", src: a.videoUrl }], 0)
+                                    }
+                                    style={{
+                                      fontSize: 12,
+                                      color: "var(--green)",
+                                      background: "none",
+                                      border: "none",
+                                      padding: 0,
+                                      cursor: "pointer",
+                                    }}
+                                  >
                                     ▶ Video
-                                  </a>
+                                  </button>
                                 )}
                               </div>
                             );
@@ -206,6 +478,15 @@ function ViewModal({ village, onClose }) {
           <button className="sg-btn sg-btn-ghost" onClick={onClose}>Close</button>
         </div>
       </div>
+
+      {lightbox && (
+        <Lightbox
+          items={lightbox.items}
+          index={lightbox.index}
+          onClose={() => setLightbox(null)}
+          onNav={navLightbox}
+        />
+      )}
     </div>
   );
 }
