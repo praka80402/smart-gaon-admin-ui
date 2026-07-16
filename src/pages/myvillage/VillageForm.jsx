@@ -3,23 +3,9 @@ import { getAllDevelopments } from "./services/developmentService";
 import { fileToBase64, filesToBase64 } from "./services/config";
 import { Toggle } from "./ui";
 
-/*
- * Builds the full village payload. `initial` may be a village loaded from the
- * API (for edit) or undefined (for create). Calls onSubmit(payload).
- *
- * Payload shape sent to backend:
- * {
- *   name, district, state, description,
- *   images: [base64...],
- *   popularPlace: bool,
- *   popularPlaces: [{ name, description, photo, videoUrl }],
- *   smartGaon: bool,
- *   assignments: [{ developmentId, progressPercent, images:[base64], videoUrl, document }]
- * }
- */
 
 function makePlace() {
-  return { key: Date.now() + Math.random(), name: "", description: "", photo: "", videoUrl: "" };
+  return { key: Date.now() + Math.random(), name: "", description: "", photos: [], videoUrl: "" };
 }
 
 export default function VillageForm({ initial, submitLabel, onSubmit, submitting, activeSection }) {
@@ -30,7 +16,7 @@ export default function VillageForm({ initial, submitLabel, onSubmit, submitting
   const [district, setDistrict] = useState("");
   const [state, setState] = useState("");
   const [description, setDescription] = useState("");
-  const [images, setImages] = useState([]); // base64 strings
+  const [images, setImages] = useState([]); // base64 strings — village details allows only ONE
 
   const [popularEnabled, setPopularEnabled] = useState(false);
   const [places, setPlaces] = useState([]);
@@ -57,15 +43,16 @@ export default function VillageForm({ initial, submitLabel, onSubmit, submitting
     setDistrict(initial.district || initial.city || "");
     setState(initial.state || "");
     setDescription(initial.description || "");
-    setImages(initial.images || []);
+    // Only ever keep a single village image, even if older data has more.
+    setImages(initial.images?.length ? [initial.images[0]] : []);
 
     setPopularEnabled(!!initial.popularPlace);
     setPlaces(
-      (initial.popularPlaces || []).map((p) => ({
+      (initial.popularPlaces || []).slice(0, 5).map((p) => ({
         key: Date.now() + Math.random(),
         name: p.name || "",
         description: p.description || "",
-        photo: p.photo || "",
+        photos: p.photos?.length ? p.photos.slice(0, 5) : p.photo ? [p.photo] : [],
         videoUrl: p.videoUrl || "",
       }))
     );
@@ -87,13 +74,16 @@ export default function VillageForm({ initial, submitLabel, onSubmit, submitting
     setAssignments(a);
   }, [initial]);
 
-  // ── village images ──
+  // ── village images ── (single image only)
   async function onVillageImages(e) {
-    const b64 = await filesToBase64(e.target.files);
-    setImages((prev) => [...prev, ...b64]);
+    const file = e.target.files[0];
+    if (!file) return;
+    const b64 = await fileToBase64(file);
+    setImages([b64]); // replaces any existing image
+    e.target.value = ""; // allow re-selecting the same file to replace again
   }
-  function removeImage(i) {
-    setImages((prev) => prev.filter((_, x) => x !== i));
+  function removeImage() {
+    setImages([]);
   }
 
   // ── popular places ──
@@ -107,9 +97,19 @@ export default function VillageForm({ initial, submitLabel, onSubmit, submitting
   function removePlace(key) {
     setPlaces((prev) => prev.filter((p) => p.key !== key));
   }
-  async function onPlacePhoto(key, e) {
-    const file = e.target.files[0];
-    if (file) updatePlace(key, { photo: await fileToBase64(file) });
+  async function onPlacePhotos(key, e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    const place = places.find((p) => p.key === key);
+    const room = 5 - (place?.photos?.length || 0);
+    const toAdd = files.slice(0, room);
+    const b64s = await filesToBase64(toAdd);
+    updatePlace(key, { photos: [...(place?.photos || []), ...b64s] });
+    e.target.value = "";
+  }
+  function removePlacePhoto(key, index) {
+    const place = places.find((p) => p.key === key);
+    updatePlace(key, { photos: (place?.photos || []).filter((_, i) => i !== index) });
   }
 
   // ── smart gaon ──
@@ -164,7 +164,7 @@ export default function VillageForm({ initial, submitLabel, onSubmit, submitting
         ? places.map((p) => ({
             name: p.name,
             description: p.description,
-            photo: p.photo,
+            photos: p.photos,
             videoUrl: p.videoUrl,
           }))
         : [],
@@ -239,34 +239,43 @@ export default function VillageForm({ initial, submitLabel, onSubmit, submitting
         </div>
 
         <div className="sg-field">
-          <label>Village images</label>
+          <label>Village image</label>
           <div className="sg-attach-row">
-            <label className="sg-attach-btn">
-              📷 Add images
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                style={{ display: "none" }}
-                onChange={onVillageImages}
-              />
-            </label>
+            {images.length === 0 && (
+              <label className="sg-attach-btn">
+                📷 Add image
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={onVillageImages}
+                />
+              </label>
+            )}
           </div>
           {images.length > 0 && (
             <div className="sg-attach-row" style={{ marginTop: 10 }}>
-              {images.map((img, i) => (
-                <div key={i} style={{ position: "relative" }}>
-                  <img className="sg-thumb" src={img} alt="" />
-                  <button
-                    type="button"
-                    className="sg-icon-btn"
-                    style={{ position: "absolute", top: -6, right: -6, background: "#fff", borderRadius: "50%" }}
-                    onClick={() => removeImage(i)}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
+              <div style={{ position: "relative" }}>
+                <img className="sg-thumb" src={images[0]} alt="" />
+                <button
+                  type="button"
+                  className="sg-icon-btn"
+                  style={{ position: "absolute", top: -6, right: -6, background: "#fff", borderRadius: "50%" }}
+                  onClick={removeImage}
+                  title="Remove image"
+                >
+                  ✕
+                </button>
+              </div>
+              <label className="sg-attach-btn" style={{ alignSelf: "center" }}>
+                🔄 Replace image
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={onVillageImages}
+                />
+              </label>
             </div>
           )}
         </div>
@@ -321,19 +330,44 @@ export default function VillageForm({ initial, submitLabel, onSubmit, submitting
                 </div>
                 <div className="sg-grid2">
                   <div className="sg-field">
-                    <label>Photo</label>
+                    <label>Photos (up to 5)</label>
                     <div className="sg-attach-row">
-                      <label className="sg-attach-btn">
-                        📷 Add photo
-                        <input
-                          type="file"
-                          accept="image/*"
-                          style={{ display: "none" }}
-                          onChange={(e) => onPlacePhoto(p.key, e)}
-                        />
-                      </label>
-                      {p.photo && <img className="sg-thumb" src={p.photo} alt="" />}
+                      {(p.photos?.length || 0) < 5 && (
+                        <label className="sg-attach-btn">
+                          📷 Add photo{(p.photos?.length || 0) > 0 ? "s" : ""}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            style={{ display: "none" }}
+                            onChange={(e) => onPlacePhotos(p.key, e)}
+                          />
+                        </label>
+                      )}
                     </div>
+                    {p.photos?.length > 0 && (
+                      <div className="sg-attach-row" style={{ marginTop: 10 }}>
+                        {p.photos.map((photo, i) => (
+                          <div key={i} style={{ position: "relative" }}>
+                            <img className="sg-thumb" src={photo} alt="" />
+                            <button
+                              type="button"
+                              className="sg-icon-btn"
+                              style={{ position: "absolute", top: -6, right: -6, background: "#fff", borderRadius: "50%" }}
+                              onClick={() => removePlacePhoto(p.key, i)}
+                              title="Remove photo"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {p.photos?.length >= 5 && (
+                      <p className="sg-note" style={{ marginTop: 6 }}>
+                        Maximum 5 photos reached.
+                      </p>
+                    )}
                   </div>
                   <div className="sg-field">
                     <label>Video link</label>
@@ -349,13 +383,17 @@ export default function VillageForm({ initial, submitLabel, onSubmit, submitting
                 </div>
               </div>
             ))}
-            <button
-              type="button"
-              className="sg-btn-dashed"
-              onClick={() => setPlaces((prev) => [...prev, makePlace()])}
-            >
-              + Add another place
-            </button>
+            {places.length < 5 ? (
+              <button
+                type="button"
+                className="sg-btn-dashed"
+                onClick={() => setPlaces((prev) => [...prev, makePlace()])}
+              >
+                + Add another place
+              </button>
+            ) : (
+              <p className="sg-note">You can add up to 5 popular places.</p>
+            )}
           </div>
         )}
       </div>
