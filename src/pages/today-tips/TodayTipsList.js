@@ -230,17 +230,8 @@
 // );
 // }
 
-import { useEffect, useState } from "react";
-import {
-  collection,
-  getDocs,
-  orderBy,
-  query,
-  where,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
-import { db } from "../../firebase";
+import { useState, useEffect } from "react";
+import api from "../../services/axiosInstance";
 import AddTodayTip from "./AddTodayTip";
 import "./todaytips.css";
 
@@ -256,31 +247,16 @@ export default function TodayTipsList({ onClose }) {
   const [selectedDate, setSelectedDate] = useState("");
   const [editingTip, setEditingTip] = useState(null);
 
-  const formatDate = (iso) => {
-    const [y, m, d] = iso.split("-");
-    return `${d}-${m}-${y}`;
-  };
-
   useEffect(() => {
     const todayISO = new Date().toISOString().split("T")[0];
     setSelectedDate(todayISO);
-    loadTips(formatDate(todayISO));
+    loadTips(todayISO);
   }, []);
 
-  const loadTips = async (formattedDate) => {
+  const loadTips = async (isoDate) => {
     try {
-      const q = query(
-        collection(db, "today_tips"),
-        where("date", "==", formattedDate),
-        orderBy("createdAt", "desc")
-      );
-      const snapshot = await getDocs(q);
-      setTips(
-        snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
-      );
+      const res = await api.get(`/api/tips/list?date=${isoDate}`);
+      setTips(res.data);
     } catch (err) {
       console.error("Error loading tips:", err);
     }
@@ -288,15 +264,36 @@ export default function TodayTipsList({ onClose }) {
 
   const handleDateChange = (iso) => {
     setSelectedDate(iso);
-    loadTips(formatDate(iso));
+    loadTips(iso);
   };
 
-  const handleDelete = async (id) => {
+  const handlePrevDay = () => {
+    if (!selectedDate) return;
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() - 1);
+    const newIso = d.toISOString().split("T")[0];
+    handleDateChange(newIso);
+  };
+
+  const handleNextDay = () => {
+    if (!selectedDate) return;
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() + 1);
+    const newIso = d.toISOString().split("T")[0];
+    handleDateChange(newIso);
+  };
+
+  const handleDelete = async (id, category) => {
     if (!canEdit) return;
     const ok = window.confirm("Delete this tip?");
     if (!ok) return;
-    await deleteDoc(doc(db, "today_tips", id));
-    loadTips(formatDate(selectedDate));
+    try {
+      await api.delete(`/api/tips/delete?category=${category}&id=${id}`);
+      loadTips(selectedDate);
+    } catch (err) {
+      console.error("Error deleting tip:", err);
+      alert("Failed to delete tip");
+    }
   };
 
   const handleEdit = (tip) => {
@@ -346,7 +343,7 @@ export default function TodayTipsList({ onClose }) {
               <AddTodayTip
                 onSuccess={() => {
                   handleCloseForm();
-                  loadTips(formatDate(selectedDate));
+                  loadTips(selectedDate);
                 }}
                 initialData={editingTip}
                 docId={editingTip?.id}
@@ -356,13 +353,17 @@ export default function TodayTipsList({ onClose }) {
           ) : (
 
             <>
-              {/* DATE */}
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => handleDateChange(e.target.value)}
-                className="todaytips-date-input"
-              />
+              {/* DATE SELECTOR WITH PREV/NEXT BUTTONS */}
+              <div className="todaytips-date-selector">
+                <button className="date-nav-btn" onClick={handlePrevDay}>&lt;</button>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => handleDateChange(e.target.value)}
+                  className="todaytips-date-input"
+                />
+                <button className="date-nav-btn" onClick={handleNextDay}>&gt;</button>
+              </div>
 
               {/* LIST */}
               {tips.length === 0 ? (
@@ -371,12 +372,17 @@ export default function TodayTipsList({ onClose }) {
                 tips.map((tip) => (
                   <div key={tip.id} className="todaytips-card">
 
+                    {/* Tip Image */}
+                    {tip.imageUrl && (
+                      <img src={tip.imageUrl} alt="" className="todaytips-card-img" />
+                    )}
+
                     {/* Tip Content */}
                     <div className="todaytips-card-content">
-                      <h3>{tip.title}</h3>
-                      <p className="tip-category">{tip.category}</p>
-                      <p className="tip-desc">{tip.description}</p>
-                      <p className="tip-date">{tip.date}</p>
+                       <h3>{tip.title}</h3>
+                       <p className="tip-category">{tip.category}</p>
+                       <p className="tip-desc">{tip.description}</p>
+                       <p className="tip-date">{tip.targetDate}</p>
                     </div>
 
                     {/* Edit / Delete Buttons */}
@@ -390,7 +396,7 @@ export default function TodayTipsList({ onClose }) {
                         </button>
                         <button
                           className="todaytips-delete-btn"
-                          onClick={() => handleDelete(tip.id)}
+                          onClick={() => handleDelete(tip.id, tip.category)}
                         >
                           Delete
                         </button>
