@@ -1,137 +1,131 @@
 /* =========================================
-   TODAY TIP MODAL STYLING
-========================================= */
+   TODAY TIP FORM STYLING (MODERN & PREMIUM)
+   ========================================= */
 
-.todaytip-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.todaytip-modal-box {
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
-  position: relative;
-}
-
-.todaytip-modal-close {
-  position: absolute;
-  top: 14px;
-  right: 16px;
-  border: none;
-  background: transparent;
-  font-size: 22px;
-  font-weight: bold;
-  color: black;
-  cursor: pointer;
-}
-
-/* =========================================
-   TODAY TIP FORM
-========================================= */
-
-.todaytip-form-container {
+.tip-form-container {
   width: 100%;
-}
-
-.todaytip-form-title {
-  font-size: 20px;
-  font-weight: 100;
-  color: #111827;
-  margin-bottom: 20px;
-}
-
-/* .tip-form-title {
-  text-align: center;
-} */
-
-.todaytip-form-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 16px;
+  gap: 18px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-.todaytip-form-group label {
+.tip-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tip-form-group label {
   font-size: 13px;
   font-weight: 600;
-  color: #6b7280;
-  margin-bottom: 6px;
+  color: #4b5563; /* Cool gray-600 */
 }
 
-.todaytip-input {
+/* Custom modern input inputs styling */
+.tip-input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-radius: 8px;
-  border: 1px solid #d1d5db;
+  border: 1.5px solid #e5e7eb; /* Cool gray-200 */
   font-size: 14px;
-  background: #ffffff;
-  transition: 0.2s ease;
+  color: #1f2937;
+  background: #f9fafb;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
-.todaytip-input:focus {
+.tip-input:hover {
+  border-color: #cbd5e1;
+}
+
+.tip-input:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: #6366f1; /* Premium Indigo-500 */
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
 }
 
-.todaytip-textarea {
-  min-height: 90px;
+/* Specific textarea styles */
+.tip-textarea {
+  min-height: 100px;
   resize: vertical;
+  line-height: 1.5;
 }
 
-.todaytip-upload-box {
-  border: 2px dashed #2563eb;
+/* Premium Upload Box styling */
+.tip-upload-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 2px dashed #6366f1;
   border-radius: 8px;
-  padding: 14px;
+  padding: 20px;
   text-align: center;
-  color: #2563eb;
+  color: #6366f1;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
-  background: #f8fafc;
+  background: rgba(99, 102, 241, 0.03);
+  transition: all 0.2s ease-in-out;
 }
 
-.todaytip-upload-box:hover {
-  background: #eef2ff;
+.tip-upload-box:hover {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: #4f46e5;
+  color: #4f46e5;
 }
 
-.todaytip-hidden-input {
+.tip-hidden-input {
   display: none;
 }
 
-.todaytip-preview-img {
-  margin-top: 12px;
-  width: 100%;
-  max-width: 220px;
-  height: 130px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+.tip-preview-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
 }
 
+.tip-preview-img {
+  max-width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1.5px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Premium Save Button styling */
 .tip-save-btn {
   width: 100%;
-  margin-top: 20px;
-  padding: 12px;
+  padding: 13px;
   border-radius: 8px;
   border: none;
-  background: #6366f1;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   color: white;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
+  letter-spacing: 0.3px;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  transition: all 0.2s ease;
 }
 
 .tip-save-btn:hover {
-  background: #4f46e5;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+}
+
+.tip-save-btn:active {
+  transform: translateY(0);
 }
 
 .tip-save-btn:disabled {
-  background: #9ca3af;
+  background: #cbd5e1;
+  color: #94a3b8;
   cursor: not-allowed;
+  box-shadow: none;
 }
