@@ -1,0 +1,226 @@
+.dashboard-management-wrapper{
+  padding:20px 100px;
+}
+
+/* HEADER */
+.dashboard-management-header{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+/* TITLE */
+.dashboard-management-title{
+  font-size:24px;
+  font-weight:700;
+  margin:0 0 22px;
+  color:#0f172a;
+}
+
+/* RIGHT */
+.dashboard-management-right{
+  width:100%;
+}
+
+/* TABS WRAPPER */
+.dashboard-tabs{
+  display:flex;
+  gap:22px;
+  width:fit-content;
+  flex-wrap:wrap;
+  margin:-15px auto 5px;
+  padding:16px;
+  border-radius:30px;
+  background:rgba(255,255,255,0.75);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.6);
+  box-shadow:0 14px 40px rgba(0,0,0,0.08);
+}
+
+/* TAB CARD */
+.dashboard-tab{
+  min-width:260px;
+  width:280px;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  padding:18px;
+  border-radius:26px;
+  text-decoration:none;
+  background:white;
+  border:none;
+  box-shadow:0 6px 18px rgba(0,0,0,0.06);
+  transition:0.28s ease;
+  cursor:pointer;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+/* ACTIVE TAB */
+.active-dashboard-tab{
+  background:linear-gradient(135deg, white, rgb(113, 113, 224));
+  box-shadow:0 18px 38px rgba(22,163,74,0.35);
+}
+
+/* HOVER */
+.dashboard-tab:hover{
+  transform:translateY(-3px);
+  box-shadow:0 14px 30px rgba(0,0,0,0.12);
+}
+
+/* ICON BOX */
+/* ICON BOX */
+.dashboard-tab-icon{
+  width:68px;
+  height:68px;
+
+  min-width:68px;
+
+  border-radius:22px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:32px;
+
+  background:rgba(255,255,255,0.14);
+
+  backdrop-filter:blur(10px);
+}
+
+/* TAB CONTENT */
+.dashboard-tab-content{
+  margin-left:24px;
+}
+
+/* TAB TITLE */
+.dashboard-tab-content h3{
+  margin:0;
+
+  font-size:20px;
+  font-weight:700;
+  line-height:1.2;
+
+  color:#111827;
+}
+
+/* ACTIVE TITLE */
+.active-dashboard-tab .dashboard-tab-content h3{
+  color:#ffffff;
+}
+
+/* SUBTITLE */
+.dashboard-tab-content p{
+  margin-top:6px;
+  margin-bottom:0;
+
+  font-size:14px;
+  line-height:1.4;
+
+  color:#4b5563;
+}
+
+/* ACTIVE SUBTITLE */
+.active-dashboard-tab .dashboard-tab-content p{
+  color:rgba(255,255,255,0.92);
+}
+
+/* LIVE BADGE */
+.dashboard-tab-badge{
+  margin-left:auto;
+
+  padding:10px 18px;
+
+  border-radius:999px;
+
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:1px;
+
+  background:rgba(255,255,255,0.16);
+  backdrop-filter:blur(8px);
+
+  color:#111827;
+}
+
+/* ADMIN */
+.dashboard-tab-admin{
+  margin-left:auto;
+
+  font-size:15px;
+  font-weight:800;
+  letter-spacing:1px;
+
+  color:#111827;
+}
+
+/* MAIN CONTENT CARD */
+.dashboard-management-card{
+  width:82%;              
+  margin:12px auto 0;    
+  background:#ffffff;
+  padding:12px 25px 25px;
+  border-radius:22px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+}
+
+/* LEFT */
+.dashboard-management-left{
+  display:flex;
+  align-items:center;
+}
+
+/* RESPONSIVE */
+@media(max-width:1200px){
+
+  .dashboard-management-wrapper{
+    padding:20px 40px;
+  }
+
+  .dashboard-tabs{
+    flex-direction:column;
+  }
+
+  .dashboard-tab{
+    min-width:100%;
+  }
+
+}
+
+@media(max-width:768px){
+
+  .dashboard-management-wrapper{
+    padding:20px;
+  }
+
+  .dashboard-tab{
+    height:auto;
+    min-height:150px;
+
+    padding:20px;
+  }
+
+  .dashboard-tab-icon{
+    width:80px;
+    height:80px;
+
+    min-width:80px;
+
+    font-size:32px;
+  }
+
+  .dashboard-tab-content{
+    margin-left:18px;
+  }
+
+  .dashboard-tab-content h3{
+    font-size:20px;
+  }
+
+  .dashboard-tab-content p{
+    font-size:14px;
+  }
+
+}

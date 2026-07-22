@@ -1,0 +1,232 @@
+/* ── KBViewModal.css ─────────────────────────────────── */
+
+/* Overlay */
+.kb-view-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* Modal box */
+.kb-view-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  font-family: 'Inter', sans-serif;
+}
+
+/* Header */
+.kb-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.kb-view-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kb-view-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.kb-view-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.kb-view-sub {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.kb-view-close {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  font-size: 14px;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.kb-view-close:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* Tabs */
+.kb-view-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 24px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.kb-view-tab {
+  padding: 7px 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: #9ca3af;
+  font-family: inherit;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.kb-view-tab:hover {
+  color: #374151;
+}
+
+.kb-view-tab.active {
+  color: #1a5c2a;
+  border-bottom-color: #1a5c2a;
+}
+
+/* Body */
+.kb-view-body {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Detail rows */
+.kb-view-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.kb-view-row.col {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.kb-view-row-key {
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.kb-view-row-val {
+  font-size: 13px;
+  color: #1a1a2e;
+  font-weight: 500;
+  text-align: right;
+  max-width: 60%;
+}
+
+.kb-view-access-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+
+.kb-view-desc {
+  margin: 0;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.5;
+}
+
+/* Activity rows */
+.kb-view-act-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.kb-view-act-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  flex-shrink: 0;
+}
+
+.kb-view-act-name {
+  margin: 0;
+  font-size: 13px;
+  color: #1a1a2e;
+}
+
+.kb-view-act-role {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.kb-view-act-meta {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.kb-view-empty {
+  color: #9ca3af;
+  font-size: 13px;
+  margin: 0;
+}
+
+/* Download button */
+.kb-view-dl-btn {
+  margin: 0 24px 24px;
+  padding: 10px;
+  background: #1a5c2a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+  letter-spacing: 0.2px;
+}
+
+.kb-view-dl-btn:hover {
+  background: #145222;
+}

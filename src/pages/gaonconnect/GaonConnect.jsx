@@ -1,12 +1,11 @@
 import { useState } from "react";
 import "./gaonconnect.css";
-
 import Forum from "./components/Forum";
 import Directory from "./components/Directory";
 import Suggestions from "./components/UserSuggestion/Suggestions";
 import GaonTalent from "./components/gaontalent/GaonTalent";
 import CommunityNewsWrapper from "./components/communityNews/CommunityNewsWrapper";
-import MyVillage from "./components/my-village/MyVilage";
+import VillageList from "../myvillage/MyVillage";
 import AdminProblems from "./components/ReportProblem/Reportproblem";
 
 const GaonConnect = () => {
@@ -46,7 +45,7 @@ const GaonConnect = () => {
       {activePage === "GaonTalent" && <GaonTalent />}
       {activePage === "Village Directory" && <Directory />}
       {activePage === "Suggestions" && <Suggestions />}
-       {activePage === "My Village" && <MyVillage />}
+      {activePage === "My Village" && <VillageList />}
        {activePage === "Report Problem" && <AdminProblems />}
     </div>
   );

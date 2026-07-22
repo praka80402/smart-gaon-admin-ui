@@ -89,89 +89,112 @@ const BusinessAdmin = () => {
     }
   };
 
-  return (
+  // ================= CARD STYLE HELPERS =================
+  const formatDate = (d) => {
+    if (!d) return "-";
+    return new Date(d).toLocaleDateString("en-GB");
+  };
 
+  const isOpenStatus = (status) => {
+    const s = (status || "").toUpperCase();
+    return s === "ACTIVE" || s === "OPEN" || s === "APPROVED";
+  };
+
+  return (
     <div className="job-admin-container">
 
       <h2>Business Management</h2>
 
-      {loading && (
-        <p style={{ textAlign: "center" }}>Loading...</p>
+      {loading && <p style={{ textAlign: "center" }}>Loading...</p>}
+
+      <div className="job-list-header">
+        <span>Status</span>
+        <span>Business Details</span>
+        <span>Created At</span>
+        <span>Description</span>
+        <span>Location</span>
+        <span>Budget</span>
+        <span>Reports</span>
+        <span>Actions</span>
+      </div>
+
+      {!loading && businesses.length === 0 && (
+        <div className="job-empty">No Businesses Found</div>
       )}
 
-      <div style={{ overflowX: "auto" }}>
-        <table className="job-table">
+      <div className="job-card-list">
+        {businesses.map((b) => {
+          const open = isOpenStatus(b.status);
+          return (
+            <div className="job-card" key={b.businessId}>
 
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Title</th>
-              <th>Description</th>
-              <th>Location</th>
-              <th>Budget</th>
-              <th>Status</th>
-              <th>Created At</th>
-              <th>User ID</th>
-              <th>Reports</th>
-              {canManage && <th>Delete</th>}
-              <th>Report</th>
-            </tr>
-          </thead>
+              <div className="job-col job-col-status">
+                <span className={`status-pill ${open ? "open" : "closed"}`}>
+                  <span className="status-dot" />
+                  {b.status || "N/A"}
+                </span>
+              </div>
 
-          <tbody>
+              <div className="job-col job-col-details">
+                <div className="job-icon-avatar">
+                  <span>🏢</span>
+                </div>
+                <div>
+                  <p className="job-title">{b.title}</p>
+                  <span className="job-tag">User #{b.userId ?? "N/A"}</span>
+                </div>
+              </div>
 
-            {!loading && businesses.length === 0 && (
-              <tr>
-                <td colSpan="11" style={{ textAlign: "center" }}>
-                  No Businesses Found
-                </td>
-              </tr>
-            )}
+              <div className="job-col job-col-timeline">
+                <span className="timeline-icon">📅</span>
+                <div>
+                  <div className="timeline-label">Created</div>
+                  <div className="timeline-end">
+                    {b.createdAt ? new Date(b.createdAt).toLocaleString() : "-"}
+                  </div>
+                </div>
+              </div>
 
-            {businesses.map((b) => (
+              <div className="job-col job-col-desc">
+                {b.description || "-"}
+              </div>
 
-              <tr key={b.businessId}>
+              <div className="job-col job-col-location">
+                <span className="location-pill">{b.location || "ALL"}</span>
+              </div>
 
-                <td>{b.businessId}</td>
-                <td>{b.title}</td>
-                <td>{b.description}</td>
-                <td>{b.location}</td>
-                <td>{b.budget}</td>
-                <td>{b.status}</td>
-                <td>
-                  {b.createdAt
-                    ? new Date(b.createdAt).toLocaleString()
-                    : "-"}
-                </td>
-                <td>{b.userId}</td>
-                <td>{b.reportCount}</td>
+              <div className="job-col job-col-salary">
+                {b.budget || "—"}
+              </div>
+
+              <div className="job-col job-col-reports">
+                <span className="reports-pill">
+                  <span className="reports-icon">🚩</span>
+                  {b.reportCount}
+                </span>
+              </div>
+
+              <div className="job-col job-col-actions">
+                <button
+                  className="view-btn"
+                  onClick={() => fetchReports(b.businessId)}
+                >
+                  Report Details
+                </button>
 
                 {canManage && (
-                  <td>
-                    <button
-                      className="delete-btn"
-                      onClick={() => deleteBusiness(b.businessId)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                )}
-
-                <td>
                   <button
-                    className="view-btn"
-                    onClick={() => fetchReports(b.businessId)}
+                    className="delete-btn"
+                    onClick={() => deleteBusiness(b.businessId)}
                   >
-                    Report Details
+                    Delete
                   </button>
-                </td>
+                )}
+              </div>
 
-              </tr>
-            ))}
-
-          </tbody>
-
-        </table>
+            </div>
+          );
+        })}
       </div>
 
       {/* ================= PAGINATION ================= */}

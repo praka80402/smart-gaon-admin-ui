@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getAllJobs, deleteJob } from "./jobApi";
+import "./privateJobs.css";
 
 const PrivateJobsList = () => {
 
@@ -38,71 +39,61 @@ const PrivateJobsList = () => {
   };
 
   return (
-    <div style={{ padding: "20px", background: "#f4f6f9" }}>
+    <div className="private-jobs-page">
 
-      <h3 style={{ marginBottom: "10px" }}>Private Jobs</h3>
+      <h3 className="private-jobs-title">Private Jobs</h3>
 
       {jobs.length === 0 ? (
-        <p>No Private Jobs Found</p>
+        <p className="private-jobs-empty">No Private Jobs Found</p>
       ) : (
-        <div style={{
-          background: "#fff",
-          borderRadius: "10px",
-          padding: "15px",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
-        }}>
+        <div className="private-jobs-card">
 
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <table className="private-jobs-table">
 
             <thead>
-              <tr style={{ background: "#2e7d32", color: "#fff" }}>
-                <th style={thStyle}>Title</th>
-                <th style={thStyle}>Company</th>
-                <th style={thStyle}>Description</th>
-                <th style={thStyle}>Location</th>
-                <th style={thStyle}>Action</th>
+              <tr>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Description</th>
+                <th>Location</th>
+                <th>Action</th>
               </tr>
             </thead>
 
             <tbody>
               {jobs.map((job) => (
-                <tr key={job.id} style={{ borderBottom: "1px solid #eee" }}>
+                <tr key={job.id}>
 
-                  <td style={tdStyle}>{job.title}</td>
-                  <td style={tdStyle}>{job.companyName}</td>
+                  <td>{job.title}</td>
+                  <td>{job.companyName}</td>
 
-                  <td style={tdStyle}>
+                  <td>
                     {getShortText(job.description, job.id)}
                     {job.description?.split(" ").length > 3 && (
                       <span
                         onClick={() => toggleView(job.id)}
-                        style={{ color: "#007bff", cursor: "pointer", marginLeft: "5px" }}
+                        className="private-view-more"
                       >
-                        {expandedId === job.id ? "view less" : "view more"}
+                        {expandedId === job.id ? "view less" : "View more"}
                       </span>
                     )}
                   </td>
 
-                  <td style={tdStyle}>{job.location}</td>
+                  <td>{job.location}</td>
 
-                  <td style={tdStyle}>
+                  <td className="private-action-cell">
                     <a
                       href={job.applyUrl}
                       target="_blank"
-                      style={{ color: "#007bff", marginRight: "10px" }}
+                      rel="noreferrer"
+                      className="private-apply-link"
                     >
                       Apply
                     </a>
 
                     <button
                       onClick={() => handleDelete(job.id)}
-                      style={{
-                        background: "#ff4d4d",
-                        color: "#fff",
-                        border: "none",
-                        padding: "5px 10px",
-                        borderRadius: "5px"
-                      }}
+                      className="private-delete-btn"
                     >
                       Delete
                     </button>
@@ -117,16 +108,6 @@ const PrivateJobsList = () => {
       )}
     </div>
   );
-};
-
-const thStyle = {
-  padding: "10px",
-  textAlign: "left"
-};
-
-const tdStyle = {
-  padding: "10px",
-  fontSize: "14px"
 };
 
 export default PrivateJobsList;

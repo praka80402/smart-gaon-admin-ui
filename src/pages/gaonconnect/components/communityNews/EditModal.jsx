@@ -2,9 +2,43 @@
 import React, { useEffect, useState } from "react";
 import "./communityNews.css";
 
+const getMediaImages = (item) => {
+  if (Array.isArray(item?.imageUrls) && item.imageUrls.length > 0) {
+    return item.imageUrls;
+  }
+
+  if (Array.isArray(item?.images) && item.images.length > 0) {
+    return item.images
+      .map((img) => img?.imageUrl || img?.url || img)
+      .filter(Boolean);
+  }
+
+  if (item?.pictureUrl) return [item.pictureUrl];
+  if (item?.thumbnailUrl) return [item.thumbnailUrl];
+  if (item?.imageUrl) return [item.imageUrl];
+
+  return [];
+};
+
+// API value ("2026-07-15" or "2026-07-15T10:30:00") -> datetime-local value ("2026-07-15T10:30")
+const toInputDateTime = (value) => {
+  if (!value) return "";
+  const v = String(value);
+  return v.includes("T") ? v.slice(0, 16) : `${v}T00:00`;
+};
+
+// datetime-local value ("2026-07-15T10:30") -> API value with seconds ("2026-07-15T10:30:00")
+const toApiDateTime = (value) => {
+  if (!value) return value;
+  return value.length === 16 ? `${value}:00` : value;
+};
+
 const EditModal = ({ visible, onClose, initial, type, onSave }) => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const [existingImages, setExistingImages] = useState([]);
   const [removedImageUrls, setRemovedImageUrls] = useState([]);
@@ -20,15 +54,12 @@ const EditModal = ({ visible, onClose, initial, type, onSave }) => {
       setTitle(initial.title || "");
       setBody(initial.summary || initial.description || "");
 
-      if (Array.isArray(initial.imageUrls)) {
-        setExistingImages(initial.imageUrls);
-      } else if (initial.pictureUrl) {
-        setExistingImages([initial.pictureUrl]);
-      } else if (initial.thumbnailUrl) {
-        setExistingImages([initial.thumbnailUrl]);
-      } else {
-        setExistingImages([]);
-      }
+      setStartDate(
+        toInputDateTime(initial.startDate || initial.startDateTime)
+      );
+      setEndDate(toInputDateTime(initial.endDate || initial.endDateTime));
+
+      setExistingImages(getMediaImages(initial));
 
       setExistingVideoUrl(initial.videoUrl || null);
 
@@ -72,6 +103,17 @@ const EditModal = ({ visible, onClose, initial, type, onSave }) => {
       payload.content = body;
     } else {
       payload.description = body;
+
+      if (!startDate || !endDate) {
+        return alert("Select event start and end dates");
+      }
+
+      if (new Date(endDate) < new Date(startDate)) {
+        return alert("End date cannot be before start date");
+      }
+
+      payload.startDateTime = toApiDateTime(startDate);
+      payload.endDateTime = toApiDateTime(endDate);
     }
 
     const mediaChanged =
@@ -100,6 +142,24 @@ const EditModal = ({ visible, onClose, initial, type, onSave }) => {
 
         <label>Body</label>
         <textarea value={body} onChange={(e) => setBody(e.target.value)} />
+
+        {type === "Event" && (
+          <>
+            <label>Start Date & Time</label>
+            <input
+              type="datetime-local"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+
+            <label>End Date & Time</label>
+            <input
+              type="datetime-local"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </>
+        )}
 
         <label>Existing Images</label>
         <div className="cn-existing-images">

@@ -1,101 +1,27 @@
-// import React, { useState } from "react";
-// import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-
-// import Header from "./components/Header";
-// import Dashboard from "./pages/Dashboard";
-// import GaonConnect from "./pages/gaonconnect/GaonConnect";
-// import Login from "./pages/auth/Login";
-// import Loader from "./Loader";
-
-// import "./App.css";
-
-// function App() {
-//   // Track login state
-//   const [isLoggedIn, setIsLoggedIn] = useState(
-//     localStorage.getItem("isAdminLoggedIn") === "true"
-//   );
-
-//   // Handle logout
-//   const handleLogout = () => {
-//     localStorage.removeItem("isAdminLoggedIn");
-//     setIsLoggedIn(false);
-//   };
-
-//   // When login happens in Login.jsx
-//   const handleLogin = () => {
-//     localStorage.setItem("isAdminLoggedIn", "true");
-//     setIsLoggedIn(true);
-//   };
-
-//   return (
-  
-//     <Router>
-//        <Loader />
-//       {/* Show header only if logged in */}
-//       {isLoggedIn && <Header onLogout={handleLogout} />}
-
-//       <main className={isLoggedIn ? "content-area" : ""}>
-//         <Routes>
-
-//           {/* Default route */}
-//           <Route
-//             path="/"
-//             element={
-//               isLoggedIn ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
-//             }
-//           />
-
-//           {/* LOGIN ROUTE */}
-//           <Route
-//             path="/login"
-//             element={
-//               isLoggedIn ? (
-//                 <Navigate to="/dashboard" />
-//               ) : (
-//                 <Login onLogin={handleLogin} />    // <-- FIXED HERE
-//               )
-//             }
-//           />
-
-//           {/* DASHBOARD */}
-//           <Route
-//             path="/dashboard"
-//             element={
-//               isLoggedIn ? <Dashboard /> : <Navigate to="/login" />
-//             }
-//           />
-
-//           {/* GAON CONNECT */}
-//           <Route
-//             path="/gaon-connect"
-//             element={
-//               isLoggedIn ? <GaonConnect /> : <Navigate to="/login" />
-//             }
-//           />
-
-//         </Routes>
-//       </main>
-//     </Router>
-//   );
-// }
-
-// export default App;
 
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-
 import Header from "./components/Header";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/dashboard/pages/Dashboard";
 import GaonConnect from "./pages/gaonconnect/GaonConnect";
 import Login from "./pages/auth/Login";
 import Loader from "./Loader";
-
-// ✅ ADD THESE IMPORTS
+import ImpactPage from "./pages/dashboard/management/impact/ImpactPage";
+import InsightsPage from "./pages/dashboard/management/insights/InsightsPage";
+import DashboardManagement from "./pages/dashboard/management/DashboardManagement";
+import KnowledgeBank from "./pages/kno-bank/KnowledgeBank";
+import VillageList from "./pages/myvillage/VillageList";
+import CreateVillage from "./pages/myvillage/CreateVillage";
+import DevelopmentCatalogue from "./pages/myvillage/DevelopmentCatalogue";
 import UserManagement from "./pages/UserManagement";
 import DonationAdmin from "./pages/donation/DonationAdmin";
 import NcertMain from "./pages/shikshasahayak/Shikshsahayak";
 import SevaBazarAdmin from "./pages/sevabazar/SevaBazarAdmin";
 import GaonSathiManager from "./pages/gaon-sathi/GaonSathiManager";
+import MediaPressAdminPage from "./pages/media_press/media_press";
+
+import BannerManagement from "./pages/dashboard/management/banner/BannerManagement";
+import EventManagement from "./pages/dashboard/management/event/EventManagement";
 
 import "./App.css";
 import ProfilePage from "./components/profilepage";
@@ -201,10 +127,54 @@ function App() {
             }
           />
 
+          {/* MEDIA & PRESS */}
+          <Route
+            path="/media_press"
+            element={
+              isLoggedIn ? <MediaPressAdminPage /> : <Navigate to="/login" />
+            }
+          />
+          <Route path="/admin" element={<Dashboard />} />
+ <Route 
+ path="/admin/KnowledgeBank" 
+ element={isLoggedIn ? <KnowledgeBank /> : <Navigate to="/login"/>} 
+ />
+
+
 <Route
   path="/profilepage"
   element={isLoggedIn ? <ProfilePage /> : <Navigate to="/login" />}
 />
+{/* SMART GAON — VILLAGES */}
+<Route
+  path="/admin/villages"
+  element={isLoggedIn ? <VillageList /> : <Navigate to="/login" />}
+/>
+
+<Route
+  path="/admin/villages/create"
+  element={isLoggedIn ? <CreateVillage /> : <Navigate to="/login" />}
+/>
+
+<Route
+  path="/admin/developments"
+  element={isLoggedIn ? <DevelopmentCatalogue /> : <Navigate to="/login" />}
+/>
+<Route
+  path="/dashboard/management"
+  element={isLoggedIn ? <DashboardManagement /> : <Navigate to="/login" />}
+>
+  <Route index element={<Navigate to="banner" />} />
+
+  <Route path="banner" element={<BannerManagement />} />
+
+  <Route path="event" element={<EventManagement />} />
+
+  <Route path="impact" element={<ImpactPage />} />
+
+  <Route path="insight" element={<InsightsPage />} />
+
+</Route>
 
         </Routes>
       </main>

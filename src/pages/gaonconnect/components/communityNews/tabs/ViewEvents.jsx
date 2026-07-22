@@ -1,490 +1,436 @@
-// import React, { useEffect, useState } from "react";
-// import {
-//   getAllEvents,
-//   deleteEvent,
-//   updateEvent,
-//   updateEventWithMedia,
-// } from "../../../services/eventsService";
-// import EditModal from "../EditModal";
-
-// export default function ViewEvents() {
-//   const [items, setItems] = useState([]);
-//   const [editing, setEditing] = useState(null);
-//   const [editVisible, setEditVisible] = useState(false);
-//   const [viewItem, setViewItem] = useState(null);
-
-//   // PAGINATION
-//   const [page, setPage] = useState(1);
-//   const pageSize = 5;
-
-//   const load = async () => {
-//     const res = await getAllEvents(0, 50);
-//     setItems(res.data || []);
-//   };
-
-//   useEffect(() => {
-//     load();
-//   }, []);
-
-//   useEffect(() => {
-//     setPage(1);
-//   }, [items]);
-
-//   const totalPages = Math.ceil(items.length / pageSize);
-//   const paginatedItems = items.slice((page - 1) * pageSize, page * pageSize);
-
-//   return (
-//     <div className="cn-list">
-//       <h2>Events List</h2>
-
-//       <table className="cn-table">
-//         <thead>
-//           <tr>
-//             <th>Title</th>
-//             <th>Description</th>
-//             <th>View</th>
-//             <th>Actions</th>
-//           </tr>
-//         </thead>
-
-//         <tbody>
-//           {paginatedItems.map((it) => (
-//             <tr key={it.id}>
-//               <td>{it.title}</td>
-//               <td>{(it.description || "").slice(0, 80)}...</td>
-
-//               <td className="cn-center">
-//                 <button className="view-btn" onClick={() => setViewItem(it)}>
-//                   View
-//                 </button>
-//               </td>
-
-//               <td>
-//                 <div className="cn-action-buttons">
-//                   <button
-//                     className="edit-btn"
-//                     onClick={() => {
-//                       setEditing(it);
-//                       setEditVisible(true);
-//                     }}
-//                   >
-//                     Edit
-//                   </button>
-
-//                   <button
-//                     className="delete-btn"
-//                     onClick={async () => {
-//                       await deleteEvent(it.id);
-//                       load();
-//                     }}
-//                   >
-//                     Delete
-//                   </button>
-//                 </div>
-//               </td>
-//             </tr>
-//           ))}
-
-//           {paginatedItems.length === 0 && (
-//             <tr>
-//               <td colSpan="4" className="empty-row">No events found</td>
-//             </tr>
-//           )}
-//         </tbody>
-//       </table>
-
-//       {/* PAGINATION */}
-// {totalPages > 1 && (
-//   <div className="pagination">
-    
-//     <button
-//       className="page-btn"
-//       disabled={page === 1}
-//       onClick={() => setPage(page - 1)}
-//     >
-//       Prev
-//     </button>
-
-//     <span className="current-page">{page}</span>
-
-//     <button
-//       className="page-btn"
-//       disabled={page === totalPages}
-//       onClick={() => setPage(page + 1)}
-//     >
-//       Next
-//     </button>
-
-//   </div>
-// )}
-
-
-
-//       {/* EDIT MODAL */}
-//       <EditModal
-//         visible={editVisible}
-//         onClose={() => setEditVisible(false)}
-//         initial={editing}
-//         type="Event"
-//         onSave={async (payload, media) => {
-//           if (
-//             media?.newImages?.length ||
-//             media?.newVideo ||
-//             media?.removedImageUrls?.length
-//           ) {
-//             await updateEventWithMedia(
-//               payload.id,
-//               payload,
-//               media.newImages,
-//               media.newVideo,
-//               media.removedImageUrls
-//             );
-//           } else {
-//             await updateEvent(payload.id, payload);
-//           }
-//           setEditVisible(false);
-//           load();
-//         }}
-//       />
-
-//       {/* VIEW MODAL */}
-//       {viewItem && (
-//         <div className="cn-modal-backdrop" onClick={() => setViewItem(null)}>
-//           <div className="cn-view-modal" onClick={(e) => e.stopPropagation()}>
-//             <h3>{viewItem.title}</h3>
-//             <p>{viewItem.description}</p>
-
-//             {viewItem.imageUrls?.length > 0 && (
-//               <div className="cn-view-images">
-//                 {viewItem.imageUrls.map((img, i) => (
-//                   <img key={i} src={img} alt="" />
-//                 ))}
-//               </div>
-//             )}
-
-//             {viewItem.videoUrl && (
-//               <video controls className="cn-video" src={viewItem.videoUrl} />
-//             )}
-
-//             <button className="close-btn" onClick={() => setViewItem(null)}>
-//               Close
-//             </button>
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-import React, { useEffect, useState } from "react";
+import React,{useEffect,useState} from "react";
 import {
-  getAllEvents,
-  deleteEvent,
-  updateEvent,
-  updateEventWithMedia,
+getAllEvents,
+deleteEvent,
+updateEvent,
+updateEventWithMedia,
 } from "../../../services/eventsService";
+
 import EditModal from "../EditModal";
 
-export default function ViewEvents() {
+const getCollectionItems = (data) => {
+if (Array.isArray(data)) return data;
+if (Array.isArray(data?.content)) return data.content;
+if (Array.isArray(data?.items)) return data.items;
+return [];
+};
 
-  const role = localStorage.getItem("adminRole");
+const getMediaImages = (item) => {
+if (Array.isArray(item?.imageUrls) && item.imageUrls.length > 0) {
+return item.imageUrls;
+}
 
-  const canManage =
-    role === "SUPER_ADMIN" || role === "STATE_ADMIN";
+if (Array.isArray(item?.images) && item.images.length > 0) {
+return item.images
+.map((img) => img?.imageUrl || img?.url || img)
+.filter(Boolean);
+}
 
-  const [items, setItems] = useState([]);
-  const [editing, setEditing] = useState(null);
-  const [editVisible, setEditVisible] = useState(false);
-  const [viewItem, setViewItem] = useState(null);
+if (item?.pictureUrl) return [item.pictureUrl];
+if (item?.thumbnailUrl) return [item.thumbnailUrl];
+if (item?.imageUrl) return [item.imageUrl];
 
-  const [page, setPage] = useState(1);
-  const pageSize = 5;
+return [];
+};
 
-  const load = async () => {
-    const res = await getAllEvents(0, 50);
-    setItems(res.data || []);
-  };
+// Format event date (single day or range), works with
+// startDate/endDate or startDateTime/endDateTime
+const formatEventDate = (item) => {
+const start = item?.startDate || item?.startDateTime;
+const end = item?.endDate || item?.endDateTime;
+if (!start) return null;
 
-  useEffect(() => {
-    load();
-  }, []);
+const opts = { day: "numeric", month: "long", year: "numeric" };
+const s = new Date(start).toLocaleDateString("en-IN", opts);
 
-  useEffect(() => {
-    setPage(1);
-  }, [items]);
+if (!end || end === start) return s;
 
-  const totalPages = Math.ceil(items.length / pageSize);
-  const paginatedItems = items.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
+const e = new Date(end).toLocaleDateString("en-IN", opts);
+return e === s ? s : `${s} – ${e}`;
+};
 
-  return (
-    <div className="cn-list">
+export default function ViewEvents(){
 
-      <h2>Events List</h2>
+const [items,setItems]=useState([]);
+const [editing,setEditing]=useState(null);
+const [editVisible,setEditVisible]=useState(false);
+const [viewItem,setViewItem]=useState(null);
+const [currentImageIndex,setCurrentImageIndex]=useState(0);
 
-      <table className="cn-table">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th>View</th>
-            {canManage && <th>Actions</th>}
-          </tr>
-        </thead>
+const [page,setPage]=useState(1);
 
-        <tbody>
+const pageSize=5;
 
-          {paginatedItems.map((it) => (
-            <tr key={it.id}>
+const load=async()=>{
 
-              <td>{it.title}</td>
-              <td>{(it.description || "").slice(0, 80)}...</td>
+try{
 
-              <td className="cn-center">
-               
-                <button
-  style={{
-    backgroundColor: "#6c757d",
-    color: "white",
-    border: "none",
-    padding: "6px 12px",
-    borderRadius: "4px",
-    cursor: "pointer"
-  }}
-  onClick={() => setViewItem(it)}
+const res=await getAllEvents(0,50);
+
+setItems(getCollectionItems(res.data));
+
+}catch(error){
+
+console.log(error);
+
+}
+
+};
+
+useEffect(()=>{
+load();
+},[]);
+
+useEffect(()=>{
+setPage(1);
+},[items]);
+
+useEffect(()=>{
+setCurrentImageIndex(0);
+},[viewItem]);
+
+const totalPages=Math.ceil(items.length/pageSize);
+
+const paginatedItems=
+items.slice(
+(page-1)*pageSize,
+page*pageSize
+);
+
+return(
+
+<div className="cn-page">
+
+<div className="cn-header-fixed">
+
+<div>
+
+<h1>
+View Events
+</h1>
+
+<p>
+Manage village events, competitions and announcements
+</p>
+
+</div>
+
+<div className="cn-badge">
+EVENT PANEL
+</div>
+
+</div>
+
+<div className="cn-news-list">
+
+{paginatedItems.map((event)=>(
+
+<div
+className="cn-news-card"
+key={event.id}
 >
-  View
-</button>
-              </td>
 
-              {canManage && (
-                <td>
-                  <div className="cn-action-buttons">
+<div className="cn-news-top">
 
-                    <button
-                      className="edit-btn"
-                      onClick={() => {
-                        if (!canManage) return;
-                        setEditing(it);
-                        setEditVisible(true);
-                      }}
-                    >
-                      Edit
-                    </button>
+<div className="cn-news-left">
 
-                    <button
-                      className="delete-btn"
-                      onClick={async () => {
-                        if (!canManage) return;
+<div className="cn-news-icon">
+🎉
+</div>
 
-                        if (window.confirm("Delete this event?")) {
-                          await deleteEvent(it.id);
-                          load();
-                        }
-                      }}
-                    >
-                      Delete
-                    </button>
+<div>
 
-                  </div>
-                </td>
-              )}
+<h3>
+{event.title}
+</h3>
 
-            </tr>
-          ))}
+{formatEventDate(event)&&(
 
-          {paginatedItems.length === 0 && (
-            <tr>
-              <td
-                colSpan={canManage ? "4" : "3"}
-                className="empty-row"
-              >
-                No events found
-              </td>
-            </tr>
-          )}
+<p className="cn-event-date">
+📅 {formatEventDate(event)}
+</p>
 
-        </tbody>
-      </table>
-
-      {/* PAGINATION */}
-      {totalPages > 1 && (
-        <div className="pagination">
-
-          <button
-            className="page-btn"
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-          >
-            Prev
-          </button>
-
-          <span className="current-page">{page}</span>
-
-          <button
-            className="page-btn"
-            disabled={page === totalPages}
-            onClick={() => setPage(page + 1)}
-          >
-            Next
-          </button>
-
-        </div>
-      )}
-
-      {/* EDIT MODAL (Only for allowed roles) */}
-      {canManage && (
-        <EditModal
-          visible={editVisible}
-          onClose={() => setEditVisible(false)}
-          initial={editing}
-          type="Event"
-          onSave={async (payload, media) => {
-            if (
-              media?.newImages?.length ||
-              media?.newVideo ||
-              media?.removedImageUrls?.length
-            ) {
-              await updateEventWithMedia(
-                payload.id,
-                payload,
-                media.newImages,
-                media.newVideo,
-                media.removedImageUrls
-              );
-            } else {
-              await updateEvent(payload.id, payload);
-            }
-            setEditVisible(false);
-            load();
-          }}
-        />
-      )}
-
-      {/* VIEW MODAL */}
-      {/* {viewItem && (
-        <div
-          className="cn-modal-backdrop"
-          onClick={() => setViewItem(null)}
-        >
-          <div
-            className="cn-view-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3>{viewItem.title}</h3>
-            <p>{viewItem.description}</p>
-
-            {viewItem.imageUrls?.length > 0 && (
-              <div className="cn-view-images">
-                {viewItem.imageUrls.map((img, i) => (
-                  <img key={i} src={img} alt="" />
-                ))}
-              </div>
-            )}
-
-            {viewItem.videoUrl && (
-              <video
-                controls
-                className="cn-video"
-                src={viewItem.videoUrl}
-              />
-            )}
-
-            <button
-              className="close-btn"
-              onClick={() => setViewItem(null)}
-            >
-              Close
-            </button> */}
-
-          {/* </div> */}
-        {/* </div> */}
-      {/* )} */}
-
-      {/* VIEW MODAL */}
-{viewItem && (
-  <div
-    onClick={() => setViewItem(null)}
-    style={{
-      position: "fixed",
-      inset: 0,
-      backgroundColor: "rgba(0,0,0,0.6)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 9999
-    }}
-  >
-    <div
-      onClick={(e) => e.stopPropagation()}
-      style={{
-        background: "white",
-        width: "70%",
-        maxWidth: "600px",
-        maxHeight: "80vh",
-        overflowY: "auto",
-        padding: "25px",
-        borderRadius: "8px",
-        position: "relative"
-      }}
-    >
-      {/* Circular Grey Close Button */}
-      <button
-        onClick={() => setViewItem(null)}
-        style={{
-          position: "absolute",
-          top: "12px",
-          right: "12px",
-          backgroundColor: "#6c757d",
-          color: "white",
-          border: "none",
-          width: "35px",
-          height: "35px",
-          borderRadius: "50%",
-          cursor: "pointer",
-          fontSize: "16px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}
-      >
-        ✕
-      </button>
-
-      <h3>{viewItem.title}</h3>
-      <p>{viewItem.description}</p>
-
-      {viewItem.imageUrls?.length > 0 && (
-        <div style={{ textAlign: "center" }}>
-          {viewItem.imageUrls.map((img, i) => (
-            <img
-              key={i}
-              src={img}
-              alt=""
-              style={{
-                width: "250px",
-                maxWidth: "100%",
-                marginTop: "15px",
-                borderRadius: "8px"
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {viewItem.videoUrl && (
-        <video
-          controls
-          src={viewItem.videoUrl}
-          style={{ width: "100%", marginTop: "15px" }}
-        />
-      )}
-    </div>
-  </div>
 )}
 
-    </div>
-  );
+<p>
+{(
+event.description||""
+).slice(0,140)}...
+</p>
+
+</div>
+
+</div>
+
+<div className="cn-news-actions">
+
+<button
+className="sg-btn sg-btn-ghost sg-btn-sm"
+onClick={()=>{
+setCurrentImageIndex(0);
+setViewItem(event);
+}}
+>
+View
+</button>
+
+<button
+className="sg-btn sg-btn-ghost sg-btn-sm"
+onClick={()=>{
+setEditing(event);
+setEditVisible(true);
+}}
+>
+Edit
+</button>
+
+<button
+className="sg-btn sg-btn-danger sg-btn-sm"
+onClick={async()=>{
+
+try{
+
+await deleteEvent(event.id);
+
+load();
+
+}catch(error){
+
+console.log(error);
+
+}
+
+}}
+>
+Delete
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+))}
+
+{paginatedItems.length===0&&(
+
+<div className="cn-empty">
+No events found
+</div>
+
+)}
+
+{totalPages>1&&(
+
+<div className="cn-pagination">
+
+<button
+className="cn-page-btn"
+disabled={page===1}
+onClick={()=>
+setPage(page-1)
+}
+>
+Previous
+</button>
+
+<div className="cn-current-page">
+{page}
+</div>
+
+<button
+className="cn-page-btn"
+disabled={
+page===totalPages
+}
+onClick={()=>
+setPage(page+1)
+}
+>
+Next
+</button>
+
+</div>
+
+)}
+
+</div>
+
+<EditModal
+visible={editVisible}
+onClose={()=>
+setEditVisible(false)
+}
+initial={editing}
+type="Event"
+onSave={async(
+payload,
+media
+)=>{
+
+try{
+
+if(
+media?.newImages?.length||
+media?.newVideo||
+media?.removedImageUrls?.length
+){
+
+await updateEventWithMedia(
+payload.id,
+payload,
+media.newImages,
+media.newVideo,
+media.removedImageUrls
+);
+
+}else{
+
+await updateEvent(
+payload.id,
+payload
+);
+
+}
+
+setEditVisible(false);
+
+load();
+
+}catch(error){
+
+console.log(error);
+
+}
+
+}}
+/>
+
+{viewItem&&(
+
+<div className="cn-modal-backdrop">
+
+<div className="cn-modal">
+{(()=>{
+const images=getMediaImages(viewItem);
+
+return(
+<>
+
+<button
+className="cn-close"
+onClick={()=>
+setViewItem(null)
+}
+>
+×
+</button>
+
+<h2>
+{viewItem.title}
+</h2>
+
+{formatEventDate(viewItem)&&(
+
+<p className="cn-event-date">
+📅 {formatEventDate(viewItem)}
+</p>
+
+)}
+
+<p>
+{viewItem.description}
+</p>
+
+{images.length>0&&(
+
+<div className="cn-slider-shell">
+
+{images.length>1&&(
+<button
+className="cn-slider-arrow cn-slider-arrow-left"
+onClick={()=>
+setCurrentImageIndex((prev)=>
+prev===0 ? images.length-1 : prev-1
+)
+}
+>
+{"<"}
+</button>
+)}
+
+<div className="cn-modal-images">
+<div
+className="cn-modal-track"
+style={{
+transform:`translateX(-${currentImageIndex*100}%)`,
+}}
+>
+{images.map((img,index)=>(
+<div className="cn-slide" key={index}>
+<img
+src={img}
+alt={`event ${index+1}`}
+/>
+</div>
+))}
+</div>
+</div>
+
+{images.length>1&&(
+<button
+className="cn-slider-arrow cn-slider-arrow-right"
+onClick={()=>
+setCurrentImageIndex((prev)=>
+prev===images.length-1 ? 0 : prev+1
+)
+}
+>
+{">"}
+</button>
+)}
+
+</div>
+
+)}
+
+{images.length>1&&(
+<div className="cn-slider-meta">
+<span>{currentImageIndex+1} / {images.length}</span>
+</div>
+)}
+
+{viewItem.videoUrl&&(
+
+<video
+controls
+style={{
+width:"100%",
+marginTop:"20px",
+borderRadius:"20px",
+}}
+>
+
+<source
+src={viewItem.videoUrl}
+/>
+
+</video>
+
+)}
+
+</>
+);
+})()}
+</div>
+
+</div>
+
+)}
+
+</div>
+
+);
+
 }

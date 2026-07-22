@@ -1,12 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  addDoc,
-  collection,
-  serverTimestamp,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
-import { db } from "../../firebase";
+import api from "../../services/axiosInstance";
 
 import "./addtips.css";
 
@@ -21,12 +14,6 @@ export default function AddTodayTip({ onSuccess, initialData = null, docId = nul
   const [loading, setLoading] = useState(false);
 
   const MAX_FILE_SIZE = 300 * 1024; // 300 KB
-
-  const formatDateDDMMYYYY = (iso) => {
-    if (!iso) return "";
-    const [y, m, d] = iso.split("-");
-    return `${d}-${m}-${y}`;
-  };
 
   const parseDateToISO = (ddmmyyyy) => {
     if (!ddmmyyyy) return "";
@@ -44,13 +31,12 @@ export default function AddTodayTip({ onSuccess, initialData = null, docId = nul
   useEffect(() => {
     if (initialData) {
       setTitle(initialData.title || "");
-        
-    const cat = initialData.category;
-    setOccupation(cat === "ALL" ? "ALL" : cat || "");
-      // setOccupation(initialData.category || ""); // UPDATED
+      const cat = initialData.category;
+      setOccupation(cat === "ALL" ? "ALL" : cat || "");
       setDescription(initialData.description || "");
-      setDate(initialData.date ? parseDateToISO(initialData.date) : "");
-      setImageBase64(initialData.imageBase64 || "");
+      // If we are editing, date from API will already be in YYYY-MM-DD format
+      setDate(initialData.targetDate || "");
+      setImageBase64(initialData.imageUrl || "");
     }
   }, [initialData]);
 
@@ -66,38 +52,20 @@ export default function AddTodayTip({ onSuccess, initialData = null, docId = nul
     if (imageFile) finalImage = await toBase64(imageFile);
 
     const payload = {
+      id: docId, // Send existing id if updating
       title,
-      category: occupation, // UPDATED
+      category: occupation,
       description,
-      imageBase64: finalImage,
-      date: formatDateDDMMYYYY(date),
-      notify: true
+      imageUrl: finalImage,
+      targetDate: date
     };
 
-   
-
-      
-   
-    if (docId) {
-  await updateDoc(doc(db, "today_tips", docId), {
-    ...payload,
-    updatedAt: serverTimestamp(),
-  });
-} else {
-  const tipRef = await addDoc(collection(db, "today_tips"), {
-    ...payload,
-    createdAt: serverTimestamp(),
-  });
-
-  // 🔔 Add notification document
-  await addDoc(collection(db, "notifications"), {
-    title: "New Today Tip",
-    message: title,
-    type: "today_tip",
-    refId: tipRef.id,
-    createdAt: serverTimestamp(),
-  });
-}
+    try {
+      await api.post("/api/tips/add", payload);
+    } catch (err) {
+      console.error("Error saving tip:", err);
+      alert("Failed to save tip");
+    }
 
     setLoading(false);
     onSuccess();

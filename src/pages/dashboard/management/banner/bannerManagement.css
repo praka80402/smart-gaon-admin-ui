@@ -1,0 +1,41 @@
+.banner-management{
+  width:100%;
+}
+
+.banner-header{
+  margin-bottom:20px;
+}
+
+.banner-header h2{
+  margin:0;
+  font-size:24px;
+  font-weight:700;
+}
+
+.banner-tabs{
+  display:flex;
+  gap:12px;
+  margin-bottom:25px;
+}
+
+.banner-tabs button{
+  border:none;
+  padding:10px 18px;
+  border-radius:12px;
+  cursor:pointer;
+  font-size:14px;
+  font-weight:600;
+  background:#f3f4f6;
+}
+
+.active-banner-tab{
+  background:#6366f1 !important;
+  color:#fff;
+}
+
+.banner-content{
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+  border:1px solid #e5e7eb;
+}
