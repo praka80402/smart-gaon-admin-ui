@@ -6,6 +6,7 @@ export default function UploadQuestions() {
   const [segmentType, setSegmentType] = useState("COMPETITION");
   const [classLevel, setClassLevel] = useState("");
   const [competitionType, setCompetitionType] = useState("SSC");
+  const [language, setLanguage] = useState("EN");
   const [result, setResult] = useState(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
@@ -45,7 +46,8 @@ export default function UploadQuestions() {
         file,
         segmentType,
         isAcademic ? classLevel : null,
-        isAcademic ? null : competitionType
+        isAcademic ? null : competitionType,
+        language
       );
       setResult(res);
       setFile(null);
@@ -64,6 +66,17 @@ export default function UploadQuestions() {
       <h3>Upload Questions (Excel)</h3>
 
       <div style={{ marginBottom: "20px" }}>
+        <label className="quiz-label">Select Language</label>
+        <select
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+          style={{ width: "100%", padding: "8px", borderRadius: "4px", marginBottom: "15px" }}
+        >
+          <option value="EN">English (EN)</option>
+          <option value="HI">Hindi (HI)</option>
+          <option value="MR">Marathi (MR)</option>
+        </select>
+
         <label className="quiz-label">Select Segment</label>
         <select
           value={segmentType}
