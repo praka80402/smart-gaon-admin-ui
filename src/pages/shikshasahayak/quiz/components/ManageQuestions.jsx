@@ -16,7 +16,7 @@ export default function ManageQuestions() {
   const [editing, setEditing] = useState(null);
   const [page, setPage] = useState(1);
 
-  // Filters state
+  const [language, setLanguage] = useState("EN");
   const [selectedClass, setSelectedClass] = useState("all");
   const [selectedCompType, setSelectedCompType] = useState("all");
   const [selectedSubject, setSelectedSubject] = useState("all");
@@ -26,11 +26,11 @@ export default function ManageQuestions() {
     setErr(null);
     setLoading(true);
     try {
-      const data = await getQuestions(segmentType);
-      setItems(Array.isArray(data) ? data : []);
-      setPage(1); // reset to first page on segment change
+      const data = await getQuestions(segmentType, language);
+      const fetched = Array.isArray(data) ? data : [];
+      setItems(fetched);
+      setPage(1); // reset to first page on segment/language change
       
-      // Reset filters
       setSelectedClass("all");
       setSelectedCompType("all");
       setSelectedSubject("all");
@@ -45,7 +45,7 @@ export default function ManageQuestions() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [segmentType]);
+  }, [segmentType, language]);
 
   const onDelete = async (id) => {
     if (!window.confirm("Delete this question?")) return;
@@ -85,12 +85,19 @@ export default function ManageQuestions() {
   );
   const compTypes = Array.from(new Set(items.map((q) => q.competitionType).filter(Boolean))).sort();
 
-  // Apply Category / Competition Type filters first before deriving unique sets and subjects
+  // Apply Category / Competition Type & Language filters first before deriving unique sets and subjects
   const categoryFilteredItems = items.filter((q) => {
+    const qLang = q.language ? String(q.language).toUpperCase() : "EN";
+    if (qLang !== String(language).toUpperCase()) return false;
+
     if (segmentType === "ACADEMIC") {
       if (selectedClass !== "all" && q.classLevel !== selectedClass) return false;
     } else {
-      if (selectedCompType !== "all" && q.competitionType !== selectedCompType) return false;
+      if (selectedCompType !== "all") {
+        const qComp = q.competitionType ? String(q.competitionType).toUpperCase().replace(/\s+/g, "_") : "";
+        const selComp = String(selectedCompType).toUpperCase().replace(/\s+/g, "_");
+        if (qComp !== selComp) return false;
+      }
     }
     return true;
   });
@@ -116,13 +123,25 @@ export default function ManageQuestions() {
 
   // --- Filtered Items ---
   const filteredItems = items.filter((q) => {
+    // 1. Strict Language Check
+    const qLang = q.language ? String(q.language).toUpperCase() : "EN";
+    if (qLang !== String(language).toUpperCase()) return false;
+
+    // 2. Segment & Category Filter
     if (segmentType === "ACADEMIC") {
-      if (selectedClass !== "all" && q.classLevel !== selectedClass) return false;
+      if (selectedClass === "all") return false;
+      if (q.classLevel !== selectedClass) return false;
     } else {
-      if (selectedCompType !== "all" && q.competitionType !== selectedCompType) return false;
+      if (selectedCompType === "all") return false;
+      const qComp = q.competitionType ? String(q.competitionType).toUpperCase().replace(/\s+/g, "_") : "";
+      const selComp = String(selectedCompType).toUpperCase().replace(/\s+/g, "_");
+      if (qComp !== selComp) return false;
     }
+    // 3. Subject Filter
     if (selectedSubject !== "all" && q.subject !== selectedSubject) return false;
+    // 4. Set Filter
     if (selectedSet !== "all" && String(q.setNumber) !== selectedSet) return false;
+
     return true;
   });
 
@@ -137,29 +156,76 @@ export default function ManageQuestions() {
       <div className="syllabus-header" style={{ display: "block" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
           <h3>Manage Questions</h3>
-          <div className="quiz-header-right">
+          <div className="quiz-header-right" style={{ display: "flex", gap: "10px", alignItems: "center" }}>
             {!loading && filteredItems.length > 0 && (
               <span className="quiz-count-pill">{filteredItems.length} total (filtered)</span>
             )}
-            <select
-              className="syllabus-class-select"
-              value={segmentType}
-              onChange={(e) => setSegmentType(e.target.value)}
-            >
-              <option value="COMPETITION">Competition</option>
-              <option value="ACADEMIC">Academic</option>
-            </select>
           </div>
         </div>
 
-        {/* Filter Controls Row */}
-        {!loading && items.length > 0 && (
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", backgroundColor: "#f8f9fa", padding: "10px", borderRadius: "5px", marginBottom: "15px" }}>
+        {/* Modern & Sleek Filter Controls Bar */}
+        <div style={{
+          backgroundColor: "#ffffff",
+          padding: "16px 20px",
+          borderRadius: "12px",
+          border: "1px solid #e2e8f0",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+          marginBottom: "20px"
+        }}>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+            gap: "16px",
+            alignItems: "end"
+          }}>
+            {/* 1. Quiz Type */}
+            <div>
+              <label style={{ fontSize: "12px", fontWeight: "700", color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px", display: "block" }}>
+                1. Quiz Type
+              </label>
+              <select
+                value={segmentType}
+                onChange={(e) => setSegmentType(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "9px 12px",
+                  borderRadius: "8px",
+                  border: "1.5px solid #cbd5e1",
+                  backgroundColor: "#f8fafc",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#1e293b",
+                  outline: "none",
+                  cursor: "pointer"
+                }}
+              >
+                <option value="COMPETITION">🏆 Competition</option>
+                <option value="ACADEMIC">🎓 Academic</option>
+              </select>
+            </div>
+
+            {/* 2. Competition / Class Category */}
             {segmentType === "ACADEMIC" ? (
               <div>
-                <label style={{ fontSize: "12px", display: "block", fontWeight: "bold" }}>Class Category</label>
-                <select value={selectedClass} onChange={(e) => { setSelectedClass(e.target.value); setPage(1); }} style={{ padding: "5px", borderRadius: "4px" }}>
-                  <option value="all">All Categories</option>
+                <label style={{ fontSize: "12px", fontWeight: "700", color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px", display: "block" }}>
+                  2. Class Category
+                </label>
+                <select
+                  value={selectedClass}
+                  onChange={(e) => { setSelectedClass(e.target.value); setPage(1); }}
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border: "1.5px solid #cbd5e1",
+                    backgroundColor: "#ffffff",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    color: "#1e293b",
+                    outline: "none"
+                  }}
+                >
+                  <option value="all">All Classes</option>
                   {classes.map((c) => {
                     const labels = {
                       "UNDER_5": "Under Class 5",
@@ -174,19 +240,78 @@ export default function ManageQuestions() {
               </div>
             ) : (
               <div>
-                <label style={{ fontSize: "12px", display: "block", fontWeight: "bold" }}>Competition</label>
-                <select value={selectedCompType} onChange={(e) => { setSelectedCompType(e.target.value); setPage(1); }} style={{ padding: "5px", borderRadius: "4px" }}>
-                  <option value="all">All Types</option>
-                  {compTypes.map((t) => (
+                <label style={{ fontSize: "12px", fontWeight: "700", color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px", display: "block" }}>
+                  2. Exam Category
+                </label>
+                <select
+                  value={selectedCompType}
+                  onChange={(e) => { setSelectedCompType(e.target.value); setPage(1); }}
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border: "1.5px solid #cbd5e1",
+                    backgroundColor: "#ffffff",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    color: "#1e293b",
+                    outline: "none"
+                  }}
+                >
+                  <option value="all">-- Select Exam Category --</option>
+                  {Array.from(new Set([...compTypes, "SSC", "BANK", "GENERAL", "STATE_EXAM"])).map((t) => (
                     <option key={t} value={t}>{t}</option>
                   ))}
                 </select>
               </div>
             )}
 
+            {/* 3. Language */}
             <div>
-              <label style={{ fontSize: "12px", display: "block", fontWeight: "bold" }}>Subject</label>
-              <select value={selectedSubject} onChange={(e) => { setSelectedSubject(e.target.value); setPage(1); }} style={{ padding: "5px", borderRadius: "4px" }}>
+              <label style={{ fontSize: "12px", fontWeight: "700", color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px", display: "block" }}>
+                3. Language
+              </label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "9px 12px",
+                  borderRadius: "8px",
+                  border: "1.5px solid #cbd5e1",
+                  backgroundColor: "#ffffff",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  color: "#1e293b",
+                  outline: "none"
+                }}
+              >
+                <option value="EN">English (EN)</option>
+                <option value="HI">Hindi (HI)</option>
+                <option value="MR">Marathi (MR)</option>
+              </select>
+            </div>
+
+            {/* 4. Subject */}
+            <div>
+              <label style={{ fontSize: "12px", fontWeight: "700", color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px", display: "block" }}>
+                4. Subject
+              </label>
+              <select
+                value={selectedSubject}
+                onChange={(e) => { setSelectedSubject(e.target.value); setPage(1); }}
+                style={{
+                  width: "100%",
+                  padding: "9px 12px",
+                  borderRadius: "8px",
+                  border: "1.5px solid #cbd5e1",
+                  backgroundColor: "#ffffff",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  color: "#1e293b",
+                  outline: "none"
+                }}
+              >
                 <option value="all">All Subjects</option>
                 {subjects.map((s) => (
                   <option key={s} value={s}>{s}</option>
@@ -194,9 +319,26 @@ export default function ManageQuestions() {
               </select>
             </div>
 
+            {/* 5. Set Number */}
             <div>
-              <label style={{ fontSize: "12px", display: "block", fontWeight: "bold" }}>Set Number</label>
-              <select value={selectedSet} onChange={(e) => { setSelectedSet(e.target.value); setPage(1); }} style={{ padding: "5px", borderRadius: "4px" }}>
+              <label style={{ fontSize: "12px", fontWeight: "700", color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px", display: "block" }}>
+                5. Set Number
+              </label>
+              <select
+                value={selectedSet}
+                onChange={(e) => { setSelectedSet(e.target.value); setPage(1); }}
+                style={{
+                  width: "100%",
+                  padding: "9px 12px",
+                  borderRadius: "8px",
+                  border: "1.5px solid #cbd5e1",
+                  backgroundColor: "#ffffff",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  color: "#1e293b",
+                  outline: "none"
+                }}
+              >
                 <option value="all">All Sets</option>
                 {sets.map((num) => (
                   <option key={num} value={num}>Set {num}</option>
@@ -204,7 +346,7 @@ export default function ManageQuestions() {
               </select>
             </div>
           </div>
-        )}
+        </div>
       </div>
 
       {err && <div className="quiz-msg-err">{err}</div>}
