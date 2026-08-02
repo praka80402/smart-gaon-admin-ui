@@ -22,7 +22,7 @@ import MediaPressAdminPage from "./pages/media_press/media_press";
 
 import BannerManagement from "./pages/dashboard/management/banner/BannerManagement";
 import EventManagement from "./pages/dashboard/management/event/EventManagement";
-
+import GaonDoctorAdmin from "./pages/doctor/GaonDoctorAdmin";
 import "./App.css";
 import ProfilePage from "./components/profilepage";
 
@@ -139,7 +139,10 @@ function App() {
  path="/admin/KnowledgeBank" 
  element={isLoggedIn ? <KnowledgeBank /> : <Navigate to="/login"/>} 
  />
-
+  <Route
+  path="/dashboard/management"
+  element={isLoggedIn ? <GaonDoctorAdmin /> : <Navigate to="/login" />}
+/>
 
 <Route
   path="/profilepage"
