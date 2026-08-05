@@ -6,6 +6,7 @@ import TodayTipsList from "../../today-tips/TodayTipsList";
 import HomeLayoutAdmin from "../../home-layout/HomeLayoutAdmin";
 import BannerAdmin from "../../banners/bannerAdmin";
 import GaonDoctorAdmin from "../../doctor/GaonDoctorAdmin";
+import AdminQuickServices from "../../quick/AdminQuickServices";
 import SchemeAdmin from "../../scheme/schemeAdmin";
 import { getUserCount } from "../../userService";
 
@@ -92,10 +93,16 @@ const Dashboard = () => {
           </div>
 
           <div
-            className="stats-card color-8"
+            className="stats-card color-9"
            onClick={() => setActiveModal("GaonDoctorAdmin")}
           >
             <h2 className="stats-click">Doctor</h2>
+          </div>
+         <div
+            className="stats-card color-8"
+           onClick={() => setActiveModal("AdminQuickServices")}
+          >
+            <h2 className="stats-click">Quick Services</h2>
           </div>
       
         </div>
@@ -132,6 +139,14 @@ const Dashboard = () => {
   className="modal-box-doctor"
 >
   <GaonDoctorAdmin onClose={closeModal} />
+</Modal>
+
+<Modal
+  open={activeModal === "AdminQuickServices"}
+  onClose={closeModal}
+  className="modal-box-quickservices"
+>
+  <AdminQuickServices onClose={closeModal} />
 </Modal>
     </div>
   );
