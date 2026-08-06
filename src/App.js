@@ -19,7 +19,7 @@ import NcertMain from "./pages/shikshasahayak/Shikshsahayak";
 import SevaBazarAdmin from "./pages/sevabazar/SevaBazarAdmin";
 import GaonSathiManager from "./pages/gaon-sathi/GaonSathiManager";
 import MediaPressAdminPage from "./pages/media_press/media_press";
-
+import AdminQuickServices from "./pages/quick/AdminQuickServices";
 import BannerManagement from "./pages/dashboard/management/banner/BannerManagement";
 import EventManagement from "./pages/dashboard/management/event/EventManagement";
 import GaonDoctorAdmin from "./pages/doctor/GaonDoctorAdmin";
@@ -143,7 +143,10 @@ function App() {
   path="/dashboard/management"
   element={isLoggedIn ? <GaonDoctorAdmin /> : <Navigate to="/login" />}
 />
-
+ <Route
+  path="/dashboard/management"
+  element={isLoggedIn ? <AdminQuickServices /> : <Navigate to="/login" />}
+/>
 <Route
   path="/profilepage"
   element={isLoggedIn ? <ProfilePage /> : <Navigate to="/login" />}
