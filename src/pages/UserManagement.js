@@ -589,10 +589,11 @@ const getAdminPagination = () => {
     <option value="VILLAGE_ADMIN">Village Admin</option>
   )}
   {isSuper && <option value="ACCOUNT_ADMIN">Account Admin</option>}
+  {isSuper && <option value="JUDGE">Judge</option>}
 </select>
 
 {/* STATE */}
-{adminForm.role && adminForm.role !== "ACCOUNT_ADMIN" && (
+{adminForm.role && adminForm.role !== "ACCOUNT_ADMIN" && adminForm.role !== "JUDGE" && (
   <>
     <label>State</label>
     <select
