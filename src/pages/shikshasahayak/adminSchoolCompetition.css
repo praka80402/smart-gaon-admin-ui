@@ -1,121 +1,658 @@
-/* ==========================================================================
-   ADMIN SCHOOL COMPETITION MODULE CSS - ADMIN UI
-   Scoped prefix: .admin-sc-
-   Prevents style conflicts with other admin modules.
-   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
 .admin-sc-container {
+  /* ---- design tokens, scoped to this module ---- */
+  --sc-paper: #eef1ec;
+  --sc-surface: #ffffff;
+  --sc-ink: #141d33;
+  --sc-ink-soft: #3a4459;
+  --sc-slate: #68708a;
+  --sc-slate-soft: #98a0b3;
+  --sc-border: #e1e4dc;
+  --sc-border-strong: #cbd0c6;
+  --sc-navy: #22335c;
+  --sc-navy-dark: #141d33;
+  --sc-navy-soft: #e9ecf4;
+  --sc-amber: #e7a93f;
+  --sc-amber-dark: #c8871f;
+  --sc-amber-soft: #fbf1de;
+  --sc-green: #2f8f5b;
+  --sc-green-soft: #e4f4ea;
+  --sc-green-text: #1e6b42;
+  --sc-red: #c0392b;
+  --sc-red-soft: #fbe9e6;
+  --sc-red-text: #a5321f;
+  --sc-gold: #d4af37;
+  --sc-gold-soft: #fbf2d6;
+  --sc-silver: #9aa5b1;
+  --sc-silver-soft: #f0f2f4;
+  --sc-bronze: #b8733a;
+  --sc-bronze-soft: #f8e8da;
+
+  --sc-font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --sc-font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --sc-font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+
   display: flex;
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: var(--sc-paper);
+  font-family: var(--sc-font-body);
+  color: var(--sc-ink);
 }
 
 .admin-sc-main {
   flex: 1;
-  padding: 30px;
+  padding: 32px 30px;
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
 }
 
+/* ---- header ---- */
 .admin-sc-header-card {
-  background-color: #0f172a;
+  background: linear-gradient(135deg, var(--sc-navy-dark) 0%, var(--sc-navy) 100%);
   color: #ffffff;
-  padding: 20px 24px;
-  border-radius: 12px;
-  margin-bottom: 25px;
+  padding: 28px 32px;
+  border-radius: 16px;
+  margin-bottom: 26px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 40px -18px rgba(20, 29, 51, 0.55);
+}
+
+.admin-sc-header-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--sc-amber), var(--sc-gold));
+}
+
+.admin-sc-header-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sc-amber);
+  margin-bottom: 10px;
 }
 
 .admin-sc-header-card h2 {
   margin: 0;
-  font-size: 24px;
-  font-weight: 700;
+  font-family: var(--sc-font-display);
+  font-size: 27px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .admin-sc-header-card p {
-  margin: 6px 0 0 0;
-  opacity: 0.8;
+  margin: 8px 0 0 0;
+  opacity: 0.78;
   font-size: 14px;
+  max-width: 560px;
+  line-height: 1.5;
 }
 
-.admin-sc-tabs-nav {
+.admin-sc-header-actions {
   display: flex;
   gap: 12px;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* ---- tabs ---- */
+.admin-sc-tabs-nav {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--sc-border);
+  background-color: var(--sc-surface);
+  border-radius: 12px 12px 0 0;
+  padding: 0 8px;
 }
 
 .admin-sc-tab-btn {
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 13px 20px;
   border: none;
-  font-weight: 700;
+  background-color: transparent;
   cursor: pointer;
-  background-color: #e2e8f0;
-  color: #475569;
-  transition: background-color 0.2s, color 0.2s;
+  font-weight: 700;
+  font-size: 14px;
+  font-family: var(--sc-font-body);
+  color: var(--sc-slate);
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-sc-tab-btn:hover {
+  color: var(--sc-ink);
 }
 
 .admin-sc-tab-btn.active {
-  background-color: #2563eb;
+  color: var(--sc-navy);
+  border-bottom-color: var(--sc-amber);
+  background-color: transparent;
+}
+
+.admin-sc-tab-count {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: var(--sc-border);
+  color: var(--sc-slate);
+}
+
+.admin-sc-tab-btn.active .admin-sc-tab-count {
+  background-color: var(--sc-navy);
   color: #ffffff;
 }
 
+/* ---- panels / cards ---- */
 .admin-sc-panel-card {
-  background-color: #ffffff;
-  border-radius: 12px;
+  background-color: var(--sc-surface);
+  border-radius: 0 0 14px 14px;
   padding: 24px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  margin-bottom: 30px;
+  box-shadow: 0 2px 10px -4px rgba(20, 29, 51, 0.08);
+  margin-bottom: 28px;
+  border: 1px solid var(--sc-border);
+  border-top: none;
 }
 
-.admin-sc-table {
-  width: 100%;
-  border-collapse: collapse;
+.admin-sc-panel-card.no-tab-radius {
+  border-radius: 14px;
+  border-top: 1px solid var(--sc-border);
 }
 
-.admin-sc-table th {
-  padding: 12px;
-  border-bottom: 2px solid #e2e8f0;
-  text-align: left;
-  font-weight: 700;
-  color: #334155;
-}
-
-.admin-sc-table td {
-  padding: 12px;
-  border-bottom: 1px solid #e2e8f0;
-  font-size: 14px;
-}
-
-.admin-sc-filter-select {
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
+.admin-sc-panel-title {
+  font-family: var(--sc-font-display);
+  font-size: 19px;
   font-weight: 600;
-  font-size: 13px;
-  background-color: #f8fafc;
-  outline: none;
+  margin-bottom: 18px;
+  color: var(--sc-ink);
 }
 
-.admin-sc-btn-primary {
-  padding: 12px 20px;
-  background-color: #2563eb;
-  color: #ffffff;
+.admin-sc-empty-note {
+  color: var(--sc-slate);
+  padding: 20px 0;
+}
+
+/* ---- competition card grid ---- */
+.admin-sc-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.admin-sc-comp-card {
+  background-color: var(--sc-surface);
+  border-radius: 14px;
+  border: 1px solid var(--sc-border);
+  border-left: 5px solid var(--sc-slate-soft);
+  box-shadow: 0 1px 3px rgba(20, 29, 51, 0.04);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+}
+
+.admin-sc-comp-card:hover {
+  box-shadow: 0 14px 30px -12px rgba(20, 29, 51, 0.18);
+  transform: translateY(-2px);
+  border-color: var(--sc-border-strong);
+}
+
+.admin-sc-comp-card.status-live { border-left-color: var(--sc-green); }
+.admin-sc-comp-card.status-upcoming { border-left-color: var(--sc-amber); }
+.admin-sc-comp-card.status-past { border-left-color: var(--sc-slate-soft); }
+
+.admin-sc-comp-card.selected {
+  border: 2px solid var(--sc-navy);
+  border-left: 5px solid var(--sc-green);
+  box-shadow: 0 10px 26px -10px rgba(34, 51, 92, 0.28);
+}
+
+/* ---- id / code "stamp" tags ---- */
+.admin-sc-stamp {
+  font-family: var(--sc-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.admin-sc-id-tag {
+  font-family: var(--sc-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sc-navy);
+  background-color: var(--sc-navy-soft);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+/* ---- status badges ---- */
+.admin-sc-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  display: inline-block;
+}
+
+.admin-sc-badge.live { background-color: var(--sc-green-soft); color: var(--sc-green-text); }
+.admin-sc-badge.ended { background-color: var(--sc-red-soft); color: var(--sc-red-text); }
+.admin-sc-badge.rejected { background-color: var(--sc-red-soft); color: var(--sc-red-text); }
+.admin-sc-badge.evaluated { background-color: var(--sc-green-soft); color: var(--sc-green-text); }
+
+.admin-sc-meta-chip {
+  background-color: var(--sc-paper);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--sc-border);
+  font-size: 12px;
+  color: var(--sc-ink-soft);
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.admin-sc-meta-chip.mode-auto { background-color: var(--sc-navy-soft); color: var(--sc-navy); font-weight: 700; }
+.admin-sc-meta-chip.mode-manual { background-color: var(--sc-amber-soft); color: var(--sc-amber-dark); font-weight: 700; }
+
+/* group/category badge used inside table cells — must never wrap,
+   otherwise the pill background clips the second line and looks broken */
+.admin-sc-group-chip {
+  background-color: var(--sc-paper);
+  color: var(--sc-ink-soft);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid var(--sc-border);
+  white-space: nowrap;
+  display: inline-block;
+  line-height: 1.3;
+}
+
+/* ---- buttons ---- */
+.admin-sc-btn {
   border: none;
   border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
+  font-family: var(--sc-font-body);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.admin-sc-btn:hover { transform: translateY(-1px); }
+.admin-sc-btn:active { transform: translateY(0); }
+.admin-sc-btn:disabled { cursor: not-allowed; opacity: 0.6; transform: none; }
+
+.admin-sc-btn-primary {
+  padding: 12px 22px;
+  background-color: var(--sc-navy);
+  color: #ffffff;
+  box-shadow: 0 8px 20px -8px rgba(34, 51, 92, 0.5);
+}
+
+.admin-sc-btn-accent {
+  padding: 12px 22px;
+  background-color: var(--sc-amber);
+  color: var(--sc-navy-dark);
+  box-shadow: 0 8px 20px -8px rgba(231, 169, 63, 0.7);
+}
+
+.admin-sc-btn-outline {
+  padding: 12px 20px;
+  background-color: transparent;
+  color: var(--sc-amber);
+  border: 1.5px solid var(--sc-amber);
+}
+
+.admin-sc-btn-success {
+  padding: 11px 24px;
+  background-color: var(--sc-green);
+  color: #ffffff;
+  box-shadow: 0 8px 20px -8px rgba(47, 143, 91, 0.5);
+}
+
+.admin-sc-btn-danger {
+  padding: 8px 12px;
+  background-color: var(--sc-red-soft);
+  color: var(--sc-red-text);
+}
+
+.admin-sc-btn-danger.solid {
+  background-color: var(--sc-red);
+  color: #ffffff;
+}
+
+.admin-sc-btn-warning {
+  padding: 8px 10px;
+  background-color: var(--sc-amber-soft);
+  color: var(--sc-amber-dark);
+}
+
+.admin-sc-btn-ghost {
+  padding: 10px 20px;
+  background-color: var(--sc-paper);
+  color: var(--sc-ink-soft);
+  border: 1px solid var(--sc-border-strong);
 }
 
 .admin-sc-btn-play {
   padding: 6px 12px;
-  background-color: #dc2626;
+  background-color: var(--sc-red);
   color: #ffffff;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
   font-size: 12px;
+}
+
+/* ---- table ---- */
+.admin-sc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-sc-table thead tr {
+  background-color: var(--sc-navy-soft);
+  text-align: left;
+}
+
+.admin-sc-table th {
+  padding: 12px;
+  border-bottom: 2px solid var(--sc-navy);
+  text-align: left;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sc-navy);
+}
+
+.admin-sc-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--sc-border);
+  font-size: 14px;
+  color: var(--sc-ink-soft);
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
+.admin-sc-table th {
+  white-space: nowrap;
+}
+
+.admin-sc-table tbody tr {
+  transition: background-color 0.12s ease;
+}
+
+.admin-sc-table tbody tr:nth-child(even) {
+  background-color: #fafbf9;
+}
+
+.admin-sc-table tbody tr:hover {
+  background-color: var(--sc-navy-soft);
+}
+
+.admin-sc-table td.id-cell {
+  font-family: var(--sc-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sc-navy);
+  white-space: nowrap;
+}
+
+/* columns that hold short fixed-format values should never wrap */
+.admin-sc-table td.nowrap-cell {
+  white-space: nowrap;
+}
+
+/* columns that hold longer free text should wrap, but not stretch too thin */
+.admin-sc-table td.wrap-cell {
+  min-width: 160px;
+  white-space: normal;
+}
+
+/* ---- medal / winner rank ---- */
+.admin-sc-medal-select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--sc-ink);
+  cursor: pointer;
+  font-family: var(--sc-font-body);
+  border: 2px solid var(--sc-border-strong);
+  background-color: #ffffff;
+}
+
+.admin-sc-medal-select.rank-1 { border-color: var(--sc-gold); background-color: var(--sc-gold-soft); }
+.admin-sc-medal-select.rank-2 { border-color: var(--sc-silver); background-color: var(--sc-silver-soft); }
+.admin-sc-medal-select.rank-3 { border-color: var(--sc-bronze); background-color: var(--sc-bronze-soft); }
+.admin-sc-medal-select.pending { border-color: var(--sc-amber); background-color: var(--sc-amber-soft); }
+
+.admin-sc-manual-flag {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--sc-amber-dark);
+  background-color: var(--sc-amber-soft);
+  padding: 2px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+/* ---- inputs, selects, textareas ---- */
+.admin-sc-input,
+.admin-sc-filter-select,
+.admin-sc-textarea {
+  padding: 11px;
+  border-radius: 8px;
+  border: 1px solid var(--sc-border-strong);
+  font-family: var(--sc-font-body);
+  background-color: #ffffff;
+  color: var(--sc-ink);
+}
+
+.admin-sc-filter-select {
+  padding: 9px 16px;
+  font-weight: 600;
+  font-size: 13px;
+  background-color: var(--sc-paper);
+}
+
+.admin-sc-search-input {
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-border-strong);
+  font-size: 13px;
+  background-color: var(--sc-paper);
+  font-family: var(--sc-font-body);
+}
+
+.admin-sc-id-input,
+.admin-sc-code-input {
+  font-family: var(--sc-font-mono);
+  font-size: 13px;
+}
+
+.admin-sc-input:focus,
+.admin-sc-filter-select:focus,
+.admin-sc-textarea:focus,
+.admin-sc-search-input:focus {
+  outline: none;
+  border-color: var(--sc-amber);
+  box-shadow: 0 0 0 3px var(--sc-amber-soft);
+}
+
+.admin-sc-field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: var(--sc-ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ---- chips (selected schools) ---- */
+.admin-sc-chip {
+  background-color: var(--sc-navy-soft);
+  color: var(--sc-navy);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-sc-chip-remove {
+  border: none;
+  background: none;
+  color: var(--sc-red);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border-radius: 999px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.admin-sc-chip-remove:hover {
+  background-color: var(--sc-red);
+  color: #ffffff;
+}
+
+/* ---- message banner ---- */
+.admin-sc-message-banner {
+  padding: 14px 18px;
+  background-color: var(--sc-green-soft);
+  color: var(--sc-green-text);
+  border-radius: 10px;
+  margin-bottom: 22px;
+  font-weight: 600;
+  border-left: 4px solid var(--sc-green);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ---- modals ---- */
+.admin-sc-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(20, 29, 51, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.admin-sc-modal {
+  background-color: var(--sc-surface);
+  border-radius: 18px;
+  padding: 32px 36px;
+  width: 92%;
+  max-width: 850px;
+  max-height: 88vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 30px 60px -15px rgba(20, 29, 51, 0.4);
+  border-top: 5px solid var(--sc-navy);
+}
+
+.admin-sc-modal.accent-amber { border-top-color: var(--sc-amber); }
+.admin-sc-modal.accent-green { border-top-color: var(--sc-green); }
+.admin-sc-modal.accent-red { border-top-color: var(--sc-red); }
+
+.admin-sc-modal-title {
+  margin-top: 0;
+  margin-bottom: 22px;
+  font-family: var(--sc-font-display);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--sc-ink);
+}
+
+.admin-sc-form-section {
+  background-color: var(--sc-paper);
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--sc-border);
+}
+
+/* ---- segmented mode toggle (school modal) ---- */
+.admin-sc-segmented {
+  display: inline-flex;
+  gap: 0;
+  margin-bottom: 18px;
+  background-color: var(--sc-paper);
+  border-radius: 10px;
+  padding: 4px;
+  border: 1px solid var(--sc-border);
+}
+
+.admin-sc-segmented-btn {
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  color: var(--sc-slate);
+  transition: all 0.15s ease;
+}
+
+.admin-sc-segmented-btn.active {
+  background-color: var(--sc-green);
+  color: #ffffff;
+}
+
+/* ---- video player modal ---- */
+.admin-sc-video-modal {
+  background-color: var(--sc-navy-dark);
+  border-radius: 14px;
+  padding: 16px;
+  width: 100%;
+  max-width: 800px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+.admin-sc-video-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  color: #ffffff;
+  font-family: var(--sc-font-display);
+  font-weight: 700;
+  font-size: 16px;
 }
 
 /* Hide scrollbar for edit modal content while preserving scrollability */
@@ -128,12 +665,27 @@
   display: none; /* Chrome, Safari and Opera */
 }
 
+/* thin styled scrollbar variant, used inside the schools list box */
+.admin-sc-scroll-thin::-webkit-scrollbar {
+  width: 8px;
+}
+
+.admin-sc-scroll-thin::-webkit-scrollbar-thumb {
+  background: var(--sc-border-strong);
+  border-radius: 8px;
+}
+
+.admin-sc-scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 /* 360 Rotation for Fixed Close Button */
 .rotate-close-btn {
   transition: transform 0.4s ease-in-out, background-color 0.2s ease;
+  background-color: var(--sc-ink-soft);
 }
 
 .rotate-close-btn:hover {
   transform: rotate(360deg) scale(1.1);
-  background-color: #dc2626 !important;
+  background-color: var(--sc-red) !important;
 }
