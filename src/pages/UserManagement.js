@@ -589,7 +589,7 @@ const getAdminPagination = () => {
     <option value="VILLAGE_ADMIN">Village Admin</option>
   )}
   {isSuper && <option value="ACCOUNT_ADMIN">Account Admin</option>}
-  {isSuper && <option value="JUDGE">Judge</option>}
+  {(isSuper || isState) && <option value="JUDGE">Judge</option>}
 </select>
 
 {/* STATE */}
@@ -661,7 +661,7 @@ const getAdminPagination = () => {
       return;
     }
 
-    if (adminForm.role !== "ACCOUNT_ADMIN" && !adminForm.state) {
+    if (adminForm.role !== "ACCOUNT_ADMIN" && adminForm.role !== "JUDGE" && !adminForm.state) {
       alert("State required");
       return;
     }
@@ -680,7 +680,11 @@ const getAdminPagination = () => {
     }
 
     // CREATE ADMIN
-    await createAdmin(adminForm);
+    const result = await createAdmin(adminForm);
+    if (result && typeof result === "string" && !result.toLowerCase().includes("success")) {
+      alert(result);
+      return;
+    }
 
     alert("Admin created successfully");
 
@@ -697,9 +701,10 @@ const getAdminPagination = () => {
 
     // REFRESH ADMIN LIST
     loadAdmins();
-
   } catch (err) {
-    alert("Failed to create admin");
+    console.error(err);
+    const msg = err.response?.data?.message || err.response?.data || "Failed to create admin";
+    alert(typeof msg === 'string' ? msg : "Failed to create admin");
   }
 }}
 
