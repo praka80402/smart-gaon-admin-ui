@@ -124,10 +124,12 @@ try {
 
   onLogin();
   if (res.role === "ACCOUNT_ADMIN") {
-  navigate("/donation/DonationAdmin", { replace: true });
-} else {
-  navigate("/dashboard", { replace: true });
-}
+    navigate("/donation/DonationAdmin", { replace: true });
+  } else if (res.role === "JUDGE") {
+    navigate("/judge-portal", { replace: true });
+  } else {
+    navigate("/dashboard", { replace: true });
+  }
   // navigate("/dashboard", { replace: true });
 
 } catch (err) {

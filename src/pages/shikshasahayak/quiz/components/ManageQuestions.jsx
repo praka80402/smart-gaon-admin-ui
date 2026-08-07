@@ -259,7 +259,7 @@ export default function ManageQuestions() {
                   }}
                 >
                   <option value="all">-- Select Exam Category --</option>
-                  {Array.from(new Set([...compTypes, "SSC", "BANK", "GENERAL", "STATE_EXAM"])).map((t) => (
+                  {Array.from(new Set([...compTypes, "SSC", "RAILWAY", "BANK", "GENERAL", "STATE_EXAM"])).map((t) => (
                     <option key={t} value={t}>{t}</option>
                   ))}
                 </select>

@@ -23,6 +23,8 @@ import AdminQuickServices from "./pages/quick/AdminQuickServices";
 import BannerManagement from "./pages/dashboard/management/banner/BannerManagement";
 import EventManagement from "./pages/dashboard/management/event/EventManagement";
 import GaonDoctorAdmin from "./pages/doctor/GaonDoctorAdmin";
+import JudgePortal from "./pages/shikshasahayak/JudgePortal";
+import AdminCompetitionManager from "./pages/shikshasahayak/AdminCompetitionManager";
 import "./App.css";
 import ProfilePage from "./components/profilepage";
 
@@ -181,6 +183,14 @@ function App() {
   <Route path="insight" element={<InsightsPage />} />
 
 </Route>
+<Route
+  path="/judge-portal"
+  element={isLoggedIn ? <JudgePortal /> : <Navigate to="/login" />}
+/>
+<Route
+  path="/admin/school-competition"
+  element={isLoggedIn ? <AdminCompetitionManager /> : <Navigate to="/login" />}
+/>
 
         </Routes>
       </main>

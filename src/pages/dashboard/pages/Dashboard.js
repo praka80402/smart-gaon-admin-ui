@@ -104,7 +104,12 @@ const Dashboard = () => {
           >
             <h2 className="stats-click">Quick Services</h2>
           </div>
-      
+          <div
+            className="stats-card color-8"
+            onClick={() => navigate("/admin/school-competition")}
+          >
+            <h2 className="stats-click">School Competition</h2>
+          </div>
         </div>
       </div>
 

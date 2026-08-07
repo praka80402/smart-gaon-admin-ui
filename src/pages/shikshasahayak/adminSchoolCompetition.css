@@ -1,0 +1,119 @@
+/* ==========================================================================
+   ADMIN SCHOOL COMPETITION MODULE CSS - ADMIN UI
+   Scoped prefix: .admin-sc-
+   Prevents style conflicts with other admin modules.
+   ========================================================================== */
+
+.admin-sc-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.admin-sc-main {
+  flex: 1;
+  padding: 30px;
+}
+
+.admin-sc-header-card {
+  background-color: #0f172a;
+  color: #ffffff;
+  padding: 20px 24px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-sc-header-card h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.admin-sc-header-card p {
+  margin: 6px 0 0 0;
+  opacity: 0.8;
+  font-size: 14px;
+}
+
+.admin-sc-tabs-nav {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.admin-sc-tab-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  background-color: #e2e8f0;
+  color: #475569;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.admin-sc-tab-btn.active {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.admin-sc-panel-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+}
+
+.admin-sc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-sc-table th {
+  padding: 12px;
+  border-bottom: 2px solid #e2e8f0;
+  text-align: left;
+  font-weight: 700;
+  color: #334155;
+}
+
+.admin-sc-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+}
+
+.admin-sc-filter-select {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-weight: 600;
+  font-size: 13px;
+  background-color: #f8fafc;
+  outline: none;
+}
+
+.admin-sc-btn-primary {
+  padding: 12px 20px;
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-sc-btn-play {
+  padding: 6px 12px;
+  background-color: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+}
