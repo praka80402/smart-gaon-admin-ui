@@ -57,7 +57,17 @@ function App() {
           <Route
             path="/"
             element={
-              isLoggedIn ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+              isLoggedIn ? (
+                localStorage.getItem("adminRole") === "JUDGE" ? (
+                  <Navigate to="/judge-portal" />
+                ) : localStorage.getItem("adminRole") === "ACCOUNT_ADMIN" ? (
+                  <Navigate to="/donation/DonationAdmin" />
+                ) : (
+                  <Navigate to="/dashboard" />
+                )
+              ) : (
+                <Navigate to="/login" />
+              )
             }
           />
 
@@ -66,7 +76,13 @@ function App() {
             path="/login"
             element={
               isLoggedIn ? (
-                <Navigate to="/dashboard" />
+                localStorage.getItem("adminRole") === "JUDGE" ? (
+                  <Navigate to="/judge-portal" />
+                ) : localStorage.getItem("adminRole") === "ACCOUNT_ADMIN" ? (
+                  <Navigate to="/donation/DonationAdmin" />
+                ) : (
+                  <Navigate to="/dashboard" />
+                )
               ) : (
                 <Login onLogin={handleLogin} />
               )

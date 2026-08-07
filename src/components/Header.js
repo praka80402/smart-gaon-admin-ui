@@ -36,8 +36,8 @@ const Header = ({ onLogout }) => {
 }, []);
 
 const getInitial = () => {
-  const name = adminInfo.name?.trim();
-  if (!name) return "A";
+  const name = (adminInfo.name || localStorage.getItem("adminEmail"))?.trim();
+  if (!name) return "J";
   return name[0].toUpperCase();
 };
 
