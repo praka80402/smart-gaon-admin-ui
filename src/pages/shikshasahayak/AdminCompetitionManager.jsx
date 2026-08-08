@@ -3,6 +3,60 @@ import axiosInstance from "../../services/axiosInstance";
 import * as XLSX from "xlsx";
 import "./adminSchoolCompetition.css";
 
+function AsyncVideoPlayer({ videoUrl }) {
+  const [blobUrl, setBlobUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    if (videoUrl && videoUrl.startsWith("data:video")) {
+      setLoading(true);
+      fetch(videoUrl)
+        .then((res) => res.blob())
+        .then((blob) => {
+          if (active) {
+            const url = URL.createObjectURL(blob);
+            setBlobUrl(url);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          console.error("Async video fetch error:", err);
+          if (active) setLoading(false);
+        });
+    } else {
+      setBlobUrl(videoUrl);
+    }
+    return () => {
+      active = false;
+      if (blobUrl && blobUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+  }, [videoUrl]);
+
+  if (loading) {
+    return (
+      <div style={{ backgroundColor: "#0f172a", padding: 30, borderRadius: 8, color: "#38bdf8", textAlign: "center" }}>
+        ⏳ Loading & Decoding High Quality Video Stream...
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ backgroundColor: "#0f172a", padding: 10, borderRadius: 8, textAlign: "center" }}>
+      <video
+        key={blobUrl || "vid-player"}
+        src={blobUrl || videoUrl}
+        controls
+        autoPlay
+        playsInline
+        style={{ width: "100%", maxHeight: "480px", borderRadius: 6, objectFit: "contain", backgroundColor: "#000" }}
+      />
+    </div>
+  );
+}
+
 export default function AdminCompetitionManager() {
   const [competitions, setCompetitions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -1231,12 +1285,22 @@ export default function AdminCompetitionManager() {
                           <td className="wrap-cell">{sub.entryTitle}</td>
                           <td className="nowrap-cell">
                             {sub.videoUrl ? (
-                              <button
-                                className="admin-sc-btn-play"
-                                onClick={() => setPlayingVideoUrl(sub.videoUrl)}
-                              >
-                                ▶ Play Video
-                              </button>
+                              sub.videoUrl.startsWith("data:image") || sub.videoUrl.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                                <button
+                                  className="admin-sc-btn-play"
+                                  style={{ backgroundColor: "#0284c7" }}
+                                  onClick={() => setPlayingVideoUrl(sub.videoUrl)}
+                                >
+                                  🖼️ View Image
+                                </button>
+                              ) : (
+                                <button
+                                  className="admin-sc-btn-play"
+                                  onClick={() => setPlayingVideoUrl(sub.videoUrl)}
+                                >
+                                  ▶ Play Media
+                                </button>
+                              )
                             ) : (
                               <span
                                 style={{
@@ -1244,7 +1308,7 @@ export default function AdminCompetitionManager() {
                                   fontSize: 12,
                                 }}
                               >
-                                No Video
+                                No Media
                               </span>
                             )}
                           </td>
@@ -1430,7 +1494,67 @@ export default function AdminCompetitionManager() {
           </div>
         )}
 
-        {/* CREATE COMPETITION MODAL */}
+        {/* PLAYING MEDIA MODAL (YOUTUBE / DIRECT VIDEO / IMAGE PREVIEW) */}
+        {playingVideoUrl && (
+          <div
+            className="admin-sc-modal-overlay"
+            style={{ backgroundColor: "rgba(10,14,24,0.9)", zIndex: 2000 }}
+            onClick={() => setPlayingVideoUrl(null)}
+          >
+            <div
+              className="admin-sc-video-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="admin-sc-video-modal-header">
+                <span>▶ Video Submission Preview</span>
+                <button
+                  className="admin-sc-btn admin-sc-btn-danger solid"
+                  onClick={() => setPlayingVideoUrl(null)}
+                  style={{ borderRadius: 8, padding: "6px 14px" }}
+                >
+                  Close ✕
+                </button>
+              </div>
+
+              {playingVideoUrl.startsWith("data:image") || playingVideoUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp|heic)$/i) ? (
+                <div style={{ textAlign: "center", backgroundColor: "#0f172a", padding: 10, borderRadius: 8 }}>
+                  <img
+                    src={playingVideoUrl}
+                    alt="Submission Preview"
+                    style={{ maxHeight: 500, maxWidth: "100%", objectFit: "contain", borderRadius: 6 }}
+                  />
+                </div>
+              ) : (getEmbedUrl(playingVideoUrl) && getEmbedUrl(playingVideoUrl).startsWith("https://www.youtube.com/embed/")) ? (
+                <div
+                  style={{
+                    position: "relative",
+                    paddingBottom: "56.25%",
+                    height: 0,
+                    overflow: "hidden",
+                    borderRadius: 10,
+                  }}
+                >
+                  <iframe
+                    src={getEmbedUrl(playingVideoUrl)}
+                    title="Video Player"
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      border: 0,
+                    }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              ) : (
+                <AsyncVideoPlayer videoUrl={playingVideoUrl} />
+              )}
+            </div>
+          </div>
+        )}
         {showModal && (
           <div className="admin-sc-modal-overlay">
             <div className="admin-sc-modal hide-scrollbar">
@@ -2104,50 +2228,7 @@ export default function AdminCompetitionManager() {
           </div>
         )}
 
-        {/* IN-APP YOUTUBE / MEDIA VIDEO PLAYER MODAL */}
-        {playingVideoUrl && (
-          <div
-            className="admin-sc-modal-overlay"
-            style={{ backgroundColor: "rgba(10,14,24,0.9)", zIndex: 2000 }}
-          >
-            <div className="admin-sc-video-modal">
-              <div className="admin-sc-video-modal-header">
-                <span>▶ Video Submission Preview</span>
-                <button
-                  className="admin-sc-btn admin-sc-btn-danger solid"
-                  onClick={() => setPlayingVideoUrl(null)}
-                  style={{ borderRadius: 8, padding: "6px 14px" }}
-                >
-                  Close ✕
-                </button>
-              </div>
-              <div
-                style={{
-                  position: "relative",
-                  paddingBottom: "56.25%",
-                  height: 0,
-                  overflow: "hidden",
-                  borderRadius: 10,
-                }}
-              >
-                <iframe
-                  src={getEmbedUrl(playingVideoUrl)}
-                  title="Submission Entry Video"
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    border: "none",
-                  }}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            </div>
-          </div>
-        )}
+
         {/* MASTER SCHOOL MANAGEMENT MODAL */}
         {showSchoolModal && (
           <div className="admin-sc-modal-overlay" style={{ zIndex: 1100 }}>

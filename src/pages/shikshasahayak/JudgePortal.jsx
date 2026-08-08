@@ -1,6 +1,58 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../services/axiosInstance";
 
+function AsyncVideoPlayer({ videoUrl }) {
+  const [blobUrl, setBlobUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    if (videoUrl && videoUrl.startsWith("data:video")) {
+      setLoading(true);
+      fetch(videoUrl)
+        .then((res) => res.blob())
+        .then((blob) => {
+          if (active) {
+            const url = URL.createObjectURL(blob);
+            setBlobUrl(url);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          console.error("Async video fetch error:", err);
+          if (active) setLoading(false);
+        });
+    } else {
+      setBlobUrl(videoUrl);
+    }
+    return () => {
+      active = false;
+      if (blobUrl && blobUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+  }, [videoUrl]);
+
+  if (loading) {
+    return (
+      <div style={{ backgroundColor: "#0f172a", padding: 20, borderRadius: 8, color: "#38bdf8", textAlign: "center", fontSize: "13px" }}>
+        ⏳ Loading & Decoding Video Stream...
+      </div>
+    );
+  }
+
+  return (
+    <video
+      key={blobUrl || "vid-player"}
+      src={blobUrl || videoUrl}
+      controls
+      autoPlay
+      playsInline
+      style={{ width: "100%", maxHeight: "250px", borderRadius: "8px", backgroundColor: "#0f172a" }}
+    />
+  );
+}
+
 export default function JudgePortal() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -386,7 +438,25 @@ export default function JudgePortal() {
 
               <div style={{ backgroundColor: "#eff6ff", padding: "12px", borderRadius: "8px", marginBottom: "16px" }}>
                 <p style={{ margin: "0 0 6px 0", fontWeight: "600" }}>Title: {selectedSub.entryTitle}</p>
-                <p style={{ margin: 0, fontSize: "14px" }}>Video Link: <a href={selectedSub.videoUrl} target="_blank" rel="noreferrer" style={{ color: "#2563eb", fontWeight: "600" }}>{selectedSub.videoUrl}</a></p>
+                {selectedSub.videoUrl ? (
+                  selectedSub.videoUrl.startsWith("data:image") || selectedSub.videoUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp|heic)$/i) ? (
+                    <div style={{ marginTop: "8px" }}>
+                      <p style={{ fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>Submitted Image Entry:</p>
+                      <img src={selectedSub.videoUrl} alt="Student Entry" style={{ maxHeight: "220px", maxWidth: "100%", borderRadius: "8px", border: "1px solid #cbd5e1" }} />
+                    </div>
+                  ) : selectedSub.videoUrl.startsWith("data:video") || selectedSub.videoUrl.match(/\.(mp4|mov|3gp|webm|mkv|avi|wmv)$/i) ? (
+                    <div style={{ marginTop: "8px" }}>
+                      <p style={{ fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>Submitted Video Entry (Play Below):</p>
+                      <AsyncVideoPlayer videoUrl={selectedSub.videoUrl} />
+                    </div>
+                  ) : (
+                    <p style={{ margin: 0, fontSize: "14px" }}>
+                      Video Link: <a href={selectedSub.videoUrl} target="_blank" rel="noreferrer" style={{ color: "#2563eb", fontWeight: "600" }}>{selectedSub.videoUrl}</a>
+                    </p>
+                  )
+                ) : (
+                  <p style={{ color: "#94a3b8", fontSize: "13px" }}>No Media Link Attached</p>
+                )}
               </div>
 
               <form onSubmit={handleSubmitEvaluation} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
