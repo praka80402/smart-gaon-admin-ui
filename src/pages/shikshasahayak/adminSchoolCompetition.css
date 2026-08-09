@@ -374,27 +374,28 @@
 }
 
 .admin-sc-table th {
-  padding: 12px;
+  padding: 8px 6px;
   border-bottom: 2px solid var(--sc-navy);
   text-align: left;
   font-weight: 800;
   font-size: 11px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--sc-navy);
+  white-space: normal;
 }
 
 .admin-sc-table td {
-  padding: 14px 12px;
+  padding: 8px 6px;
   border-bottom: 1px solid var(--sc-border);
-  font-size: 14px;
+  font-size: 13px;
   color: var(--sc-ink-soft);
   vertical-align: middle;
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 .admin-sc-table th {
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .admin-sc-table tbody tr {
@@ -411,7 +412,7 @@
 
 .admin-sc-table td.id-cell {
   font-family: var(--sc-font-mono);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--sc-navy);
   white-space: nowrap;
@@ -424,8 +425,8 @@
 
 /* columns that hold longer free text should wrap, but not stretch too thin */
 .admin-sc-table td.wrap-cell {
-  min-width: 160px;
   white-space: normal;
+  word-break: break-word;
 }
 
 /* ---- medal / winner rank ---- */
