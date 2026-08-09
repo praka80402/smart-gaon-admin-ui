@@ -7,7 +7,9 @@ import {
   searchUsers,
   getUsersByPincode,
   enableUser,
-  disableUser
+  disableUser,
+  getSchoolsForCompetition,
+  createSchoolAdmin
 } from "./userService";
 
 
@@ -31,6 +33,15 @@ const canManageUsers = isSuper || isState;
   const [showModal, setShowModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
+
+  // ADD SCHOOL ADMIN
+  const [showSchoolAdminModal, setShowSchoolAdminModal] = useState(false);
+  const [schools, setSchools] = useState([]);
+  const [schoolAdminForm, setSchoolAdminForm] = useState({
+    school: "",
+    email: "",
+    password: "",
+  });
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -88,6 +99,46 @@ const canManageUsers = isSuper || isState;
     }));
   }
 }, [isState, showModal, adminState]);
+
+  // Load schools when "Add School Admin" modal opens
+  useEffect(() => {
+    if (showSchoolAdminModal) {
+      loadSchools();
+    }
+  }, [showSchoolAdminModal]);
+
+  const loadSchools = async () => {
+    try {
+      const data = await getSchoolsForCompetition();
+      setSchools(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSaveSchoolAdmin = async () => {
+    try {
+      if (!schoolAdminForm.school || !schoolAdminForm.email || !schoolAdminForm.password) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      const result = await createSchoolAdmin(schoolAdminForm);
+      if (result && typeof result === "string" && !result.toLowerCase().includes("success")) {
+        alert(result);
+        return;
+      }
+
+      alert("School Admin created successfully");
+      setShowSchoolAdminModal(false);
+      setSchoolAdminForm({ school: "", email: "", password: "" });
+      loadAdmins();
+    } catch (err) {
+      console.error(err);
+      const msg = err.response?.data?.message || err.response?.data || "Failed to create school admin";
+      alert(typeof msg === "string" ? msg : "Failed to create school admin");
+    }
+  };
 
   // -------------------- APPLY FILTER ----------------------
   const applyFilters = async () => {
@@ -304,8 +355,7 @@ const getAdminPagination = () => {
     <span style={{ color: "gray", fontWeight: "500" }}>NA</span>
   )}
 </td>
-
-              {/* <td className="action-buttons">
+ {/* <td className="action-buttons">
                 {!u.isDeleted && (
                   <>
                     {u.accountEnabled ? (
@@ -450,7 +500,7 @@ const getAdminPagination = () => {
 
   </div>
 );
-    <table className="um-table">
+ <table className="um-table">
       <thead>
         <tr>
           <th>Email</th>
@@ -470,7 +520,6 @@ const getAdminPagination = () => {
         ))}
       </tbody>
     </table>
-  
 
   return (
      <div className="user-container">
@@ -518,14 +567,19 @@ const getAdminPagination = () => {
         >
           Admin List
         </button>
-
-        {/* <button className="danger-btn" onClick={() => setShowModal(true)}>
+          {/* <button className="danger-btn" onClick={() => setShowModal(true)}>
           Add Admin
         </button> */}
 
         {canAddAdmin && (
   <button className="danger-btn" onClick={() => setShowModal(true)}>
     Add Admin
+  </button>
+)}
+
+        {canAddAdmin && (
+  <button className="danger-btn" onClick={() => setShowSchoolAdminModal(true)}>
+    Add School Admin
   </button>
 )}
       </div>
@@ -730,11 +784,66 @@ Cancel
 
 </div>
 
+          </div>
+        </div>
+      )}
 
+      {/* ADD SCHOOL ADMIN MODAL */}
+      {showSchoolAdminModal && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <h3>Add School Admin</h3>
 
+            <div className="modal-body">
+              <label>School</label>
+              <select
+                value={schoolAdminForm.school}
+                onChange={(e) =>
+                  setSchoolAdminForm({ ...schoolAdminForm, school: e.target.value })
+                }
+              >
+                <option value="">Select School</option>
+                {schools.map((s) => (
+                  <option key={s.id} value={s.name}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
 
+              <label>Username</label>
+              <input
+                name="email"
+                value={schoolAdminForm.email}
+                onChange={(e) =>
+                  setSchoolAdminForm({ ...schoolAdminForm, email: e.target.value })
+                }
+              />
 
+              <label>Password</label>
+              <input
+                type="password"
+                name="password"
+                value={schoolAdminForm.password}
+                onChange={(e) =>
+                  setSchoolAdminForm({ ...schoolAdminForm, password: e.target.value })
+                }
+              />
+            </div>
 
+            <div className="modal-actions">
+              <button className="primary-btn" onClick={handleSaveSchoolAdmin}>
+                Save
+              </button>
+              <button
+                className="danger-btn"
+                onClick={() => {
+                  setShowSchoolAdminModal(false);
+                  setSchoolAdminForm({ school: "", email: "", password: "" });
+                }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
