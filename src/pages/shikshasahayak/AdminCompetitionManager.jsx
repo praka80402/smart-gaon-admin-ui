@@ -675,6 +675,93 @@ export default function AdminCompetitionManager() {
     }
     setDeleteTargetComp(comp);
   };
+
+  const sanitizeFileName = (value) =>
+    String(value || "competition-results")
+      .trim()
+      .replace(/[<>:"/\\|?*\x00-\x1F]/g, "_")
+      .replace(/\s+/g, "_")
+      .replace(/_+/g, "_");
+
+  const downloadCompetitionResults = async (competitionId) => {
+    if (!competitionId) return;
+
+    setDownloadingCompetitionId(competitionId);
+    try {
+      const res = await axiosInstance.get(
+        `/admin/school-competitions/results?competitionId=${encodeURIComponent(competitionId)}`,
+      );
+
+      const results = Array.isArray(res.data) ? res.data : [];
+      if (results.length === 0) {
+        alert("No results found for this competition.");
+        return;
+      }
+
+      const rows = results.map((item) => ({
+        Category: item.category || "",
+        "Competition Title": item.titleOfCompetition || "",
+        "School Name": item.schoolName || "",
+        City: item.city || "",
+        State: item.state || "",
+        "Student Name": item.studentName || "",
+        "Group / Age": item.groupAge || "",
+        "Class Name": item.className || "",
+        "Roll No": item.rollNo || "",
+        "Video Link": item.videoLink || "",
+        Image: item.image || "",
+        "Competition Code": item.code || "",
+        "Judge 1 Criteria 1 Marks": item.judge1Criteria1Marks || "",
+        "Judge 1 Criteria 2 Marks": item.judge1Criteria2Marks || "",
+        "Judge 1 Criteria 3 Marks": item.judge1Criteria3Marks || "",
+        "Judge 1 Criteria 4 Marks": item.judge1Criteria4Marks || "",
+        "Judge 1 Criteria 5 Marks": item.judge1Criteria5Marks || "",
+        "Judge 1 Total Received": item.judge1TotalRecived || "",
+        "Judge 2 Criteria 1 Marks": item.judge2Criteria1Marks || "",
+        "Judge 2 Criteria 2 Marks": item.judge2Criteria2Marks || "",
+        "Judge 2 Criteria 3 Marks": item.judge2Criteria3Marks || "",
+        "Judge 2 Criteria 4 Marks": item.judge2Criteria4Marks || "",
+        "Judge 2 Criteria 5 Marks": item.judge2Criteria5Marks || "",
+        "Judge 2 Total Received": item.judge2TotalRecived || "",
+        "Judge 3 Criteria 1 Marks": item.judge3Criteria1Marks || "",
+        "Judge 3 Criteria 2 Marks": item.judge3Criteria2Marks || "",
+        "Judge 3 Criteria 3 Marks": item.judge3Criteria3Marks || "",
+        "Judge 3 Criteria 4 Marks": item.judge3Criteria4Marks || "",
+        "Judge 3 Criteria 5 Marks": item.judge3Criteria5Marks || "",
+        "Judge 3 Total Received": item.judge3TotalRecived || "",
+        "Total Marks": item.totalMarks || "",
+        "Total Average Mark": item.totalAvgMark || "",
+        "Winner Position": item.winnerPosition || "",
+      }));
+
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Results");
+
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      const blob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${sanitizeFileName(competitionId)}-results.xlsx`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      setMsg(`✓ Downloaded Excel results for '${competitionId}'`);
+    } catch (err) {
+      console.error("Failed to download competition results", err);
+      alert(
+        err.response?.data?.message ||
+          "Failed to download competition results as Excel.",
+      );
+    } finally {
+      setDownloadingCompetitionId("");
+    }
+  };
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectingSubmissionId, setRejectingSubmissionId] = useState("");
   const [rejectionReasonInput, setRejectionReasonInput] = useState("");
@@ -778,6 +865,7 @@ export default function AdminCompetitionManager() {
   const [selectedGroupFilter, setSelectedGroupFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [playingVideoUrl, setPlayingVideoUrl] = useState(null);
+  const [downloadingCompetitionId, setDownloadingCompetitionId] = useState("");
 
   const handleDeleteSubmission = (subId) => {
     if (
@@ -1473,11 +1561,18 @@ export default function AdminCompetitionManager() {
                 flexWrap: "nowrap",
               }}
             >
-              <h3
+              <div
                 className="admin-sc-panel-title"
-                style={{ marginBottom: 0, whiteSpace: "nowrap" }}
+                style={{
+                  marginBottom: 0,
+                  whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  flexWrap: "wrap",
+                }}
               >
-                📥 Student Submissions{" "}
+                <span>📥 Student Submissions</span>
                 <span
                   style={{
                     color: "var(--sc-slate)",
@@ -1491,7 +1586,46 @@ export default function AdminCompetitionManager() {
                     : selectedCompetitionFilter}
                   )
                 </span>
-              </h3>
+                {selectedCompetitionFilter !== "ALL" && (
+                  <button
+                    type="button"
+                    className="admin-sc-btn admin-sc-btn-success"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      downloadCompetitionResults(selectedCompetitionFilter);
+                    }}
+                    disabled={
+                      downloadingCompetitionId === selectedCompetitionFilter
+                    }
+                    title="Download Excel Results"
+                    style={{
+                      width: 28,
+                      height: 28,
+                      minWidth: 28,
+                      padding: 0,
+                      borderRadius: 999,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 15,
+                      lineHeight: 1,
+                      flex: "0 0 auto",
+                      position: "relative",
+                      zIndex: 2,
+                      pointerEvents: "auto",
+                      opacity:
+                        downloadingCompetitionId === selectedCompetitionFilter
+                          ? 0.75
+                          : 1,
+                    }}
+                  >
+                    {downloadingCompetitionId === selectedCompetitionFilter
+                      ? "⏳"
+                      : "⬇"}
+                  </button>
+                )}
+              </div>
 
               <div
                 style={{
