@@ -1,6 +1,5 @@
-
-import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Header from "./components/Header";
 import Dashboard from "./pages/dashboard/pages/Dashboard";
 import GaonConnect from "./pages/gaonconnect/GaonConnect";
@@ -25,8 +24,26 @@ import EventManagement from "./pages/dashboard/management/event/EventManagement"
 import GaonDoctorAdmin from "./pages/doctor/GaonDoctorAdmin";
 import JudgePortal from "./pages/shikshasahayak/JudgePortal";
 import AdminCompetitionManager from "./pages/shikshasahayak/AdminCompetitionManager";
+import SchoolAdminEntries from "./pages/school-admin/SchoolAdminEntries";
 import "./App.css";
 import ProfilePage from "./components/profilepage";
+
+// Restricts a SCHOOL_ADMIN to only their own entries page.
+// Runs on every route change; redirects away from anything else.
+function SchoolAdminGate() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const role = localStorage.getItem("adminRole");
+    const allowed = ["/school-admin/entries", "/login"];
+    if (role === "SCHOOL_ADMIN" && !allowed.includes(location.pathname)) {
+      navigate("/school-admin/entries", { replace: true });
+    }
+  }, [location, navigate]);
+
+  return null;
+}
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -43,12 +60,15 @@ function App() {
     setIsLoggedIn(true);
   };
 
+  const isSchoolAdmin = localStorage.getItem("adminRole") === "SCHOOL_ADMIN";
+
   return (
     <Router>
       <Loader />
+      <SchoolAdminGate />
 
-      {/* Header only when logged in */}
-      {isLoggedIn && <Header onLogout={handleLogout} />}
+      {/* Header only when logged in, and never for SCHOOL_ADMIN (no other pages to navigate to) */}
+      {isLoggedIn && !isSchoolAdmin && <Header onLogout={handleLogout} />}
 
       <main className={isLoggedIn ? "content-area" : ""}>
         <Routes>
@@ -62,6 +82,8 @@ function App() {
                   <Navigate to="/judge-portal" />
                 ) : localStorage.getItem("adminRole") === "ACCOUNT_ADMIN" ? (
                   <Navigate to="/donation/DonationAdmin" />
+                ) : localStorage.getItem("adminRole") === "SCHOOL_ADMIN" ? (
+                  <Navigate to="/school-admin/entries" />
                 ) : (
                   <Navigate to="/dashboard" />
                 )
@@ -80,6 +102,8 @@ function App() {
                   <Navigate to="/judge-portal" />
                 ) : localStorage.getItem("adminRole") === "ACCOUNT_ADMIN" ? (
                   <Navigate to="/donation/DonationAdmin" />
+                ) : localStorage.getItem("adminRole") === "SCHOOL_ADMIN" ? (
+                  <Navigate to="/school-admin/entries" />
                 ) : (
                   <Navigate to="/dashboard" />
                 )
@@ -206,6 +230,18 @@ function App() {
 <Route
   path="/admin/school-competition"
   element={isLoggedIn ? <AdminCompetitionManager /> : <Navigate to="/login" />}
+/>
+
+{/* SCHOOL ADMIN — restricted single page */}
+<Route
+  path="/school-admin/entries"
+  element={
+    isLoggedIn ? (
+      <SchoolAdminEntries onLogout={handleLogout} />
+    ) : (
+      <Navigate to="/login" />
+    )
+  }
 />
 
         </Routes>

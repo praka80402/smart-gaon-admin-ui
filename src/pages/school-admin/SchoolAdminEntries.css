@@ -1,0 +1,75 @@
+.sa-container {
+  background-color: #e8f7fa;
+  min-height: 100vh;
+  padding: 30px 0;
+}
+
+.sa-card {
+  width: 90%;
+  max-width: 1100px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  padding: 24px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.sa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sa-header h2 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.sa-subtitle {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.sa-logout-btn {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.sa-logout-btn:hover {
+  background: #c0392b;
+}
+
+.sa-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.sa-table th {
+  background: #f0f4f7;
+  padding: 12px;
+  text-align: left;
+  font-size: 15px;
+  color: #34495e;
+  white-space: nowrap;
+}
+
+.sa-table td {
+  padding: 12px;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.sa-empty {
+  text-align: center;
+  padding: 30px;
+  color: #6b7280;
+}
