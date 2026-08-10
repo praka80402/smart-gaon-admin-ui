@@ -263,6 +263,39 @@ export default function AdminCompetitionManager() {
     }
   };
 
+  const handleRenameCategory = async (oldName, newName) => {
+    if (!newName.trim()) {
+      alert("Category name cannot be blank.");
+      return;
+    }
+    try {
+      await axiosInstance.put(`/admin/school-competitions/categories/rename?oldName=${encodeURIComponent(oldName)}&newName=${encodeURIComponent(newName.trim())}`);
+      setCategories(prev => prev.map(c => c === oldName ? newName.trim() : c));
+      setEditingCategoryIndex(null);
+      setEditingCategoryValue("");
+      fetchCompetitions();
+      setMsg(`Category "${oldName}" renamed to "${newName}" successfully!`);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to rename category.");
+    }
+  };
+
+  const handleDeleteCategory = async (name) => {
+    if (!window.confirm(`Are you sure you want to delete category "${name}"? All active competitions using this category will be reset to "General".`)) {
+      return;
+    }
+    try {
+      await axiosInstance.delete(`/admin/school-competitions/categories/delete?name=${encodeURIComponent(name)}`);
+      setCategories(prev => prev.filter(c => c !== name));
+      fetchCompetitions();
+      setMsg(`Category "${name}" deleted successfully!`);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete category.");
+    }
+  };
+
   const [showModal, setShowModal] = useState(false);
   const [schoolInputMode, setSchoolInputMode] = useState("MANUAL"); // MANUAL vs FILE
   const [schoolNameInput, setSchoolNameInput] = useState("");
@@ -284,7 +317,13 @@ export default function AdminCompetitionManager() {
   const [isCreatingCustomCategory, setIsCreatingCustomCategory] = useState(false);
   const [customCategoryName, setCustomCategoryName] = useState("");
 
+  const [isManageCategoriesModalOpen, setIsManageCategoriesModalOpen] = useState(false);
+  const [editingCategoryIndex, setEditingCategoryIndex] = useState(null);
+  const [editingCategoryValue, setEditingCategoryValue] = useState("");
+
   const [msg, setMsg] = useState("");
+  const [deleteTargetComp, setDeleteTargetComp] = useState(null);
+  const [deleteWarningMsg, setDeleteWarningMsg] = useState("");
 
   const handleAddSchoolName = () => {
     if (!schoolNameInput.trim()) return;
@@ -560,9 +599,17 @@ export default function AdminCompetitionManager() {
       const judgeMarks = s.totalScore !== null && s.totalScore !== undefined ? `${s.totalScore}` : "—";
 
       const evaluations = s.evaluations || [];
-      const ev1 = evaluations[0] || {};
+      let ev1 = evaluations[0] || {};
       const ev2 = evaluations[1] || {};
       const ev3 = evaluations[2] || {};
+
+      if (evaluations.length === 0 && s.totalScore !== null && s.totalScore !== undefined) {
+        ev1 = {
+          judgeId: "Legacy Judge",
+          totalScore: s.totalScore,
+          remarks: s.judgeRemarks || ""
+        };
+      }
 
       const judge1Id = ev1.judgeId || "—";
       const judge1Score = ev1.totalScore !== undefined ? `${ev1.totalScore}` : "—";
@@ -619,34 +666,14 @@ export default function AdminCompetitionManager() {
     URL.revokeObjectURL(url);
   };
 
-  const handleDeleteCompetition = async (comp) => {
+  const handleDeleteCompetition = (comp) => {
     if (!comp.isLive || comp.status === "COMPLETED") {
-      alert(
-        "⚠️ Over/Completed competitions cannot be deleted once completed or winners are announced!",
+      setDeleteWarningMsg(
+        "⚠️ Over/Completed competitions cannot be deleted once completed or winners are announced!"
       );
       return;
     }
-
-    if (
-      !window.confirm(
-        `Are you sure you want to delete competition '${comp.title}'?`,
-      )
-    ) {
-      return;
-    }
-
-    try {
-      await axiosInstance.delete(
-        `/admin/school-competitions/${comp.competitionId}`,
-      );
-      setCompetitions(
-        competitions.filter((c) => c.competitionId !== comp.competitionId),
-      );
-      setMsg(`Competition '${comp.title}' deleted successfully!`);
-    } catch (err) {
-      console.error(err);
-      alert(err.response?.data || "Failed to delete competition.");
-    }
+    setDeleteTargetComp(comp);
   };
 
  
@@ -914,13 +941,26 @@ export default function AdminCompetitionManager() {
       (s) =>
         s.competitionId === sub.competitionId &&
         s.groupCategory === sub.groupCategory &&
-        s.status !== "REJECTED" &&
-        s.totalScore !== undefined &&
-        s.totalScore !== null
+        s.status !== "REJECTED"
     );
 
+    if (groupSubs.length === 0) return null;
+
+    // Check if ALL active submissions in this category have been evaluated by ALL judges
+    const requiredJudges = sub.totalJudges || 3;
+    const allEvaluated = groupSubs.every(s => {
+      const evalsCount = s.evaluations ? s.evaluations.length : 0;
+      return evalsCount >= requiredJudges;
+    });
+
+    if (!allEvaluated) {
+      return null; // Not all judges have graded all entries in this category yet
+    }
+
+    const evaluatedSubs = groupSubs.filter(s => s.totalScore !== undefined && s.totalScore !== null);
+
     // Sort by totalScore descending
-    const sorted = [...groupSubs].sort((a, b) => b.totalScore - a.totalScore);
+    const sorted = [...evaluatedSubs].sort((a, b) => b.totalScore - a.totalScore);
 
     // Find the rank (index + 1)
     const idx = sorted.findIndex((s) => s.submissionId === sub.submissionId);
@@ -980,6 +1020,12 @@ export default function AdminCompetitionManager() {
               🎬 Upload Prize Distribution Video
             </button>
             <button
+              className="admin-sc-btn admin-sc-btn-outline"
+              onClick={() => setIsManageCategoriesModalOpen(true)}
+            >
+              🏷️ Manage Categories
+            </button>
+            <button
               className="admin-sc-btn admin-sc-btn-accent"
               onClick={handleOpenCreate}
             >
@@ -1030,10 +1076,132 @@ export default function AdminCompetitionManager() {
           </button>
         </div>
 
+        {deleteWarningMsg && (
+          <div className="admin-sc-modal-overlay" style={{ zIndex: 2000 }}>
+            <div className="admin-sc-modal" style={{ maxWidth: 450, padding: "30px 24px", textAlign: "center", borderRadius: "16px", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}>
+              <div style={{
+                width: "60px",
+                height: "60px",
+                borderRadius: "50%",
+                backgroundColor: "#fffbeb",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px auto",
+                border: "2px solid #fbbf24",
+                color: "#d97706",
+                fontSize: "30px"
+              }}>
+                ⚠️
+              </div>
+              <h3 style={{ margin: "0 0 10px 0", fontSize: "20px", fontWeight: "600", color: "var(--sc-navy)" }}>
+                Warning
+              </h3>
+              <p style={{ fontSize: "15px", color: "#475569", lineHeight: "1.5", margin: "0 0 24px 0" }}>
+                {deleteWarningMsg}
+              </p>
+              <button
+                type="button"
+                className="admin-sc-btn admin-sc-btn-accent solid"
+                onClick={() => setDeleteWarningMsg("")}
+                style={{ width: "120px", padding: "10px 24px", borderRadius: "8px", margin: "0 auto", display: "block", cursor: "pointer" }}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        )}
+
+        {deleteTargetComp && (
+          <div className="admin-sc-modal-overlay" style={{ zIndex: 2000 }}>
+            <div className="admin-sc-modal" style={{ maxWidth: 450, padding: "30px 24px", textAlign: "center", borderRadius: "16px", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}>
+              <div style={{
+                width: "60px",
+                height: "60px",
+                borderRadius: "50%",
+                backgroundColor: "#fef2f2",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px auto",
+                border: "2px solid #fca5a5",
+                color: "#dc2626",
+                fontSize: "30px"
+              }}>
+                🗑️
+              </div>
+              <h3 style={{ margin: "0 0 10px 0", fontSize: "20px", fontWeight: "600", color: "var(--sc-navy)" }}>
+                Delete Competition?
+              </h3>
+              <p style={{ fontSize: "15px", color: "#475569", lineHeight: "1.5", margin: "0 0 24px 0" }}>
+                Are you sure you want to delete competition <strong>'{deleteTargetComp.title}'</strong>? This action cannot be undone.
+              </p>
+              <div style={{ display: "flex", justifyContent: "center", gap: "12px" }}>
+                <button
+                  type="button"
+                  className="admin-sc-btn"
+                  onClick={() => setDeleteTargetComp(null)}
+                  style={{ padding: "10px 20px", borderRadius: "8px", cursor: "pointer", backgroundColor: "#e2e8f0", color: "#475569", border: "none", fontWeight: "600" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="admin-sc-btn"
+                  onClick={async () => {
+                    const comp = deleteTargetComp;
+                    setDeleteTargetComp(null);
+                    try {
+                      await axiosInstance.delete(`/admin/school-competitions/${comp.competitionId}`);
+                      setCompetitions(competitions.filter((c) => c.competitionId !== comp.competitionId));
+                      setMsg(`Competition '${comp.title}' deleted successfully!`);
+                    } catch (err) {
+                      console.error(err);
+                      setDeleteWarningMsg(err.response?.data || "Failed to delete competition.");
+                    }
+                  }}
+                  style={{ padding: "10px 20px", borderRadius: "8px", cursor: "pointer", backgroundColor: "#dc2626", color: "white", border: "none", fontWeight: "600" }}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {msg && (
-          <div className="admin-sc-message-banner">
-            <span style={{ fontSize: 16 }}>✓</span>
-            {msg}
+          <div className="admin-sc-modal-overlay" style={{ zIndex: 2000 }}>
+            <div className="admin-sc-modal" style={{ maxWidth: 450, padding: "30px 24px", textAlign: "center", borderRadius: "16px", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}>
+              <div style={{
+                width: "60px",
+                height: "60px",
+                borderRadius: "50%",
+                backgroundColor: "#ecfdf5",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px auto",
+                border: "2px solid #34d399",
+                color: "#10b981",
+                fontSize: "30px"
+              }}>
+                ✓
+              </div>
+              <h3 style={{ margin: "0 0 10px 0", fontFamily: "var(--sc-font-display)", fontSize: "20px", fontWeight: "600", color: "var(--sc-navy)" }}>
+                Success!
+              </h3>
+              <p style={{ fontSize: "15px", color: "#475569", lineHeight: "1.5", margin: "0 0 24px 0" }}>
+                {msg}
+              </p>
+              <button
+                type="button"
+                className="admin-sc-btn admin-sc-btn-accent solid"
+                style={{ width: "120px", padding: "10px 24px", borderRadius: "8px", margin: "0 auto", display: "block", cursor: "pointer" }}
+                onClick={() => setMsg("")}
+              >
+                OK
+              </button>
+            </div>
           </div>
         )}
 
@@ -1740,6 +1908,16 @@ export default function AdminCompetitionManager() {
                                   );
                                 }
 
+                                const takenRanks = submissions
+                                  .filter(s => 
+                                    s.competitionId === sub.competitionId && 
+                                    s.groupCategory === sub.groupCategory && 
+                                    s.submissionId !== sub.submissionId && 
+                                    s.winnerRank !== null && 
+                                    s.winnerRank !== undefined
+                                  )
+                                  .map(s => String(s.winnerRank));
+
                                 return (
                                   <div
                                     style={{
@@ -1766,15 +1944,21 @@ export default function AdminCompetitionManager() {
                                       <option value="">
                                         -- Choose Winner --
                                       </option>
-                                      <option value="1">
-                                        🥇 1st Place Winner
-                                      </option>
-                                      <option value="2">
-                                        🥈 2nd Place Winner
-                                      </option>
-                                      <option value="3">
-                                        🥉 3rd Place Winner
-                                      </option>
+                                      {(!takenRanks.includes("1") || String(sub.winnerRank) === "1") && (
+                                        <option value="1">
+                                          🥇 1st Place Winner
+                                        </option>
+                                      )}
+                                      {(!takenRanks.includes("2") || String(sub.winnerRank) === "2") && (
+                                        <option value="2">
+                                          🥈 2nd Place Winner
+                                        </option>
+                                      )}
+                                      {(!takenRanks.includes("3") || String(sub.winnerRank) === "3") && (
+                                        <option value="3">
+                                          🥉 3rd Place Winner
+                                        </option>
+                                      )}
                                     </select>
                                   </div>
                                 );
@@ -3279,6 +3463,133 @@ export default function AdminCompetitionManager() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+        {/* MANAGE CATEGORIES MODAL */}
+        {isManageCategoriesModalOpen && (
+          <div className="admin-sc-modal-overlay" style={{ zIndex: 1100 }}>
+            <div className="admin-sc-modal" style={{ maxWidth: 640, width: "90%", padding: "28px 32px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                <h3 style={{ margin: 0, fontFamily: "var(--sc-font-display)", fontSize: 22, fontWeight: 600, color: "var(--sc-navy)" }}>
+                  🏷️ Manage Competition Categories
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsManageCategoriesModalOpen(false);
+                    setEditingCategoryIndex(null);
+                    setEditingCategoryValue("");
+                  }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    fontSize: 24,
+                    color: "var(--sc-slate-soft)",
+                    cursor: "pointer",
+                    padding: 0,
+                    lineHeight: 1
+                  }}
+                >
+                  &times;
+                </button>
+              </div>
+
+              <p style={{ fontSize: "14px", color: "var(--sc-slate)", marginBottom: 22 }}>
+                You can edit (rename) or delete existing categories. Editing a category will update all active competitions under that category. Deleting a category will reset those competitions to "General".
+              </p>
+
+              <div style={{ maxHeight: "320px", overflowY: "auto", border: "1px solid var(--sc-border)", borderRadius: "8px", marginBottom: "22px" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid var(--sc-border)" }}>
+                      <th style={{ textAlign: "left", padding: "10px 14px", fontSize: "13px", fontWeight: "600", color: "#64748b" }}>Category Name</th>
+                      <th style={{ textAlign: "right", padding: "10px 14px", fontSize: "13px", fontWeight: "600", color: "#64748b", width: "160px" }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {categories.map((cat, idx) => (
+                      <tr key={idx} style={{ borderBottom: "1px solid var(--sc-border)", transition: "background-color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#fdfdfd"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}>
+                        <td style={{ padding: "12px 14px", fontSize: "14px", fontWeight: "600", color: "var(--sc-ink)" }}>
+                          {editingCategoryIndex === idx ? (
+                            <input
+                              type="text"
+                              className="admin-sc-input"
+                              style={{ width: "100%", padding: "6px 10px", margin: 0, fontSize: "14px", borderRadius: "6px" }}
+                              value={editingCategoryValue}
+                              onChange={(e) => setEditingCategoryValue(e.target.value)}
+                            />
+                          ) : (
+                            cat
+                          )}
+                        </td>
+                        <td style={{ padding: "12px 14px", textAlign: "right" }}>
+                          {editingCategoryIndex === idx ? (
+                            <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                              <button
+                                type="button"
+                                className="admin-sc-btn admin-sc-btn-accent solid"
+                                style={{ padding: "5px 12px", fontSize: "12px", borderRadius: "6px" }}
+                                onClick={() => handleRenameCategory(cat, editingCategoryValue)}
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                className="admin-sc-btn admin-sc-btn-ghost"
+                                style={{ padding: "5px 12px", fontSize: "12px", borderRadius: "6px" }}
+                                onClick={() => {
+                                  setEditingCategoryIndex(null);
+                                  setEditingCategoryValue("");
+                                }}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          ) : (
+                            <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                              <button
+                                type="button"
+                                className="admin-sc-btn admin-sc-btn-warning"
+                                style={{ padding: "5px 12px", fontSize: "12px", borderRadius: "6px" }}
+                                onClick={() => {
+                                  setEditingCategoryIndex(idx);
+                                  setEditingCategoryValue(cat);
+                                }}
+                              >
+                                ✏️ Edit
+                              </button>
+                              <button
+                                type="button"
+                                className="admin-sc-btn admin-sc-btn-danger"
+                                style={{ padding: "5px 12px", fontSize: "12px", borderRadius: "6px" }}
+                                onClick={() => handleDeleteCategory(cat)}
+                              >
+                                🗑️ Delete
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <button
+                  type="button"
+                  className="admin-sc-btn admin-sc-btn-ghost"
+                  style={{ padding: "10px 24px", borderRadius: "8px" }}
+                  onClick={() => {
+                    setIsManageCategoriesModalOpen(false);
+                    setEditingCategoryIndex(null);
+                    setEditingCategoryValue("");
+                  }}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         )}
