@@ -77,6 +77,16 @@ export default function AdminCompetitionManager() {
     fetchMasterSchools();
   }, []);
 
+  useEffect(() => {
+    if (competitions.length > 0) {
+      const uniqueCats = Array.from(new Set(competitions.map(c => c.category).filter(Boolean)));
+      setCategories(prev => {
+        const merged = Array.from(new Set([...prev, ...uniqueCats]));
+        return merged;
+      });
+    }
+  }, [competitions]);
+
   const fetchMasterSchools = async () => {
     try {
       const res = await axiosInstance.get("/admin/school-competitions/schools");
@@ -270,6 +280,10 @@ export default function AdminCompetitionManager() {
     winnerAnnouncementMode: "AUTOMATIC",
   });
 
+  const [categories, setCategories] = useState(["Public Speaking", "Science Project", "Kojo Competition"]);
+  const [isCreatingCustomCategory, setIsCreatingCustomCategory] = useState(false);
+  const [customCategoryName, setCustomCategoryName] = useState("");
+
   const [msg, setMsg] = useState("");
 
   const handleAddSchoolName = () => {
@@ -387,6 +401,8 @@ export default function AdminCompetitionManager() {
       setShowModal(false);
       setSchoolList([]);
       setUploadedFileName("");
+      setIsCreatingCustomCategory(false);
+      setCustomCategoryName("");
       setNewComp({
         competitionId: "",
         title: "",
@@ -438,6 +454,8 @@ export default function AdminCompetitionManager() {
 
   const [editingComp, setEditingComp] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [isEditingCustomCategory, setIsEditingCustomCategory] = useState(false);
+  const [editCustomCategoryName, setEditCustomCategoryName] = useState("");
 
   const toDateInputValue = (val) => {
     if (!val) return "";
@@ -489,10 +507,116 @@ export default function AdminCompetitionManager() {
       setShowEditModal(false);
       setEditingComp(null);
       setSchoolList([]);
+      setIsEditingCustomCategory(false);
+      setEditCustomCategoryName("");
     } catch (err) {
       console.error(err);
       alert("Failed to update competition.");
     }
+  };
+
+  const handleExportCSV = (filteredSubs) => {
+    if (!filteredSubs || filteredSubs.length === 0) {
+      alert("No data available to export.");
+      return;
+    }
+
+    const headers = [
+      "Submission ID",
+      "Competition ID",
+      "Student Name",
+      "Class & Roll No",
+      "Group / Category",
+      "School Name",
+      "Submitted By",
+      "Entry Title",
+      "Entry Description",
+      "Submission Link / Code Content",
+      "Status",
+      "Rejection Reason / Rejected By",
+      "Winner Rank",
+      "Average Score",
+      "Judge 1 ID",
+      "Judge 1 Score",
+      "Judge 1 Remarks",
+      "Judge 2 ID",
+      "Judge 2 Score",
+      "Judge 2 Remarks",
+      "Judge 3 ID",
+      "Judge 3 Score",
+      "Judge 3 Remarks"
+    ];
+
+    const rows = filteredSubs.map((s) => {
+      const clean = (val) => {
+        if (val === null || val === undefined) return "";
+        const str = String(val).replace(/"/g, '""');
+        return `"${str}"`;
+      };
+
+      const classRoll = `Class ${s.classGrade || ""}, Roll ${s.rollNumber || ""}`;
+      const rejection = s.status === "REJECTED" ? `${s.rejectionReason || ""} (Rejected By: ${s.rejectedBy || ""})` : "";
+      const winnerRank = s.winnerRank ? `${s.winnerRank}` : "—";
+      const judgeMarks = s.totalScore !== null && s.totalScore !== undefined ? `${s.totalScore}` : "—";
+
+      const evaluations = s.evaluations || [];
+      const ev1 = evaluations[0] || {};
+      const ev2 = evaluations[1] || {};
+      const ev3 = evaluations[2] || {};
+
+      const judge1Id = ev1.judgeId || "—";
+      const judge1Score = ev1.totalScore !== undefined ? `${ev1.totalScore}` : "—";
+      const judge1Remarks = ev1.remarks || "—";
+
+      const judge2Id = ev2.judgeId || "—";
+      const judge2Score = ev2.totalScore !== undefined ? `${ev2.totalScore}` : "—";
+      const judge2Remarks = ev2.remarks || "—";
+
+      const judge3Id = ev3.judgeId || "—";
+      const judge3Score = ev3.totalScore !== undefined ? `${ev3.totalScore}` : "—";
+      const judge3Remarks = ev3.remarks || "—";
+
+      return [
+        clean(s.submissionId),
+        clean(s.competitionId),
+        clean(s.studentName),
+        clean(classRoll),
+        clean(s.groupCategory),
+        clean(s.schoolName),
+        clean(s.submittedBy),
+        clean(s.entryTitle),
+        clean(s.entryDescription),
+        clean(s.videoUrl),
+        clean(s.status),
+        clean(rejection),
+        clean(winnerRank),
+        clean(judgeMarks),
+        clean(judge1Id),
+        clean(judge1Score),
+        clean(judge1Remarks),
+        clean(judge2Id),
+        clean(judge2Score),
+        clean(judge2Remarks),
+        clean(judge3Id),
+        clean(judge3Score),
+        clean(judge3Remarks)
+      ].join(",");
+    });
+
+    const csvData = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob(["\uFEFF" + csvData], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    
+    const filterName = selectedCompetitionFilter === "ALL" ? "all_competitions" : selectedCompetitionFilter;
+    const dateStr = new Date().toISOString().split("T")[0];
+    link.setAttribute("download", `school_competition_submissions_${filterName}_${dateStr}.csv`);
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleDeleteCompetition = async (comp) => {
@@ -619,12 +743,15 @@ export default function AdminCompetitionManager() {
     setSchoolList([]);
     setUploadedFileName("");
     setSchoolNameInput("");
+    setIsCreatingCustomCategory(false);
+    setCustomCategoryName("");
   };
 
   const [activeTab, setActiveTab] = useState("active");
   const [submissions, setSubmissions] = useState([]);
   const [selectedCompetitionFilter, setSelectedCompetitionFilter] =
     useState("NONE");
+  const [selectedGroupFilter, setSelectedGroupFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [playingVideoUrl, setPlayingVideoUrl] = useState(null);
   const [downloadingCompetitionId, setDownloadingCompetitionId] = useState("");
@@ -778,11 +905,43 @@ export default function AdminCompetitionManager() {
     return "status-past";
   };
 
+  const getAutoWinnerRank = (sub) => {
+    const comp = competitions.find((c) => c.competitionId === sub.competitionId);
+    if (!comp || comp.winnerAnnouncementMode !== "AUTOMATIC") return null;
+
+    // Filter submissions of the same competition and groupCategory
+    const groupSubs = submissions.filter(
+      (s) =>
+        s.competitionId === sub.competitionId &&
+        s.groupCategory === sub.groupCategory &&
+        s.status !== "REJECTED" &&
+        s.totalScore !== undefined &&
+        s.totalScore !== null
+    );
+
+    // Sort by totalScore descending
+    const sorted = [...groupSubs].sort((a, b) => b.totalScore - a.totalScore);
+
+    // Find the rank (index + 1)
+    const idx = sorted.findIndex((s) => s.submissionId === sub.submissionId);
+    if (idx >= 0 && idx < 3) {
+      return idx + 1; // 1, 2, or 3
+    }
+    return null;
+  };
+
   const rankClass = (sub, isManualMode) => {
-    if (isManualMode && !sub.winnerRank) return "pending";
-    if (sub.winnerRank === 1) return "rank-1";
-    if (sub.winnerRank === 2) return "rank-2";
-    if (sub.winnerRank === 3) return "rank-3";
+    if (isManualMode) {
+      if (!sub.winnerRank) return "pending";
+      if (sub.winnerRank === 1) return "rank-1";
+      if (sub.winnerRank === 2) return "rank-2";
+      if (sub.winnerRank === 3) return "rank-3";
+    } else {
+      const autoRank = getAutoWinnerRank(sub);
+      if (autoRank === 1) return "rank-1";
+      if (autoRank === 2) return "rank-2";
+      if (autoRank === 3) return "rank-3";
+    }
     return "";
   };
 
@@ -925,13 +1084,29 @@ export default function AdminCompetitionManager() {
                           style={{
                             display: "flex",
                             justifyContent: "space-between",
-                            alignItems: "flex-start",
+                            alignItems: "center",
                             marginBottom: 12,
                           }}
                         >
-                          <span className="admin-sc-id-tag">
-                            {c.competitionId}
-                          </span>
+                          <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+                            <span className="admin-sc-id-tag">
+                              {c.competitionId}
+                            </span>
+                            <span
+                              style={{
+                                backgroundColor: "rgba(108, 92, 231, 0.1)",
+                                color: "rgb(108, 92, 231)",
+                                padding: "3px 8px",
+                                borderRadius: "4px",
+                                fontSize: "11px",
+                                fontWeight: "bold",
+                                textTransform: "uppercase",
+                                border: "1px solid rgba(108, 92, 231, 0.2)"
+                              }}
+                            >
+                              🏷️ {c.category || "General"}
+                            </span>
+                          </div>
                           <span
                             className={`admin-sc-badge ${c.isLive ? "live" : "ended"}`}
                           >
@@ -1020,6 +1195,7 @@ export default function AdminCompetitionManager() {
                           className="admin-sc-btn"
                           onClick={() => {
                             setSelectedCompetitionFilter(c.competitionId);
+                            setSelectedGroupFilter("ALL");
                             setTimeout(() => {
                               const subSection = document.getElementById(
                                 "student-submissions-section",
@@ -1208,6 +1384,66 @@ export default function AdminCompetitionManager() {
                     );
                   })}
                 </select>
+
+                {/* GROUP CATEGORY FILTER DROPDOWN */}
+                <select
+                  className="admin-sc-filter-select"
+                  value={selectedGroupFilter}
+                  onChange={(e) => setSelectedGroupFilter(e.target.value)}
+                  style={{ minWidth: 155 }}
+                >
+                  <option value="ALL">All Groups</option>
+                  <option value="Group A (Class 1-2)">Group A (Class 1-2)</option>
+                  <option value="Group B (Class 3-5)">Group B (Class 3-5)</option>
+                  <option value="Group C (Class 6-8)">Group C (Class 6-8)</option>
+                  <option value="Group D (Class 9-12)">Group D (Class 9-12)</option>
+                </select>
+
+                {/* EXPORT SUBMISSIONS DATA BUTTON */}
+                <button
+                  type="button"
+                  className="admin-sc-btn"
+                  onClick={() => {
+                    let temp = selectedCompetitionFilter === "ALL"
+                      ? submissions
+                      : submissions.filter((s) => s.competitionId === selectedCompetitionFilter);
+                    if (selectedGroupFilter !== "ALL") {
+                      temp = temp.filter((s) => s.groupCategory === selectedGroupFilter);
+                    }
+                    if (searchQuery.trim()) {
+                      const query = searchQuery.toLowerCase().trim();
+                      temp = temp.filter((sub) => {
+                        const comp = competitions.find((c) => c.competitionId === sub.competitionId);
+                        const compTitle = comp ? comp.title.toLowerCase() : "";
+                        return (
+                          (sub.studentName && sub.studentName.toLowerCase().includes(query)) ||
+                          (sub.schoolName && sub.schoolName.toLowerCase().includes(query)) ||
+                          (sub.groupCategory && sub.groupCategory.toLowerCase().includes(query)) ||
+                          (sub.entryTitle && sub.entryTitle.toLowerCase().includes(query)) ||
+                          (sub.competitionId && sub.competitionId.toLowerCase().includes(query)) ||
+                          compTitle.includes(query)
+                        );
+                      });
+                    }
+                    handleExportCSV(temp);
+                  }}
+                  style={{
+                    backgroundColor: "var(--sc-green)",
+                    color: "#fff",
+                    fontWeight: 600,
+                    padding: "10px 18px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    height: "42px",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    boxShadow: "0 4px 12px rgba(46, 204, 113, 0.2)",
+                  }}
+                >
+                  📥 Export Data
+                </button>
               </div>
             </div>
 
@@ -1218,6 +1454,12 @@ export default function AdminCompetitionManager() {
                   : submissions.filter(
                       (s) => s.competitionId === selectedCompetitionFilter,
                     );
+
+              if (selectedGroupFilter !== "ALL") {
+                filteredSubmissions = filteredSubmissions.filter(
+                  (s) => s.groupCategory === selectedGroupFilter,
+                );
+              }
 
               if (searchQuery.trim()) {
                 const query = searchQuery.toLowerCase().trim();
@@ -1257,10 +1499,9 @@ export default function AdminCompetitionManager() {
                       <tr>
                         <th>Submission ID</th>
                         <th>Competition ID</th>
-                        <th>Student Name</th>
-                        <th>Group / Category</th>
+                        <th>Student Details</th>
                         <th>School Name</th>
-                        <th>Class &amp; Roll</th>
+                        <th>Submitted By</th>
                         <th>Entry Title</th>
                         <th>Video Link</th>
                         <th>⭐ Judge Marks</th>
@@ -1278,25 +1519,39 @@ export default function AdminCompetitionManager() {
                           >
                             {sub.competitionId}
                           </td>
-                          <td
-                            className="wrap-cell"
-                            style={{ fontWeight: 600, color: "var(--sc-ink)" }}
-                          >
-                            {sub.studentName}
-                          </td>
-                          <td className="nowrap-cell">
-                            <span className="admin-sc-group-chip">
-                              {sub.groupCategory || "Group A (Class 5-8)"}
-                            </span>
+                          <td className="wrap-cell" style={{ minWidth: "180px" }}>
+                            <div style={{ fontWeight: 700, color: "var(--sc-ink)" }}>{sub.studentName}</div>
+                            <div style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>
+                              {sub.classGrade} (Roll: {sub.rollNumber})
+                            </div>
+                            <div style={{ marginTop: "4px" }}>
+                              <span className="admin-sc-group-chip" style={{ fontSize: "11px", padding: "2px 6px" }}>
+                                {sub.groupCategory || "Group A (Class 1-2)"}
+                              </span>
+                            </div>
                           </td>
                           <td className="wrap-cell">{sub.schoolName}</td>
-                          <td className="nowrap-cell">
-                            {sub.classGrade} (Roll: {sub.rollNumber})
-                          </td>
+                          <td className="wrap-cell">{sub.submittedBy || "N/A"}</td>
                           <td className="wrap-cell">{sub.entryTitle}</td>
                           <td className="nowrap-cell">
                             {sub.videoUrl ? (
-                              sub.videoUrl.startsWith("data:image") || sub.videoUrl.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                              (sub.videoUrl.startsWith("data:") && !sub.videoUrl.startsWith("data:image") && !sub.videoUrl.startsWith("data:video")) ? (
+                                <button
+                                  className="admin-sc-btn-play"
+                                  style={{ backgroundColor: "#8b5cf6" }}
+                                  onClick={() => setPlayingVideoUrl(sub.videoUrl)}
+                                >
+                                  📄 View Document
+                                </button>
+                              ) : (!sub.videoUrl.startsWith("data:") && !sub.videoUrl.startsWith("http")) ? (
+                                <button
+                                  className="admin-sc-btn-play"
+                                  style={{ backgroundColor: "#059669" }}
+                                  onClick={() => setPlayingVideoUrl(sub.videoUrl)}
+                                >
+                                  📝 View Code
+                                </button>
+                              ) : (sub.videoUrl.startsWith("data:image") || sub.videoUrl.match(/\.(jpeg|jpg|gif|png)$/i)) ? (
                                 <button
                                   className="admin-sc-btn-play"
                                   style={{ backgroundColor: "#0284c7" }}
@@ -1313,19 +1568,35 @@ export default function AdminCompetitionManager() {
                                 </button>
                               )
                             ) : (
-                              <span
-                                style={{
-                                  color: "var(--sc-slate-soft)",
-                                  fontSize: 12,
-                                }}
-                              >
+                              <span style={{ color: "var(--sc-slate-soft)", fontSize: 12 }}>
                                 No Media
                               </span>
                             )}
                           </td>
                           <td>
-                            {sub.totalScore !== undefined &&
-                            sub.totalScore !== null ? (
+                            {sub.evaluations && sub.evaluations.length > 0 ? (
+                              <div>
+                                {sub.evaluations.map((ev, idx) => (
+                                  <div key={idx} style={{ fontSize: 11, marginBottom: 6, borderBottom: idx < sub.evaluations.length - 1 ? "1px dashed #cbd5e1" : "none", paddingBottom: 4 }}>
+                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", alignItems: "center" }}>
+                                      <span className="admin-sc-badge evaluated" style={{ fontSize: 10, padding: "2px 4px", display: "inline-block" }}>
+                                        Judge {idx + 1} ({ev.judgeId.split("@")[0]}): ⭐ {ev.totalScore}/50
+                                      </span>
+                                    </div>
+                                    {ev.remarks && (
+                                      <div style={{ fontStyle: "italic", color: "var(--sc-slate)", marginTop: 2 }}>
+                                        "{ev.remarks}"
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                                {sub.evaluations.length > 1 && (
+                                  <div style={{ fontSize: 11, fontWeight: "bold", color: "var(--sc-navy)", marginTop: 4 }}>
+                                    Average Score: ⭐ {sub.totalScore}/50
+                                  </div>
+                                )}
+                              </div>
+                            ) : sub.totalScore !== undefined && sub.totalScore !== null ? (
                               <div>
                                 <span
                                   className="admin-sc-badge evaluated"
@@ -1437,6 +1708,21 @@ export default function AdminCompetitionManager() {
                                   mode === "AUTOMATIC" || mode === "AUTO";
 
                                 if (isAutomaticMode) {
+                                  const autoRank = getAutoWinnerRank(sub);
+                                  if (autoRank) {
+                                    const badges = {
+                                      1: "🥇 1st (Auto)",
+                                      2: "🥈 2nd (Auto)",
+                                      3: "🥉 3rd (Auto)",
+                                    };
+                                    return (
+                                      <div>
+                                        <span className={`admin-sc-badge winner rank-${autoRank}`} style={{ fontSize: "12px", padding: "6px 12px", borderRadius: "12px", fontWeight: "bold" }}>
+                                          {badges[autoRank]}
+                                        </span>
+                                      </div>
+                                    );
+                                  }
                                   return (
                                     <div>
                                       <span
@@ -1448,7 +1734,7 @@ export default function AdminCompetitionManager() {
                                           display: "inline-block",
                                         }}
                                       >
-                                        🤖 Auto Mode
+                                        🤖 Auto (No Rank)
                                       </span>
                                     </div>
                                   );
@@ -1517,7 +1803,9 @@ export default function AdminCompetitionManager() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="admin-sc-video-modal-header">
-                <span>▶ Video Submission Preview</span>
+                <span>
+                  {(!playingVideoUrl.startsWith("http") && !playingVideoUrl.startsWith("data:")) ? "📝 Source Code Preview" : (playingVideoUrl.startsWith("data:") && !playingVideoUrl.startsWith("data:image") && !playingVideoUrl.startsWith("data:video")) ? "📄 Document File Submission" : "▶ Video Submission Preview"}
+                </span>
                 <button
                   className="admin-sc-btn admin-sc-btn-danger solid"
                   onClick={() => setPlayingVideoUrl(null)}
@@ -1527,7 +1815,34 @@ export default function AdminCompetitionManager() {
                 </button>
               </div>
 
-              {playingVideoUrl.startsWith("data:image") || playingVideoUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp|heic)$/i) ? (
+              {(!playingVideoUrl.startsWith("http") && !playingVideoUrl.startsWith("data:")) ? (
+                <div style={{ backgroundColor: "#f8fafc", padding: "16px", borderRadius: "8px", border: "1px solid #cbd5e1", maxHeight: "450px", overflowY: "auto", textAlign: "left" }}>
+                  <pre style={{ margin: 0, fontFamily: "monospace", fontSize: "14px", whiteSpace: "pre-wrap", color: "#334155", lineHeight: "1.5" }}>
+                    {playingVideoUrl}
+                  </pre>
+                </div>
+              ) : (playingVideoUrl.startsWith("data:") && !playingVideoUrl.startsWith("data:image") && !playingVideoUrl.startsWith("data:video")) ? (
+                <div style={{ textAlign: "center", padding: "30px 10px", backgroundColor: "#f8fafc", borderRadius: "8px" }}>
+                  <div style={{ fontSize: "64px", marginBottom: "15px" }}>📄</div>
+                  <h4 style={{ color: "#0f172a", marginBottom: "20px" }}>Document File Submission (.pdf, .csv, .txt, .json, .docx, .xlsx, etc.)</h4>
+                  <a
+                    href={playingVideoUrl}
+                    download="kojo_submission_file"
+                    style={{
+                      display: "inline-block",
+                      backgroundColor: "#2563eb",
+                      color: "white",
+                      padding: "12px 30px",
+                      borderRadius: "8px",
+                      fontWeight: "600",
+                      textDecoration: "none",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+                    }}
+                  >
+                    📥 Download Submission File
+                  </a>
+                </div>
+              ) : (playingVideoUrl.startsWith("data:image") || playingVideoUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp|heic)$/i)) ? (
                 <div style={{ textAlign: "center", backgroundColor: "#0f172a", padding: 10, borderRadius: 8 }}>
                   <img
                     src={playingVideoUrl}
@@ -1609,16 +1924,58 @@ export default function AdminCompetitionManager() {
                   <label className="admin-sc-field-label">Category *</label>
                   <select
                     className="admin-sc-filter-select"
-                    value={newComp.category}
-                    onChange={(e) =>
-                      setNewComp({ ...newComp, category: e.target.value })
-                    }
+                    value={isCreatingCustomCategory ? "ADD_NEW" : newComp.category}
+                    onChange={(e) => {
+                      if (e.target.value === "ADD_NEW") {
+                        setIsCreatingCustomCategory(true);
+                        setNewComp({ ...newComp, category: "" });
+                      } else {
+                        setIsCreatingCustomCategory(false);
+                        setNewComp({ ...newComp, category: e.target.value });
+                      }
+                    }}
                     style={{ width: "100%", backgroundColor: "#fff" }}
                   >
-                    <option value="Public Speaking">Public Speaking</option>
-                    <option value="Science Project">Science Project</option>
-                    <option value="Kojo Competition">Kojo Competition</option>
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                    <option value="ADD_NEW">+ Add New Category</option>
                   </select>
+                  {isCreatingCustomCategory && (
+                    <div style={{ marginTop: "10px", display: "flex", gap: "8px", alignItems: "flex-end" }}>
+                      <div style={{ flex: 1 }}>
+                        <label className="admin-sc-field-label">New Category Name *</label>
+                        <input
+                          type="text"
+                          className="admin-sc-input"
+                          value={customCategoryName}
+                          onChange={(e) => setCustomCategoryName(e.target.value)}
+                          placeholder="e.g. Art, Drawing, Essay Writing, etc."
+                          style={{ width: "100%" }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        className="admin-sc-btn admin-sc-btn-primary"
+                        onClick={() => {
+                          const val = customCategoryName.trim();
+                          if (val) {
+                            if (!categories.includes(val)) {
+                              setCategories([...categories, val]);
+                            }
+                            setNewComp({ ...newComp, category: val });
+                            setIsCreatingCustomCategory(false);
+                            setCustomCategoryName("");
+                          } else {
+                            alert("Please enter a valid category name.");
+                          }
+                        }}
+                        style={{ padding: "10px 16px", height: "42px", display: "flex", alignItems: "center", justifyContent: "center" }}
+                      >
+                        Add
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -1902,6 +2259,8 @@ export default function AdminCompetitionManager() {
                   setShowEditModal(false);
                   setEditingComp(null);
                   setSchoolList([]);
+                  setIsEditingCustomCategory(false);
+                  setEditCustomCategoryName("");
                 }}
                 title="Close Modal"
                 style={{
@@ -1936,23 +2295,64 @@ export default function AdminCompetitionManager() {
                 style={{ display: "flex", flexDirection: "column", gap: 16 }}
               >
                 <div>
-                  <label className="admin-sc-field-label">
-                    Category (Fixed)
-                  </label>
-                  <input
-                    disabled
-                    type="text"
-                    value={editingComp.category}
-                    className="admin-sc-id-input"
-                    style={{
-                      width: "100%",
-                      padding: 11,
-                      borderRadius: 8,
-                      border: "1px solid var(--sc-border)",
-                      backgroundColor: "var(--sc-paper)",
-                      color: "var(--sc-slate)",
+                  <label className="admin-sc-field-label">Category *</label>
+                  <select
+                    className="admin-sc-filter-select"
+                    value={isEditingCustomCategory ? "ADD_NEW" : editingComp.category}
+                    onChange={(e) => {
+                      if (e.target.value === "ADD_NEW") {
+                        setIsEditingCustomCategory(true);
+                        setEditingComp({ ...editingComp, category: "" });
+                      } else {
+                        setIsEditingCustomCategory(false);
+                        setEditingComp({ ...editingComp, category: e.target.value });
+                      }
                     }}
-                  />
+                    style={{ width: "100%", backgroundColor: "#fff" }}
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                    {editingComp.category && !categories.includes(editingComp.category) && (
+                      <option value={editingComp.category}>{editingComp.category}</option>
+                    )}
+                    <option value="ADD_NEW">+ Add New Category</option>
+                  </select>
+                  {isEditingCustomCategory && (
+                    <div style={{ marginTop: "10px", display: "flex", gap: "8px", alignItems: "flex-end" }}>
+                      <div style={{ flex: 1 }}>
+                        <label className="admin-sc-field-label">New Category Name *</label>
+                        <input
+                          type="text"
+                          className="admin-sc-input"
+                          value={editCustomCategoryName}
+                          onChange={(e) => setEditCustomCategoryName(e.target.value)}
+                          placeholder="e.g. Art, Drawing, Essay Writing, etc."
+                          style={{ width: "100%" }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        className="admin-sc-btn admin-sc-btn-primary"
+                        onClick={() => {
+                          const val = editCustomCategoryName.trim();
+                          if (val) {
+                            if (!categories.includes(val)) {
+                              setCategories([...categories, val]);
+                            }
+                            setEditingComp({ ...editingComp, category: val });
+                            setIsEditingCustomCategory(false);
+                            setEditCustomCategoryName("");
+                          } else {
+                            alert("Please enter a valid category name.");
+                          }
+                        }}
+                        style={{ padding: "10px 16px", height: "42px", display: "flex", alignItems: "center", justifyContent: "center" }}
+                      >
+                        Add
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -2153,18 +2553,15 @@ export default function AdminCompetitionManager() {
                   </div>
                   <div>
                     <label className="admin-sc-field-label">
-                      End Date (Fixed)
+                      End Date *
                     </label>
                     <input
-                      disabled
                       className="admin-sc-input"
                       type="date"
                       value={editingComp.endDate}
+                      onChange={(e) => setEditingComp({ ...editingComp, endDate: e.target.value })}
                       style={{
                         width: "100%",
-                        backgroundColor: "var(--sc-paper)",
-                        color: "var(--sc-slate)",
-                        cursor: "not-allowed",
                       }}
                     />
                   </div>
@@ -2221,6 +2618,8 @@ export default function AdminCompetitionManager() {
                       setShowEditModal(false);
                       setEditingComp(null);
                       setSchoolList([]);
+                      setIsEditingCustomCategory(false);
+                      setEditCustomCategoryName("");
                     }}
                     style={{ flex: 1, padding: 13 }}
                   >
