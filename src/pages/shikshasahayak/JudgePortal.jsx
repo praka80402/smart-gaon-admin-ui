@@ -93,11 +93,11 @@ export default function JudgePortal() {
 
   const [selectedSub, setSelectedSub] = useState(null);
   const [scores, setScores] = useState({
-    appearance: 0,
-    content: 0,
-    confidence: 0,
-    criteria4: 0,
-    criteria5: 0,
+    appearance: "",
+    content: "",
+    confidence: "",
+    criteria4: "",
+    criteria5: "",
     remarks: "",
   });
   const [msg, setMsg] = useState("");
@@ -106,27 +106,38 @@ export default function JudgePortal() {
     setSelectedSub(sub);
     setMsg("");
     setScores({
-      appearance: 0,
-      content: 0,
-      confidence: 0,
-      criteria4: 0,
-      criteria5: 0,
+      appearance: "",
+      content: "",
+      confidence: "",
+      criteria4: "",
+      criteria5: "",
       remarks: "",
     });
   };
 
   const handleScoreChange = (e) => {
     const { name, value } = e.target;
-    setScores({ ...scores, [name]: name === "remarks" ? value : parseInt(value) || 0 });
+    if (name === "remarks") {
+      setScores({ ...scores, remarks: value });
+    } else {
+      if (value === "") {
+        setScores({ ...scores, [name]: "" });
+      } else {
+        const parsed = parseInt(value);
+        if (!isNaN(parsed) && parsed >= 0 && parsed <= 10) {
+          setScores({ ...scores, [name]: parsed });
+        }
+      }
+    }
   };
 
   const calculateTotal = () => {
     return (
-      (scores.appearance || 0) +
-      (scores.content || 0) +
-      (scores.confidence || 0) +
-      (scores.criteria4 || 0) +
-      (scores.criteria5 || 0)
+      (parseInt(scores.appearance) || 0) +
+      (parseInt(scores.content) || 0) +
+      (parseInt(scores.confidence) || 0) +
+      (parseInt(scores.criteria4) || 0) +
+      (parseInt(scores.criteria5) || 0)
     );
   };
 
@@ -141,11 +152,11 @@ export default function JudgePortal() {
     try {
       const payload = {
         submissionId: selectedSub.submissionId,
-        appearanceScore: scores.appearance,
-        contentScore: scores.content,
-        confidenceScore: scores.confidence,
-        criteria4Score: scores.criteria4,
-        criteria5Score: scores.criteria5,
+        appearanceScore: parseInt(scores.appearance) || 0,
+        contentScore: parseInt(scores.content) || 0,
+        confidenceScore: parseInt(scores.confidence) || 0,
+        criteria4Score: parseInt(scores.criteria4) || 0,
+        criteria5Score: parseInt(scores.criteria5) || 0,
         remarks: scores.remarks,
       };
 
@@ -372,10 +383,9 @@ export default function JudgePortal() {
                       <tr style={{ backgroundColor: "#f8fafc", textAlign: "left" }}>
                         <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Submission ID</th>
                         <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Competition ID</th>
-                        <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Student Name</th>
-                        <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Group / Category</th>
+                        <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Student Details</th>
                         <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>School Name</th>
-                        <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Class & Roll</th>
+                        <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Submitted By</th>
                         <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Entry Title</th>
                         <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Action</th>
                         <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Score & Marks</th>
@@ -386,14 +396,19 @@ export default function JudgePortal() {
                         <tr key={sub.submissionId}>
                           <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0", fontWeight: "700", color: "#2563eb" }}>{sub.submissionId}</td>
                           <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0", fontWeight: "600" }}>{sub.competitionId}</td>
-                          <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0", fontWeight: "600" }}>{sub.studentName}</td>
                           <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0" }}>
-                            <span style={{ backgroundColor: "#f1f5f9", color: "#334155", padding: "4px 8px", borderRadius: "6px", fontSize: "12px", fontWeight: "700", border: "1px solid #cbd5e1" }}>
-                              {sub.groupCategory || "Group A (Class 5-8)"}
-                            </span>
+                            <div style={{ fontWeight: "700", color: "#0f172a" }}>{sub.studentName}</div>
+                            <div style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>
+                              {sub.classGrade} (Roll: {sub.rollNumber})
+                            </div>
+                            <div style={{ marginTop: "4px" }}>
+                              <span style={{ backgroundColor: "#f1f5f9", color: "#334155", padding: "2px 6px", borderRadius: "6px", fontSize: "11px", fontWeight: "700", border: "1px solid #cbd5e1" }}>
+                                {sub.groupCategory || "Group A (Class 1-2)"}
+                              </span>
+                            </div>
                           </td>
                           <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0" }}>{sub.schoolName}</td>
-                          <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0" }}>{sub.classGrade} (Roll: {sub.rollNumber})</td>
+                          <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0" }}>{sub.submittedBy || "N/A"}</td>
                           <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0" }}>{sub.entryTitle}</td>
                           <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0" }}>
                             {activeTab === "past" ? (
@@ -439,7 +454,47 @@ export default function JudgePortal() {
               <div style={{ backgroundColor: "#eff6ff", padding: "12px", borderRadius: "8px", marginBottom: "16px" }}>
                 <p style={{ margin: "0 0 6px 0", fontWeight: "600" }}>Title: {selectedSub.entryTitle}</p>
                 {selectedSub.videoUrl ? (
-                  selectedSub.videoUrl.startsWith("data:image") || selectedSub.videoUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp|heic)$/i) ? (
+                  (selectedSub.videoUrl.startsWith("data:") && !selectedSub.videoUrl.startsWith("data:image") && !selectedSub.videoUrl.startsWith("data:video")) ? (
+                    <div style={{ marginTop: "8px", padding: "10px", backgroundColor: "#fff", borderRadius: "8px", border: "1px solid #cbd5e1" }}>
+                      <p style={{ fontSize: "13px", fontWeight: "600", marginBottom: "8px" }}>📄 Submitted Code / Document File:</p>
+                      <a
+                        href={selectedSub.videoUrl}
+                        download={`kojo-file-${selectedSub.submissionId}`}
+                        style={{
+                          display: "inline-block",
+                          backgroundColor: "#2563eb",
+                          color: "white",
+                          padding: "8px 16px",
+                          borderRadius: "6px",
+                          fontWeight: "600",
+                          textDecoration: "none",
+                          fontSize: "13px"
+                        }}
+                      >
+                        📥 Download Submission File
+                      </a>
+                    </div>
+                  ) : (!selectedSub.videoUrl.startsWith("data:") && !selectedSub.videoUrl.startsWith("http")) ? (
+                    <div style={{ marginTop: "8px", padding: "10px", backgroundColor: "#fff", borderRadius: "8px", border: "1px solid #cbd5e1" }}>
+                      <p style={{ fontSize: "13px", fontWeight: "600", marginBottom: "8px" }}>📝 Submitted Source Code / Script:</p>
+                      <pre style={{
+                        margin: 0,
+                        fontFamily: "monospace",
+                        fontSize: "13px",
+                        backgroundColor: "#f8fafc",
+                        padding: "10px",
+                        borderRadius: "6px",
+                        maxHeight: "200px",
+                        overflowY: "auto",
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-all",
+                        color: "#334155",
+                        textAlign: "left"
+                      }}>
+                        {selectedSub.videoUrl}
+                      </pre>
+                    </div>
+                  ) : selectedSub.videoUrl.startsWith("data:image") || selectedSub.videoUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp|heic)$/i) ? (
                     <div style={{ marginTop: "8px" }}>
                       <p style={{ fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>Submitted Image Entry:</p>
                       <img src={selectedSub.videoUrl} alt="Student Entry" style={{ maxHeight: "220px", maxWidth: "100%", borderRadius: "8px", border: "1px solid #cbd5e1" }} />
