@@ -46,9 +46,8 @@ function AsyncVideoPlayer({ videoUrl }) {
       key={blobUrl || "vid-player"}
       src={blobUrl || videoUrl}
       controls
-      autoPlay
       playsInline
-      style={{ width: "100%", maxHeight: "250px", borderRadius: "8px", backgroundColor: "#0f172a" }}
+      style={{ width: "100%", maxHeight: "150px", borderRadius: "8px", backgroundColor: "#0f172a" }}
     />
   );
 }
@@ -168,7 +167,6 @@ export default function JudgePortal() {
       setSubmissions((prev) =>
         prev.map((s) => (s.submissionId === selectedSub.submissionId ? { ...s, status: "COMPLETED", totalScore: totalCalc } : s))
       );
-      setSelectedSub(null);
     } catch (err) {
       console.error(err);
       const totalCalc = calculateTotal();
@@ -176,10 +174,105 @@ export default function JudgePortal() {
       setSubmissions((prev) =>
         prev.map((s) => (s.submissionId === selectedSub.submissionId ? { ...s, status: "COMPLETED", totalScore: totalCalc } : s))
       );
-      setSelectedSub(null);
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderMedia = (videoUrl) => {
+    if (!videoUrl) return <p style={{ color: "#94a3b8", fontSize: "12px", margin: 0 }}>No Media Link Attached</p>;
+
+    const isYoutube = videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be");
+    if (isYoutube) {
+      let embedUrl = videoUrl;
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
+      const match = videoUrl.match(regExp);
+      if (match && match[2].length === 11) {
+        embedUrl = `https://www.youtube.com/embed/${match[2]}`;
+      }
+      return (
+        <div style={{ marginTop: "4px" }}>
+          <iframe
+            width="100%"
+            height="140"
+            src={embedUrl}
+            title="Student Entry"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{ borderRadius: "6px" }}
+          ></iframe>
+        </div>
+      );
+    }
+
+    const isImage = videoUrl.startsWith("data:image") || videoUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp|heic)/i);
+    if (isImage) {
+      return (
+        <div style={{ marginTop: "4px" }}>
+          <p style={{ fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>Submitted Image:</p>
+          <img src={videoUrl} alt="Student Entry" style={{ maxHeight: "120px", maxWidth: "100%", borderRadius: "6px", border: "1px solid #cbd5e1" }} />
+        </div>
+      );
+    }
+
+    const isBase64File = videoUrl.startsWith("data:") && !videoUrl.startsWith("data:image") && !videoUrl.startsWith("data:video");
+    if (isBase64File) {
+      return (
+        <div style={{ marginTop: "4px", padding: "6px 10px", backgroundColor: "#fff", borderRadius: "6px", border: "1px solid #cbd5e1" }}>
+          <p style={{ fontSize: "11px", fontWeight: "600", margin: "0 0 4px 0" }}>📄 Code / Document File:</p>
+          <a
+            href={videoUrl}
+            download={`file-${selectedSub.submissionId}`}
+            style={{
+              display: "inline-block",
+              backgroundColor: "#2563eb",
+              color: "white",
+              padding: "6px 12px",
+              borderRadius: "4px",
+              fontWeight: "600",
+              textDecoration: "none",
+              fontSize: "12px"
+            }}
+          >
+            📥 Download File
+          </a>
+        </div>
+      );
+    }
+
+    const isSourceCode = !videoUrl.startsWith("data:") && !videoUrl.startsWith("http");
+    if (isSourceCode) {
+      return (
+        <div style={{ marginTop: "4px", padding: "6px 10px", backgroundColor: "#fff", borderRadius: "6px", border: "1px solid #cbd5e1" }}>
+          <p style={{ fontSize: "11px", fontWeight: "600", margin: "0 0 4px 0" }}>📝 Source Code / Script:</p>
+          <pre style={{
+            margin: 0,
+            fontFamily: "monospace",
+            fontSize: "12px",
+            backgroundColor: "#f8fafc",
+            padding: "6px",
+            borderRadius: "4px",
+            maxHeight: "100px",
+            overflowY: "auto",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-all",
+            color: "#334155",
+            textAlign: "left"
+          }}>
+            {videoUrl}
+          </pre>
+        </div>
+      );
+    }
+
+    // Default fallback: render video player for network video URLs and base64 video URLs
+    return (
+      <div style={{ marginTop: "4px" }}>
+        <p style={{ fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>Submitted Video:</p>
+        <AsyncVideoPlayer videoUrl={videoUrl} />
+      </div>
+    );
   };
 
   return (
@@ -192,7 +285,73 @@ export default function JudgePortal() {
           </p>
         </div>
 
-        {msg && <div style={{ padding: "14px", backgroundColor: "#dcfce7", color: "#15803d", borderRadius: "8px", marginBottom: "20px", fontWeight: "600" }}>{msg}</div>}
+        {msg && (
+          <div style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(15, 23, 42, 0.65)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 3000,
+            padding: "20px"
+          }}>
+            <div style={{
+              background: "white",
+              padding: "30px 24px",
+              borderRadius: "16px",
+              maxWidth: "450px",
+              width: "100%",
+              textAlign: "center",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+            }}>
+              <div style={{
+                width: "60px",
+                height: "60px",
+                borderRadius: "50%",
+                backgroundColor: "#ecfdf5",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px auto",
+                border: "2px solid #34d399",
+                color: "#10b981",
+                fontSize: "30px"
+              }}>
+                ✓
+              </div>
+              <h3 style={{ margin: "0 0 10px 0", fontSize: "20px", fontWeight: "600", color: "#0f172a" }}>
+                Success!
+              </h3>
+              <p style={{ fontSize: "15px", color: "#475569", lineHeight: "1.5", margin: "0 0 24px 0" }}>
+                {msg}
+              </p>
+              <button
+                type="button"
+                style={{
+                  backgroundColor: "#2563eb",
+                  color: "white",
+                  border: "none",
+                  padding: "10px 24px",
+                  borderRadius: "8px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  fontSize: "15px",
+                  width: "120px",
+                  margin: "0 auto",
+                  display: "block"
+                }}
+                onClick={() => { setMsg(""); setSelectedSub(null); }}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* TAB NAVIGATION BAR FOR 3 COMPETITION TYPES */}
         <div style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
@@ -445,107 +604,51 @@ export default function JudgePortal() {
 
           {/* Evaluation & Scoring Panel */}
           {selectedSub && (
-            <div style={{ backgroundColor: "#fff", borderRadius: "12px", padding: "24px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                <h3 style={{ fontSize: "18px", fontWeight: "700" }}>Scoring Form: {selectedSub.studentName}</h3>
-                <button onClick={() => setSelectedSub(null)} style={{ padding: "4px 10px", border: "none", borderRadius: "4px", cursor: "pointer" }}>Close</button>
+            <div style={{ backgroundColor: "#fff", borderRadius: "12px", padding: "16px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)", position: "sticky", top: "24px", alignSelf: "start" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                <h3 style={{ fontSize: "16px", fontWeight: "700", margin: 0 }}>Scoring Form: {selectedSub.studentName}</h3>
+                <button onClick={() => setSelectedSub(null)} style={{ padding: "4px 8px", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}>Close</button>
               </div>
 
-              <div style={{ backgroundColor: "#eff6ff", padding: "12px", borderRadius: "8px", marginBottom: "16px" }}>
-                <p style={{ margin: "0 0 6px 0", fontWeight: "600" }}>Title: {selectedSub.entryTitle}</p>
-                {selectedSub.videoUrl ? (
-                  (selectedSub.videoUrl.startsWith("data:") && !selectedSub.videoUrl.startsWith("data:image") && !selectedSub.videoUrl.startsWith("data:video")) ? (
-                    <div style={{ marginTop: "8px", padding: "10px", backgroundColor: "#fff", borderRadius: "8px", border: "1px solid #cbd5e1" }}>
-                      <p style={{ fontSize: "13px", fontWeight: "600", marginBottom: "8px" }}>📄 Submitted Code / Document File:</p>
-                      <a
-                        href={selectedSub.videoUrl}
-                        download={`kojo-file-${selectedSub.submissionId}`}
-                        style={{
-                          display: "inline-block",
-                          backgroundColor: "#2563eb",
-                          color: "white",
-                          padding: "8px 16px",
-                          borderRadius: "6px",
-                          fontWeight: "600",
-                          textDecoration: "none",
-                          fontSize: "13px"
-                        }}
-                      >
-                        📥 Download Submission File
-                      </a>
-                    </div>
-                  ) : (!selectedSub.videoUrl.startsWith("data:") && !selectedSub.videoUrl.startsWith("http")) ? (
-                    <div style={{ marginTop: "8px", padding: "10px", backgroundColor: "#fff", borderRadius: "8px", border: "1px solid #cbd5e1" }}>
-                      <p style={{ fontSize: "13px", fontWeight: "600", marginBottom: "8px" }}>📝 Submitted Source Code / Script:</p>
-                      <pre style={{
-                        margin: 0,
-                        fontFamily: "monospace",
-                        fontSize: "13px",
-                        backgroundColor: "#f8fafc",
-                        padding: "10px",
-                        borderRadius: "6px",
-                        maxHeight: "200px",
-                        overflowY: "auto",
-                        whiteSpace: "pre-wrap",
-                        wordBreak: "break-all",
-                        color: "#334155",
-                        textAlign: "left"
-                      }}>
-                        {selectedSub.videoUrl}
-                      </pre>
-                    </div>
-                  ) : selectedSub.videoUrl.startsWith("data:image") || selectedSub.videoUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp|heic)$/i) ? (
-                    <div style={{ marginTop: "8px" }}>
-                      <p style={{ fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>Submitted Image Entry:</p>
-                      <img src={selectedSub.videoUrl} alt="Student Entry" style={{ maxHeight: "220px", maxWidth: "100%", borderRadius: "8px", border: "1px solid #cbd5e1" }} />
-                    </div>
-                  ) : selectedSub.videoUrl.startsWith("data:video") || selectedSub.videoUrl.match(/\.(mp4|mov|3gp|webm|mkv|avi|wmv)$/i) ? (
-                    <div style={{ marginTop: "8px" }}>
-                      <p style={{ fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>Submitted Video Entry (Play Below):</p>
-                      <AsyncVideoPlayer videoUrl={selectedSub.videoUrl} />
-                    </div>
-                  ) : (
-                    <p style={{ margin: 0, fontSize: "14px" }}>
-                      Video Link: <a href={selectedSub.videoUrl} target="_blank" rel="noreferrer" style={{ color: "#2563eb", fontWeight: "600" }}>{selectedSub.videoUrl}</a>
-                    </p>
-                  )
-                ) : (
-                  <p style={{ color: "#94a3b8", fontSize: "13px" }}>No Media Link Attached</p>
-                )}
+              <div style={{ backgroundColor: "#eff6ff", padding: "8px 12px", borderRadius: "8px", marginBottom: "12px" }}>
+                <p style={{ margin: "0 0 4px 0", fontWeight: "600", fontSize: "13px" }}>Title: {selectedSub.entryTitle}</p>
+                {renderMedia(selectedSub.videoUrl)}
               </div>
 
-              <form onSubmit={handleSubmitEvaluation} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600" }}>1. Appearance (Max 10)</label>
-                  <input required type="number" min="0" max="10" name="appearance" value={scores.appearance} onChange={handleScoreChange} style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }} />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600" }}>2. Content Quality (Max 10)</label>
-                  <input required type="number" min="0" max="10" name="content" value={scores.content} onChange={handleScoreChange} style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }} />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600" }}>3. Confidence & Speech (Max 10)</label>
-                  <input required type="number" min="0" max="10" name="confidence" value={scores.confidence} onChange={handleScoreChange} style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }} />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600" }}>4. Communication Skills (Max 10)</label>
-                  <input required type="number" min="0" max="10" name="criteria4" value={scores.criteria4} onChange={handleScoreChange} style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }} />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600" }}>5. Overall Impact (Max 10)</label>
-                  <input required type="number" min="0" max="10" name="criteria5" value={scores.criteria5} onChange={handleScoreChange} style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }} />
+              <form onSubmit={handleSubmitEvaluation} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>1. Appearance (Max 10)</label>
+                    <input required type="number" min="0" max="10" name="appearance" value={scores.appearance} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>2. Content (Max 10)</label>
+                    <input required type="number" min="0" max="10" name="content" value={scores.content} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>3. Confidence (Max 10)</label>
+                    <input required type="number" min="0" max="10" name="confidence" value={scores.confidence} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>4. Comm. Skills (Max 10)</label>
+                    <input required type="number" min="0" max="10" name="criteria4" value={scores.criteria4} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
+                  </div>
+                  <div style={{ gridColumn: "span 2" }}>
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>5. Overall Impact (Max 10)</label>
+                    <input required type="number" min="0" max="10" name="criteria5" value={scores.criteria5} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
+                  </div>
                 </div>
 
-                <div style={{ backgroundColor: "#f8fafc", padding: "12px", borderRadius: "6px", fontWeight: "700", textAlign: "right" }}>
+                <div style={{ backgroundColor: "#f8fafc", padding: "8px 12px", borderRadius: "6px", fontWeight: "700", fontSize: "13px", textAlign: "right" }}>
                   Total Aggregate Score: {calculateTotal()} / 50
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "700", color: "#b91c1c" }}>Mandatory Remarks / Feedback *</label>
-                  <textarea required rows="3" name="remarks" value={scores.remarks} onChange={handleScoreChange} placeholder="Enter your detailed remarks and feedback..." style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }} />
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "#b91c1c", marginBottom: "2px" }}>Remarks *</label>
+                  <textarea required rows="2" name="remarks" value={scores.remarks} onChange={handleScoreChange} placeholder="Enter feedback remarks..." style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
                 </div>
 
-                <button type="submit" style={{ padding: "12px", backgroundColor: "#16a34a", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "700", cursor: "pointer" }}>
+                <button type="submit" style={{ padding: "10px", backgroundColor: "#16a34a", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "700", cursor: "pointer", fontSize: "13px" }}>
                   Submit Evaluation & Remarks
                 </button>
               </form>
