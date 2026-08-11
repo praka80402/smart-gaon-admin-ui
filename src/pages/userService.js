@@ -124,7 +124,16 @@ export const getSchoolCompetitionSubmissions = async () => {
   const res = await api.get(`${BASE}/school-competitions/submissions/my-school`, authHeader());
   return res.data;
 };
-
+// Reject a submission — SCHOOL_ADMIN scoped. Backend should verify the
+// submission belongs to the requesting admin's own school before rejecting.
+export const rejectCompetitionSubmission = async (submissionId, reason) => {
+  const res = await api.post(
+    `${BASE}/school-competitions/submissions/${submissionId}/reject`,
+    { reason },
+    authHeader()
+  );
+  return res.data;
+};
 /* -----------------------------------------------------
 VILLAGE APIs (FOR MyVillage.jsx)
 ----------------------------------------------------- */

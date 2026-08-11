@@ -578,7 +578,7 @@ const getAdminPagination = () => {
 )}
 
         {canAddAdmin && (
-  <button className="danger-btn" onClick={() => setShowSchoolAdminModal(true)}>
+  <button className="primary-btn" onClick={() => setShowSchoolAdminModal(true)}>
     Add School Admin
   </button>
 )}
