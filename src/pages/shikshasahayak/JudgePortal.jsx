@@ -52,6 +52,84 @@ function AsyncVideoPlayer({ videoUrl }) {
   );
 }
 
+function InfoTooltip({ text }) {
+  const [open, setOpen] = useState(false);
+  const lines = text.split("\n");
+
+  return (
+    <span
+      style={{ position: "relative", display: "inline-flex", marginLeft: "6px" }}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <span
+        tabIndex={0}
+        role="button"
+        aria-label="More info"
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        onClick={() => setOpen((prev) => !prev)}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "15px",
+          height: "15px",
+          borderRadius: "50%",
+          backgroundColor: "#cbd5e1",
+          color: "#1e293b",
+          fontSize: "10px",
+          fontWeight: "700",
+          cursor: "help",
+          userSelect: "none",
+          flexShrink: 0,
+        }}
+      >
+        i
+      </span>
+      {open && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: "calc(100% + 6px)",
+            left: "50%",
+            transform: "translateX(-50%)",
+            backgroundColor: "#1e293b",
+            color: "#fff",
+            padding: "8px 10px",
+            borderRadius: "6px",
+            fontSize: "11px",
+            fontWeight: "500",
+            whiteSpace: "nowrap",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+            zIndex: 10,
+          }}
+        >
+          {lines.map((line, idx) => (
+            <div key={idx}>{line}</div>
+          ))}
+          <div
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 0,
+              height: 0,
+              borderLeft: "5px solid transparent",
+              borderRight: "5px solid transparent",
+              borderTop: "5px solid #1e293b",
+            }}
+          />
+        </div>
+      )}
+    </span>
+  );
+}
+
+const MAX_SCORE_PER_CRITERION = 5;
+const MAX_TOTAL_SCORE = MAX_SCORE_PER_CRITERION * 5; // 25
+
 export default function JudgePortal() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -91,6 +169,7 @@ export default function JudgePortal() {
   };
 
   const [selectedSub, setSelectedSub] = useState(null);
+  const [showRemarks, setShowRemarks] = useState(false);
   const [scores, setScores] = useState({
     appearance: "",
     content: "",
@@ -104,6 +183,7 @@ export default function JudgePortal() {
   const handleSelect = (sub) => {
     setSelectedSub(sub);
     setMsg("");
+    setShowRemarks(false);
     setScores({
       appearance: "",
       content: "",
@@ -123,7 +203,7 @@ export default function JudgePortal() {
         setScores({ ...scores, [name]: "" });
       } else {
         const parsed = parseInt(value);
-        if (!isNaN(parsed) && parsed >= 0 && parsed <= 10) {
+        if (!isNaN(parsed) && parsed >= 0 && parsed <= MAX_SCORE_PER_CRITERION) {
           setScores({ ...scores, [name]: parsed });
         }
       }
@@ -142,10 +222,6 @@ export default function JudgePortal() {
 
   const handleSubmitEvaluation = async (e) => {
     e.preventDefault();
-    if (!scores.remarks.trim()) {
-      alert("Mandatory: Please provide written description/remarks for your evaluation.");
-      return;
-    }
 
     setLoading(true);
     try {
@@ -161,7 +237,7 @@ export default function JudgePortal() {
 
       const totalCalc = calculateTotal();
       await axiosInstance.post("/admin/school-competitions/judge/evaluate", payload);
-      setMsg(`Evaluation & Marks for ${selectedSub.studentName} (${selectedSub.submissionId}) submitted successfully! Total: ${totalCalc}/50`);
+      setMsg(`Evaluation & Marks for ${selectedSub.studentName} (${selectedSub.submissionId}) submitted successfully! Total: ${totalCalc}/${MAX_TOTAL_SCORE}`);
       
       // Update local state status to COMPLETED and store totalScore
       setSubmissions((prev) =>
@@ -170,7 +246,7 @@ export default function JudgePortal() {
     } catch (err) {
       console.error(err);
       const totalCalc = calculateTotal();
-      setMsg(`Evaluation saved locally! Total: ${totalCalc}/50`);
+      setMsg(`Evaluation saved locally! Total: ${totalCalc}/${MAX_TOTAL_SCORE}`);
       setSubmissions((prev) =>
         prev.map((s) => (s.submissionId === selectedSub.submissionId ? { ...s, status: "COMPLETED", totalScore: totalCalc } : s))
       );
@@ -275,13 +351,18 @@ export default function JudgePortal() {
     );
   };
 
+  // Competition title lookup for the selected submission (submissions only carry competitionId)
+  const selectedCompetitionTitle = selectedSub
+    ? (competitions.find((c) => c.competitionId === selectedSub.competitionId)?.title || selectedSub.competitionId)
+    : "";
+
   return (
     <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#f1f5f9" }}>
       <main style={{ flex: 1, padding: "30px" }}>
         <div style={{ backgroundColor: "#1e293b", color: "#fff", padding: "20px 24px", borderRadius: "12px", marginBottom: "25px" }}>
           <h2 style={{ margin: 0, fontSize: "24px" }}>Judge Evaluation Portal</h2>
           <p style={{ margin: "6px 0 0 0", opacity: 0.8, fontSize: "14px" }}>
-            Scoped Judge View: Review assigned entry videos, grade 5 criteria, and enter mandatory remarks.
+            Scoped Judge View: Review assigned entry videos and grade 5 criteria.
           </p>
         </div>
 
@@ -584,7 +665,7 @@ export default function JudgePortal() {
                           <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0" }}>
                             {sub.totalScore !== undefined && sub.totalScore !== null ? (
                               <span style={{ backgroundColor: "#dcfce7", color: "#15803d", padding: "4px 10px", borderRadius: "12px", fontWeight: "700", fontSize: "13px" }}>
-                                ⭐ {sub.totalScore} / 50 Marks
+                                ⭐ {sub.totalScore} / {MAX_TOTAL_SCORE} Marks
                               </span>
                             ) : sub.status === "COMPLETED" ? (
                               <span style={{ backgroundColor: "#dcfce7", color: "#15803d", padding: "4px 10px", borderRadius: "12px", fontWeight: "700", fontSize: "13px" }}>
@@ -610,42 +691,88 @@ export default function JudgePortal() {
                 <button onClick={() => setSelectedSub(null)} style={{ padding: "4px 8px", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}>Close</button>
               </div>
 
+              {/* Submission context: Competition, Student, Group, Roll No., Title */}
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "6px 12px",
+                backgroundColor: "#f8fafc",
+                border: "1px solid #e2e8f0",
+                padding: "10px 12px",
+                borderRadius: "8px",
+                marginBottom: "10px",
+                fontSize: "12px",
+                color: "#334155",
+              }}>
+                <div><strong>Competition:</strong> {selectedCompetitionTitle}</div>
+                <div><strong>Student:</strong> {selectedSub.studentName}</div>
+                <div><strong>Group:</strong> {selectedSub.groupCategory || "-"}</div>
+                <div><strong>Roll No.:</strong> {selectedSub.rollNumber || "-"}</div>
+                <div style={{ gridColumn: "span 2" }}><strong>Title:</strong> {selectedSub.entryTitle}</div>
+              </div>
+
               <div style={{ backgroundColor: "#eff6ff", padding: "8px 12px", borderRadius: "8px", marginBottom: "12px" }}>
-                <p style={{ margin: "0 0 4px 0", fontWeight: "600", fontSize: "13px" }}>Title: {selectedSub.entryTitle}</p>
                 {renderMedia(selectedSub.videoUrl)}
               </div>
 
               <form onSubmit={handleSubmitEvaluation} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                   <div>
-                    <label style={{ display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>1. Appearance (Max 10)</label>
-                    <input required type="number" min="0" max="10" name="appearance" value={scores.appearance} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>1. Quality of the written content (speech) (Max 05)</label>
+                    <input required type="number" min="0" max={MAX_SCORE_PER_CRITERION} name="appearance" value={scores.appearance} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>2. Content (Max 10)</label>
-                    <input required type="number" min="0" max="10" name="content" value={scores.content} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>2. Well-defined beginning, body, and ending of the speech. (Max 05)</label>
+                    <input required type="number" min="0" max={MAX_SCORE_PER_CRITERION} name="content" value={scores.content} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>3. Confidence (Max 10)</label>
-                    <input required type="number" min="0" max="10" name="confidence" value={scores.confidence} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>3. Speaker’s body language and eye contact with the audience. (Max 05)</label>
+                    <input required type="number" min="0" max={MAX_SCORE_PER_CRITERION} name="confidence" value={scores.confidence} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>4. Comm. Skills (Max 10)</label>
-                    <input required type="number" min="0" max="10" name="criteria4" value={scores.criteria4} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
+                    <label style={{ display: "flex", alignItems: "center", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>
+                      4. Completion within the allocated time for the speech (Max 05)
+                      <InfoTooltip text={"Group1: 1-2 mins\nGroup2: 2-3 mins\nGroup3: 2-3 mins\nGroup4: 3-4 mins"} />
+                    </label>
+                    <input required type="number" min="0" max={MAX_SCORE_PER_CRITERION} name="criteria4" value={scores.criteria4} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
                   </div>
                   <div style={{ gridColumn: "span 2" }}>
-                    <label style={{ display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>5. Overall Impact (Max 10)</label>
-                    <input required type="number" min="0" max="10" name="criteria5" value={scores.criteria5} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
+                    <label style={{ display: "block", fontSize: "11px", fontWeight: "600", marginBottom: "2px" }}>5. Maintaining vocal strength. (Max 05)</label>
+                    <input required type="number" min="0" max={MAX_SCORE_PER_CRITERION} name="criteria5" value={scores.criteria5} onChange={handleScoreChange} style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
                   </div>
                 </div>
 
                 <div style={{ backgroundColor: "#f8fafc", padding: "8px 12px", borderRadius: "6px", fontWeight: "700", fontSize: "13px", textAlign: "right" }}>
-                  Total Aggregate Score: {calculateTotal()} / 50
+                  Total Aggregate Score: {calculateTotal()} / {MAX_TOTAL_SCORE}
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "#b91c1c", marginBottom: "2px" }}>Remarks *</label>
-                  <textarea required rows="2" name="remarks" value={scores.remarks} onChange={handleScoreChange} placeholder="Enter feedback remarks..." style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
+                  {showRemarks ? (
+                    <>
+                      <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "12px", fontWeight: "700", color: "#334155", marginBottom: "2px" }}>
+                        <span>Remarks (optional)</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowRemarks(false);
+                            setScores((prev) => ({ ...prev, remarks: "" }));
+                          }}
+                          style={{ background: "none", border: "none", color: "#64748b", fontSize: "11px", cursor: "pointer", fontWeight: "600" }}
+                        >
+                          Remove
+                        </button>
+                      </label>
+                      <textarea rows="2" name="remarks" value={scores.remarks} onChange={handleScoreChange} placeholder="Enter feedback remarks..." style={{ width: "100%", padding: "6px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "13px" }} />
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowRemarks(true)}
+                      style={{ background: "none", border: "none", color: "#2563eb", fontSize: "12px", fontWeight: "600", cursor: "pointer", padding: 0 }}
+                    >
+                      + Add remarks (optional)
+                    </button>
+                  )}
                 </div>
 
                 <button type="submit" style={{ padding: "10px", backgroundColor: "#16a34a", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "700", cursor: "pointer", fontSize: "13px" }}>

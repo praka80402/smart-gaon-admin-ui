@@ -310,7 +310,7 @@ export default function AdminCompetitionManager() {
     startDate: new Date().toISOString().split("T")[0],
     endDate: "2026-08-31",
     verificationCode: "",
-    winnerAnnouncementMode: "AUTOMATIC",
+    winnerAnnouncementMode: "MANUAL",
   });
 
   const [categories, setCategories] = useState(["Public Speaking", "Science Project", "Kojo Competition"]);
@@ -448,7 +448,7 @@ export default function AdminCompetitionManager() {
         description: "",
         category: "Public Speaking",
         verificationCode: "",
-        winnerAnnouncementMode: "AUTOMATIC",
+        winnerAnnouncementMode: "MANUAL",
       });
     } catch (err) {
       console.error("Create Competition Error:", err);
@@ -760,7 +760,7 @@ export default function AdminCompetitionManager() {
       startDate: new Date().toISOString().split("T")[0],
       endDate: "2026-08-31",
       verificationCode: "",
-      winnerAnnouncementMode: "AUTOMATIC",
+      winnerAnnouncementMode: "MANUAL",
     });
     setShowModal(true);
   };
