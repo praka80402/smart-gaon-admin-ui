@@ -75,6 +75,7 @@ export default function AdminCompetitionManager() {
     fetchCompetitions();
     fetchSubmissions();
     fetchMasterSchools();
+    fetchPrizeVideos();
   }, []);
 
   useEffect(() => {
@@ -812,13 +813,31 @@ export default function AdminCompetitionManager() {
   const [showPrizeModal, setShowPrizeModal] = useState(false);
   const [prizeModalTab, setPrizeModalTab] = useState("ADD"); // ADD vs EDIT
   const [prizeVideos, setPrizeVideos] = useState([]);
+  const [prizeVideosLoading, setPrizeVideosLoading] = useState(false);
   const [editingPrizeVideoId, setEditingPrizeVideoId] = useState(null);
   const [prizeVideoForm, setPrizeVideoForm] = useState({
     competitionId: "",
     competitionName: "",
     category: "",
+    startDate: "",
+    endDate: "",
     videoUrl: "",
   });
+
+  // Fetch the persisted list of prize distribution videos from the backend
+  const fetchPrizeVideos = async () => {
+    setPrizeVideosLoading(true);
+    try {
+      const res = await axiosInstance.get("/admin/school-competitions/prize-videos");
+      if (res.data && Array.isArray(res.data)) {
+        setPrizeVideos(res.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch prize distribution videos", err);
+    } finally {
+      setPrizeVideosLoading(false);
+    }
+  };
 
   const handleOpenPrizeModal = () => {
     setPrizeModalTab("ADD");
@@ -826,10 +845,13 @@ export default function AdminCompetitionManager() {
       competitionId: "",
       competitionName: "",
       category: "",
+      startDate: "",
+      endDate: "",
       videoUrl: "",
     });
     setEditingPrizeVideoId(null);
     setShowPrizeModal(true);
+    fetchPrizeVideos();
   };
 
   const handleClosePrizeModal = () => {
@@ -838,6 +860,8 @@ export default function AdminCompetitionManager() {
       competitionId: "",
       competitionName: "",
       category: "",
+      startDate: "",
+      endDate: "",
       videoUrl: "",
     });
     setEditingPrizeVideoId(null);
@@ -850,10 +874,12 @@ export default function AdminCompetitionManager() {
       competitionId: compId,
       competitionName: comp ? comp.title : "",
       category: comp ? comp.category : "",
+      startDate: comp ? toDateInputValue(comp.startDate) : "",
+      endDate: comp ? toDateInputValue(comp.endDate) : "",
     });
   };
 
-  const handleSubmitPrizeVideo = (e) => {
+  const handleSubmitPrizeVideo = async (e) => {
     e.preventDefault();
     if (!prizeVideoForm.competitionId) {
       alert("⚠️ Please select a Competition ID!");
@@ -863,32 +889,46 @@ export default function AdminCompetitionManager() {
       alert("⚠️ Please paste a Video URL!");
       return;
     }
-    if (editingPrizeVideoId) {
-      setPrizeVideos(
-        prizeVideos.map((v) =>
-          v.id === editingPrizeVideoId
-            ? { ...prizeVideoForm, id: editingPrizeVideoId }
-            : v,
-        ),
-      );
-      setMsg(
-        `✓ Prize distribution video for '${prizeVideoForm.competitionName || prizeVideoForm.competitionId}' updated successfully!`,
-      );
-    } else {
-      const newVideo = { ...prizeVideoForm, id: `PDV-${Date.now()}` };
-      setPrizeVideos((prev) => [...prev, newVideo]);
-      setMsg(
-        `✓ Prize distribution video for '${prizeVideoForm.competitionName || prizeVideoForm.competitionId}' added successfully!`,
-      );
+
+    const payload = {
+      competitionId: prizeVideoForm.competitionId,
+      videoUrl: prizeVideoForm.videoUrl.trim(),
+    };
+
+    try {
+      if (editingPrizeVideoId) {
+        await axiosInstance.put(
+          `/admin/school-competitions/prize-videos/${editingPrizeVideoId}`,
+          payload,
+        );
+        setMsg(
+          `✓ Prize distribution video for '${prizeVideoForm.competitionName || prizeVideoForm.competitionId}' updated successfully!`,
+        );
+      } else {
+        await axiosInstance.post(
+          "/admin/school-competitions/prize-videos",
+          payload,
+        );
+        setMsg(
+          `✓ Prize distribution video for '${prizeVideoForm.competitionName || prizeVideoForm.competitionId}' added successfully!`,
+        );
+      }
+
+      await fetchPrizeVideos();
+      setPrizeVideoForm({
+        competitionId: "",
+        competitionName: "",
+        category: "",
+        startDate: "",
+        endDate: "",
+        videoUrl: "",
+      });
+      setEditingPrizeVideoId(null);
+      setPrizeModalTab("EDIT");
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data || "Failed to save prize distribution video.");
     }
-    setPrizeVideoForm({
-      competitionId: "",
-      competitionName: "",
-      category: "",
-      videoUrl: "",
-    });
-    setEditingPrizeVideoId(null);
-    setPrizeModalTab("EDIT");
   };
 
   const handleEditPrizeVideo = (video) => {
@@ -896,21 +936,29 @@ export default function AdminCompetitionManager() {
       competitionId: video.competitionId,
       competitionName: video.competitionName,
       category: video.category,
+      startDate: toDateInputValue(video.startDate),
+      endDate: toDateInputValue(video.endDate),
       videoUrl: video.videoUrl,
     });
     setEditingPrizeVideoId(video.id);
     setPrizeModalTab("ADD");
   };
 
-  const handleDeletePrizeVideo = (id) => {
+  const handleDeletePrizeVideo = async (id) => {
     if (
       !window.confirm(
         "Are you sure you want to delete this prize distribution video?",
       )
     )
       return;
-    setPrizeVideos(prizeVideos.filter((v) => v.id !== id));
-    setMsg("✓ Prize distribution video deleted successfully!");
+    try {
+      await axiosInstance.delete(`/admin/school-competitions/prize-videos/${id}`);
+      await fetchPrizeVideos();
+      setMsg("✓ Prize distribution video deleted successfully!");
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data || "Failed to delete prize distribution video.");
+    }
   };
 
   const isLiveFlag = (c) =>
@@ -3233,20 +3281,49 @@ export default function AdminCompetitionManager() {
                     />
                   </div>
 
-                  <div>
-                    <label className="admin-sc-field-label">Category</label>
-                    <input
-                      className="admin-sc-input"
-                      type="text"
-                      value={prizeVideoForm.category}
-                      readOnly
-                      placeholder="Auto-filled from Competition ID"
-                      style={{
-                        width: "100%",
-                        backgroundColor: "var(--sc-paper)",
-                        color: "var(--sc-slate)",
-                      }}
-                    />
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 16,
+                    }}
+                  >
+                    <div>
+                      <label className="admin-sc-field-label">Category</label>
+                      <input
+                        className="admin-sc-input"
+                        type="text"
+                        value={prizeVideoForm.category}
+                        readOnly
+                        placeholder="Auto-filled from Competition ID"
+                        style={{
+                          width: "100%",
+                          backgroundColor: "var(--sc-paper)",
+                          color: "var(--sc-slate)",
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label className="admin-sc-field-label">
+                        Start – End Date
+                      </label>
+                      <input
+                        className="admin-sc-input"
+                        type="text"
+                        value={
+                          prizeVideoForm.startDate || prizeVideoForm.endDate
+                            ? `${prizeVideoForm.startDate || "—"}  →  ${prizeVideoForm.endDate || "—"}`
+                            : ""
+                        }
+                        readOnly
+                        placeholder="Auto-filled from Competition ID"
+                        style={{
+                          width: "100%",
+                          backgroundColor: "var(--sc-paper)",
+                          color: "var(--sc-slate)",
+                        }}
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -3292,7 +3369,11 @@ export default function AdminCompetitionManager() {
               {/* TAB 2: EDIT INFORMATION */}
               {prizeModalTab === "EDIT" && (
                 <div>
-                  {prizeVideos.length === 0 ? (
+                  {prizeVideosLoading ? (
+                    <p className="admin-sc-empty-note" style={{ padding: "20px 0" }}>
+                      Loading prize distribution videos...
+                    </p>
+                  ) : prizeVideos.length === 0 ? (
                     <p
                       className="admin-sc-empty-note"
                       style={{ padding: "20px 0" }}
@@ -3316,6 +3397,7 @@ export default function AdminCompetitionManager() {
                             <th>Competition ID</th>
                             <th>Competition Name</th>
                             <th>Category</th>
+                            <th>Dates</th>
                             <th>Video</th>
                             <th>Actions</th>
                           </tr>
@@ -3328,6 +3410,10 @@ export default function AdminCompetitionManager() {
                               </td>
                               <td className="wrap-cell">{v.competitionName}</td>
                               <td className="nowrap-cell">{v.category}</td>
+                              <td className="nowrap-cell" style={{ fontSize: 12 }}>
+                                {toDateInputValue(v.startDate) || "—"} →{" "}
+                                {toDateInputValue(v.endDate) || "—"}
+                              </td>
                               <td className="nowrap-cell">
                                 <button
                                   className="admin-sc-btn-play"
