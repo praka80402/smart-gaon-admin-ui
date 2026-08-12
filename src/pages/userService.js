@@ -1,6 +1,6 @@
 import { api } from "../pages/gaonconnect/services/apiConfig"
-           const BASE = "https://smartgaonadmin.duckdns.org/admin";
-//const BASE = "http://localhost:9090/admin";
+          const BASE = "https://smartgaonadmin.duckdns.org/admin";
+ //const BASE = "http://localhost:9090/admin";
 
 const LOGIN_URL = `${BASE}/login`;
 const USERS_URL = `${BASE}/users`;
@@ -124,12 +124,10 @@ export const getSchoolCompetitionSubmissions = async () => {
   const res = await api.get(`${BASE}/school-competitions/submissions/my-school`, authHeader());
   return res.data;
 };
-// Reject a submission — SCHOOL_ADMIN scoped. Backend should verify the
-// submission belongs to the requesting admin's own school before rejecting.
-export const rejectCompetitionSubmission = async (submissionId, reason) => {
-  const res = await api.post(
-    `${BASE}/school-competitions/submissions/${submissionId}/reject`,
-    { reason },
+// in userService.js, alongside getSchoolCompetitionSubmissions
+export const deleteCompetitionSubmission = async (submissionId) => {
+  const res = await api.delete(
+    `${BASE}/school-competitions/submissions/${submissionId}`,
     authHeader()
   );
   return res.data;
