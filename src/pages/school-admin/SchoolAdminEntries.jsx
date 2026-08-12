@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   getSchoolCompetitionSubmissions,
-  rejectCompetitionSubmission, // (submissionId, reason) => Promise<updatedSubmission>
+  deleteCompetitionSubmission, // (submissionId) => Promise<void>
 } from "../userService";
 import "./SchoolAdminEntries.css";
 
@@ -23,9 +23,8 @@ const SchoolAdminEntries = ({ onLogout }) => {
   const [page, setPage] = useState(1);
 
   const [videoModal, setVideoModal] = useState(null); // holds the submission being previewed
-  const [rejectTarget, setRejectTarget] = useState(null); // holds the submission pending rejection
-  const [rejectReason, setRejectReason] = useState("");
-  const [rejectingId, setRejectingId] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null); // holds the submission pending deletion
+  const [deletingId, setDeletingId] = useState(null);
 
   const school = localStorage.getItem("adminSchool") || "";
 
@@ -118,38 +117,24 @@ const SchoolAdminEntries = ({ onLogout }) => {
     return nums;
   }, [page, totalPages]);
 
-  // ---- Reject ----
-  const openRejectModal = (submission) => {
-    setRejectTarget(submission);
-    setRejectReason("");
-  };
-  const cancelReject = () => {
-    setRejectTarget(null);
-    setRejectReason("");
-  };
+  // ---- Delete ----
+  const confirmDelete = (submission) => setDeleteTarget(submission);
+  const cancelDelete = () => setDeleteTarget(null);
 
-  const handleReject = async (e) => {
-    e.preventDefault();
-    if (!rejectTarget) return;
-    if (!rejectReason.trim()) {
-      setError("Please enter a reason for rejecting this entry.");
-      return;
-    }
-    const id = rejectTarget.submissionId;
-    setRejectingId(id);
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    const id = deleteTarget.submissionId;
+    setDeletingId(id);
     setError("");
     try {
-      const updated = await rejectCompetitionSubmission(id, rejectReason.trim());
-      setSubmissions((prev) =>
-        prev.map((s) => (s.submissionId === id ? { ...s, ...updated } : s))
-      );
-      setRejectTarget(null);
-      setRejectReason("");
+      await deleteCompetitionSubmission(id);
+      setSubmissions((prev) => prev.filter((s) => s.submissionId !== id));
+      setDeleteTarget(null);
     } catch (err) {
       console.error(err);
-      setError("Couldn't reject this entry. Please try again.");
+      setError("Couldn't delete this entry. Please try again.");
     } finally {
-      setRejectingId(null);
+      setDeletingId(null);
     }
   };
 
@@ -265,11 +250,6 @@ const SchoolAdminEntries = ({ onLogout }) => {
                         <span className={`sa-status sa-status-${(s.status || "submitted").toLowerCase()}`}>
                           {s.status || "SUBMITTED"}
                         </span>
-                        {s.status === "REJECTED" && s.rejectionReason && (
-                          <div className="sa-reject-reason">
-                            {s.rejectionReason}
-                          </div>
-                        )}
                       </td>
                       <td>
                         {s.videoUrl ? (
@@ -284,17 +264,13 @@ const SchoolAdminEntries = ({ onLogout }) => {
                         )}
                       </td>
                       <td>
-                        {s.status === "REJECTED" ? (
-                          <span className="sa-muted">Rejected</span>
-                        ) : (
-                          <button
-                            className="sa-reject-btn"
-                            onClick={() => openRejectModal(s)}
-                            disabled={rejectingId === s.submissionId}
-                          >
-                            {rejectingId === s.submissionId ? "Rejecting..." : "Reject"}
-                          </button>
-                        )}
+                        <button
+                          className="sa-delete-btn"
+                          onClick={() => confirmDelete(s)}
+                          disabled={deletingId === s.submissionId}
+                        >
+                          {deletingId === s.submissionId ? "Deleting..." : "Delete"}
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -365,45 +341,35 @@ const SchoolAdminEntries = ({ onLogout }) => {
         </div>
       )}
 
-      {/* Reject confirmation modal */}
-      {rejectTarget && (
-        <div className="sa-modal-overlay" onClick={cancelReject}>
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div className="sa-modal-overlay" onClick={cancelDelete}>
           <div className="sa-modal sa-modal-sm" onClick={(e) => e.stopPropagation()}>
             <div className="sa-modal-header">
-              <h3>Reject entry</h3>
-              <button className="sa-modal-close" onClick={cancelReject}>
+              <h3>Delete entry?</h3>
+              <button className="sa-modal-close" onClick={cancelDelete}>
                 &times;
               </button>
             </div>
             <p>
-              Rejecting the entry for <strong>{rejectTarget.studentName}</strong>{" "}
-              ({rejectTarget.entryTitle}). Please give a reason — this will be
-              recorded and shown to the student.
+              This will permanently delete the entry for{" "}
+              <strong>{deleteTarget.studentName}</strong> (
+              {deleteTarget.entryTitle}). They'll be able to submit a new
+              entry for this competition after this is deleted.
             </p>
-            <form onSubmit={handleReject}>
-              <textarea
-                className="sa-reject-textarea"
-                rows={4}
-                required
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="e.g. Invalid video link, off-topic content, duplicate entry..."
-              />
-              <div className="sa-modal-actions">
-                <button type="button" className="sa-modal-cancel" onClick={cancelReject}>
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="sa-modal-confirm-delete"
-                  disabled={rejectingId === rejectTarget.submissionId}
-                >
-                  {rejectingId === rejectTarget.submissionId
-                    ? "Rejecting..."
-                    : "Confirm rejection"}
-                </button>
-              </div>
-            </form>
+            <div className="sa-modal-actions">
+              <button type="button" className="sa-modal-cancel" onClick={cancelDelete}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="sa-modal-confirm-delete"
+                onClick={handleDelete}
+                disabled={deletingId === deleteTarget.submissionId}
+              >
+                {deletingId === deleteTarget.submissionId ? "Deleting..." : "Delete entry"}
+              </button>
+            </div>
           </div>
         </div>
       )}

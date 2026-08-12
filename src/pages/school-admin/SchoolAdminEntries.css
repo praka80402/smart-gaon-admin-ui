@@ -220,7 +220,7 @@
   background: #2980b9;
 }
 
-.sa-reject-btn {
+.sa-delete-btn {
   background: #fff;
   color: #e74c3c;
   border: 1px solid #e74c3c;
@@ -231,56 +231,14 @@
   font-weight: 600;
 }
 
-.sa-reject-btn:hover {
+.sa-delete-btn:hover {
   background: #fdecea;
 }
 
-.sa-undo-btn {
-  background: #fff;
-  color: #2874a6;
-  border: 1px solid #2874a6;
-  padding: 7px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.sa-undo-btn:hover {
-  background: #eaf4fb;
-}
-
-.sa-undo-btn:disabled,
-.sa-reject-btn:disabled,
+.sa-delete-btn:disabled,
 .sa-video-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-.sa-reject-reason {
-  margin-top: 4px;
-  font-size: 12px;
-  color: #c0392b;
-  font-style: italic;
-  max-width: 220px;
-}
-
-.sa-reject-textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #d7dee5;
-  border-radius: 6px;
-  font-size: 14px;
-  font-family: inherit;
-  color: #2c3e50;
-  resize: vertical;
-  margin-top: 4px;
-}
-
-.sa-reject-textarea:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
 }
 
 /* Pagination */
