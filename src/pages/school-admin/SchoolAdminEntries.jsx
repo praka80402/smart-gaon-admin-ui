@@ -231,7 +231,7 @@ const SchoolAdminEntries = ({ onLogout }) => {
                     <th>Submitted By</th>
                     <th>Status</th>
                     <th>Video</th>
-                    <th>Actions</th>
+                    {/* <th>Actions</th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -263,7 +263,7 @@ const SchoolAdminEntries = ({ onLogout }) => {
                           <span className="sa-muted">No video</span>
                         )}
                       </td>
-                      <td>
+                      {/* <td>
                         <button
                           className="sa-delete-btn"
                           onClick={() => confirmDelete(s)}
@@ -271,7 +271,7 @@ const SchoolAdminEntries = ({ onLogout }) => {
                         >
                           {deletingId === s.submissionId ? "Deleting..." : "Delete"}
                         </button>
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
                 </tbody>
