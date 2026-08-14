@@ -1,7 +1,6 @@
-
 import { api } from "../pages/gaonconnect/services/apiConfig"
-         const BASE = "https://smartgaonadmin.duckdns.org/admin";
-//  const BASE = "http://localhost:9090/admin";
+          const BASE = "https://smartgaonadmin.duckdns.org/admin";
+ //const BASE = "http://localhost:9090/admin";
 
 const LOGIN_URL = `${BASE}/login`;
 const USERS_URL = `${BASE}/users`;
@@ -31,21 +30,22 @@ email: res.data.email
 };
 
 // -----------------------------------------------------
-// LOAD LOGGED ADMIN PROFILE (state/district/pincode)
+// LOAD LOGGED ADMIN PROFILE (state/district/pincode/school)
 // -----------------------------------------------------
 export const loadMyAdminProfile = async (token, email) => {
-const res = await api.get(ADMINS_URL, {
-headers: { Authorization: "Bearer " + token }
-});
+  const res = await api.get(ADMINS_URL, {
+    headers: { Authorization: "Bearer " + token }
+  });
 
-const me = res.data.find(a => a.email === email);
+  const me = res.data.find(a => a.email === email);
 
-if (me) {
-     localStorage.setItem("adminName", me.name || "");
-localStorage.setItem("adminState", me.state || "");
-localStorage.setItem("adminDistrict", me.district || "");
-localStorage.setItem("adminPincode", me.pincode || "");
-}
+  if (me) {
+    localStorage.setItem("adminName", me.name || "");
+    localStorage.setItem("adminState", me.state || "");
+    localStorage.setItem("adminDistrict", me.district || "");
+    localStorage.setItem("adminPincode", me.pincode || "");
+    localStorage.setItem("adminSchool", me.school || ""); 
+  }
 };
 
 // -----------------------------------------------------
@@ -99,7 +99,39 @@ const res = await api.get(`${USERS_URL}/count`, authHeader());
 return res.data;
 };
 
+/* -----------------------------------------------------
+SCHOOL ADMIN — School Competition scoped admin
+----------------------------------------------------- */
 
+// Schools available for the "Add School Admin" dropdown
+// (same master list used by AdminCompetitionManager)
+export const getSchoolsForCompetition = async () => {
+  const res = await api.get(`${BASE}/school-competitions/schools`, authHeader());
+  return res.data;
+};
+
+// Create a SCHOOL_ADMIN (reuses the generic create-admin endpoint,
+// backend enforces role-specific validation)
+export const createSchoolAdmin = async (schoolAdminData) => {
+  const payload = { ...schoolAdminData, role: "SCHOOL_ADMIN" };
+  const res = await api.post(CREATE_ADMIN_URL, payload, authHeader());
+  return res.data;
+};
+
+// Entries visible to the logged-in SCHOOL_ADMIN only.
+// Backend scopes this by the admin's own token — no school param sent.
+export const getSchoolCompetitionSubmissions = async () => {
+  const res = await api.get(`${BASE}/school-competitions/submissions/my-school`, authHeader());
+  return res.data;
+};
+// in userService.js, alongside getSchoolCompetitionSubmissions
+export const deleteCompetitionSubmission = async (submissionId) => {
+  const res = await api.delete(
+    `${BASE}/school-competitions/submissions/${submissionId}`,
+    authHeader()
+  );
+  return res.data;
+};
 /* -----------------------------------------------------
 VILLAGE APIs (FOR MyVillage.jsx)
 ----------------------------------------------------- */

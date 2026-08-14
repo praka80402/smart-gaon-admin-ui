@@ -36,8 +36,8 @@ const Header = ({ onLogout }) => {
 }, []);
 
 const getInitial = () => {
-  const name = adminInfo.name?.trim();
-  if (!name) return "A";
+  const name = (adminInfo.name || localStorage.getItem("adminEmail"))?.trim();
+  if (!name) return "J";
   return name[0].toUpperCase();
 };
 
@@ -57,6 +57,7 @@ const getInitial = () => {
       return `${adminInfo.state} State Admin`;
     if (adminInfo.role === "DISTRICT_ADMIN")
       return `${adminInfo.district}, ${adminInfo.state} District Admin`;
+    if (adminInfo.role === "JUDGE") return "Judge";
     return "";
   };
  
@@ -77,6 +78,8 @@ const getInitial = () => {
 const menuItems =
   adminInfo.role === "ACCOUNT_ADMIN"
     ? [{ name: "Donation", path: "/donation" }]
+    : adminInfo.role === "JUDGE"
+    ? [{ name: "School Competition", path: "/judge-portal" }]
     : allMenuItems;
 
   return (

@@ -1,6 +1,5 @@
-
-import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Header from "./components/Header";
 import Dashboard from "./pages/dashboard/pages/Dashboard";
 import GaonConnect from "./pages/gaonconnect/GaonConnect";
@@ -19,12 +18,32 @@ import NcertMain from "./pages/shikshasahayak/Shikshsahayak";
 import SevaBazarAdmin from "./pages/sevabazar/SevaBazarAdmin";
 import GaonSathiManager from "./pages/gaon-sathi/GaonSathiManager";
 import MediaPressAdminPage from "./pages/media_press/media_press";
-
+import AdminQuickServices from "./pages/quick/AdminQuickServices";
 import BannerManagement from "./pages/dashboard/management/banner/BannerManagement";
 import EventManagement from "./pages/dashboard/management/event/EventManagement";
-
+import GaonDoctorAdmin from "./pages/doctor/GaonDoctorAdmin";
+import JudgePortal from "./pages/shikshasahayak/JudgePortal";
+import AdminCompetitionManager from "./pages/shikshasahayak/AdminCompetitionManager";
+import SchoolAdminEntries from "./pages/school-admin/SchoolAdminEntries";
 import "./App.css";
 import ProfilePage from "./components/profilepage";
+
+// Restricts a SCHOOL_ADMIN to only their own entries page.
+// Runs on every route change; redirects away from anything else.
+function SchoolAdminGate() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const role = localStorage.getItem("adminRole");
+    const allowed = ["/school-admin/entries", "/login"];
+    if (role === "SCHOOL_ADMIN" && !allowed.includes(location.pathname)) {
+      navigate("/school-admin/entries", { replace: true });
+    }
+  }, [location, navigate]);
+
+  return null;
+}
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -41,12 +60,15 @@ function App() {
     setIsLoggedIn(true);
   };
 
+  const isSchoolAdmin = localStorage.getItem("adminRole") === "SCHOOL_ADMIN";
+
   return (
     <Router>
       <Loader />
+      <SchoolAdminGate />
 
-      {/* Header only when logged in */}
-      {isLoggedIn && <Header onLogout={handleLogout} />}
+      {/* Header only when logged in, and never for SCHOOL_ADMIN (no other pages to navigate to) */}
+      {isLoggedIn && !isSchoolAdmin && <Header onLogout={handleLogout} />}
 
       <main className={isLoggedIn ? "content-area" : ""}>
         <Routes>
@@ -55,7 +77,19 @@ function App() {
           <Route
             path="/"
             element={
-              isLoggedIn ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+              isLoggedIn ? (
+                localStorage.getItem("adminRole") === "JUDGE" ? (
+                  <Navigate to="/judge-portal" />
+                ) : localStorage.getItem("adminRole") === "ACCOUNT_ADMIN" ? (
+                  <Navigate to="/donation/DonationAdmin" />
+                ) : localStorage.getItem("adminRole") === "SCHOOL_ADMIN" ? (
+                  <Navigate to="/school-admin/entries" />
+                ) : (
+                  <Navigate to="/dashboard" />
+                )
+              ) : (
+                <Navigate to="/login" />
+              )
             }
           />
 
@@ -64,7 +98,15 @@ function App() {
             path="/login"
             element={
               isLoggedIn ? (
-                <Navigate to="/dashboard" />
+                localStorage.getItem("adminRole") === "JUDGE" ? (
+                  <Navigate to="/judge-portal" />
+                ) : localStorage.getItem("adminRole") === "ACCOUNT_ADMIN" ? (
+                  <Navigate to="/donation/DonationAdmin" />
+                ) : localStorage.getItem("adminRole") === "SCHOOL_ADMIN" ? (
+                  <Navigate to="/school-admin/entries" />
+                ) : (
+                  <Navigate to="/dashboard" />
+                )
               ) : (
                 <Login onLogin={handleLogin} />
               )
@@ -139,8 +181,14 @@ function App() {
  path="/admin/KnowledgeBank" 
  element={isLoggedIn ? <KnowledgeBank /> : <Navigate to="/login"/>} 
  />
-
-
+  <Route
+  path="/dashboard/management"
+  element={isLoggedIn ? <GaonDoctorAdmin /> : <Navigate to="/login" />}
+/>
+ <Route
+  path="/dashboard/management"
+  element={isLoggedIn ? <AdminQuickServices /> : <Navigate to="/login" />}
+/>
 <Route
   path="/profilepage"
   element={isLoggedIn ? <ProfilePage /> : <Navigate to="/login" />}
@@ -175,6 +223,26 @@ function App() {
   <Route path="insight" element={<InsightsPage />} />
 
 </Route>
+<Route
+  path="/judge-portal"
+  element={isLoggedIn ? <JudgePortal /> : <Navigate to="/login" />}
+/>
+<Route
+  path="/admin/school-competition"
+  element={isLoggedIn ? <AdminCompetitionManager /> : <Navigate to="/login" />}
+/>
+
+{/* SCHOOL ADMIN — restricted single page */}
+<Route
+  path="/school-admin/entries"
+  element={
+    isLoggedIn ? (
+      <SchoolAdminEntries onLogout={handleLogout} />
+    ) : (
+      <Navigate to="/login" />
+    )
+  }
+/>
 
         </Routes>
       </main>

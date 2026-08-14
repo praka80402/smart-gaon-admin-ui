@@ -10,10 +10,10 @@ const authHeader = () => ({
 /* ===================================================== */
  
 /** Bulk Excel upload. Returns {inserted, duplicatesSkipped, invalidRowsSkipped, message} */
-export const uploadQuestionsExcel = async (file, segmentType, classLevel, competitionType) => {
+export const uploadQuestionsExcel = async (file, segmentType, classLevel, competitionType, language = "EN") => {
   const form = new FormData();
   form.append("file", file);
-  let url = `${BASE_URL}/questions/upload?segmentType=${segmentType}`;
+  let url = `${BASE_URL}/questions/upload?segmentType=${segmentType}&language=${language}`;
   if (classLevel) url += `&classLevel=${classLevel}`;
   if (competitionType) url += `&competitionType=${competitionType}`;
   const res = await fetch(url, {
@@ -37,8 +37,8 @@ export const createQuestion = async (question) => {
 };
  
 /** List questions by segment. segmentType = "ACADEMIC" | "COMPETITION" */
-export const getQuestions = async (segmentType) => {
-  const res = await fetch(`${BASE_URL}/questions?segmentType=${segmentType}`, {
+export const getQuestions = async (segmentType, language = "EN") => {
+  const res = await fetch(`${BASE_URL}/questions?segmentType=${segmentType}&language=${language}`, {
     headers: authHeader(),
   });
   if (!res.ok) throw new Error("Failed to load questions");

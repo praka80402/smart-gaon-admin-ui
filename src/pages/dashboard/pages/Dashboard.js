@@ -5,6 +5,8 @@ import Modal from "../../../components/Modal";
 import TodayTipsList from "../../today-tips/TodayTipsList";
 import HomeLayoutAdmin from "../../home-layout/HomeLayoutAdmin";
 import BannerAdmin from "../../banners/bannerAdmin";
+import GaonDoctorAdmin from "../../doctor/GaonDoctorAdmin";
+import AdminQuickServices from "../../quick/AdminQuickServices";
 import SchemeAdmin from "../../scheme/schemeAdmin";
 import { getUserCount } from "../../userService";
 
@@ -35,7 +37,7 @@ const Dashboard = () => {
       </div>
 
       {/* ── Cards ── */}
-      <div className="stats-wrapper">
+     <div className="stats-wrapper">
         <div className="stats-grid">
           <div
             className="stats-card color-1"
@@ -89,8 +91,28 @@ const Dashboard = () => {
           >
             <h2 className="stats-click">Knowledge Bank</h2>
           </div>
+
+          <div
+            className="stats-card color-9"
+           onClick={() => setActiveModal("GaonDoctorAdmin")}
+          >
+            <h2 className="stats-click">Doctor</h2>
+          </div>
+         <div
+            className="stats-card color-8"
+           onClick={() => setActiveModal("AdminQuickServices")}
+          >
+            <h2 className="stats-click">Quick Services</h2>
+          </div>
+          <div
+            className="stats-card color-8"
+            onClick={() => navigate("/admin/school-competition")}
+          >
+            <h2 className="stats-click">School Competition</h2>
+          </div>
         </div>
       </div>
+
       {/* ── Modals ── */}
       <Modal open={activeModal === "TIPS"} onClose={closeModal}>
         <TodayTipsList onClose={closeModal} />
@@ -115,6 +137,22 @@ const Dashboard = () => {
       >
         <HomeLayoutAdmin onClose={closeModal} />
       </Modal>
+
+    <Modal
+  open={activeModal === "GaonDoctorAdmin"}
+  onClose={closeModal}
+  className="modal-box-doctor"
+>
+  <GaonDoctorAdmin onClose={closeModal} />
+</Modal>
+
+<Modal
+  open={activeModal === "AdminQuickServices"}
+  onClose={closeModal}
+  className="modal-box-quickservices"
+>
+  <AdminQuickServices onClose={closeModal} />
+</Modal>
     </div>
   );
 };

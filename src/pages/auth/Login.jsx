@@ -115,23 +115,30 @@ try {
   localStorage.setItem("adminEmail", res.email);
   // localStorage.setItem("isAdminLoggedIn", "true")
 
-   await loadMyAdminProfile(res.token, res.email);
+    if (res.role !== "ACCOUNT_ADMIN" && res.role !== "JUDGE") {
+      try {
+        await loadMyAdminProfile(res.token, res.email);
+      } catch (profileErr) {
+        console.warn("Could not load admin profile details", profileErr);
+      }
+    }
 
-   localStorage.setItem("isAdminLoggedIn", "true");
-  // if (res.role !== "ACCOUNT_ADMIN") {
-  //     await loadMyAdminProfile(res.token, res.email);
-  //   }
-
-  onLogin();
-  if (res.role === "ACCOUNT_ADMIN") {
-  navigate("/donation/DonationAdmin", { replace: true });
-} else {
-  navigate("/dashboard", { replace: true });
-}
+    localStorage.setItem("isAdminLoggedIn", "true");
+    onLogin();
+    if (res.role === "ACCOUNT_ADMIN") {
+      navigate("/donation/DonationAdmin", { replace: true });
+    } else if (res.role === "JUDGE") {
+      navigate("/judge-portal", { replace: true });
+    } else if (res.role === "SCHOOL_ADMIN") {
+      navigate("/school-admin/entries", { replace: true });
+    } else {
+      navigate("/dashboard", { replace: true });
+    }
   // navigate("/dashboard", { replace: true });
 
 } catch (err) {
-  setError("Invalid email or password");
+  const serverErrMsg = typeof err.response?.data === 'string' ? err.response.data : (err.response?.data?.message || "Invalid email or password");
+  setError(serverErrMsg);
 }
 
 
@@ -139,7 +146,6 @@ try {
 
 return ( <div className="login-container"> <div className="login-card">
 
-```
     <img src={logo} alt="SmartGaon Logo" className="login-logo" />
 
     <h2 className="login-title">SmartGaon AI</h2>
