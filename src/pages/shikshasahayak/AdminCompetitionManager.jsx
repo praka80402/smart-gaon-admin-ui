@@ -60,6 +60,8 @@ function AsyncVideoPlayer({ videoUrl }) {
 export default function AdminCompetitionManager() {
   const [competitions, setCompetitions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [expandedSubmissions, setExpandedSubmissions] = useState({}); // Tracks which submission's evaluation details are expanded
+  const [marksSortOrder, setMarksSortOrder] = useState("NONE"); // Tracks sorting for Judge Marks: "NONE", "DESC", "ASC"
 
   const [masterSchools, setMasterSchools] = useState([]);
   const [showSchoolModal, setShowSchoolModal] = useState(false);
@@ -1700,6 +1702,16 @@ export default function AdminCompetitionManager() {
                 });
               }
 
+              // Apply sorting by Judge Marks
+              if (marksSortOrder !== "NONE") {
+                filteredSubmissions = filteredSubmissions.sort((a, b) => {
+                  const scoreA = a.totalScore || 0;
+                  const scoreB = b.totalScore || 0;
+                  if (marksSortOrder === "DESC") return scoreB - scoreA;
+                  return scoreA - scoreB;
+                });
+              }
+
               if (filteredSubmissions.length === 0) {
                 return (
                   <p className="admin-sc-empty-note">
@@ -1713,27 +1725,31 @@ export default function AdminCompetitionManager() {
                   <table className="admin-sc-table">
                     <thead>
                       <tr>
-                        <th>Submission ID</th>
-                        <th>Competition ID</th>
+                        <th>Submission Info</th>
                         <th>Student Details</th>
                         <th>School Name</th>
-                        <th>Submitted By</th>
                         <th>Entry Title</th>
                         <th>Video Link</th>
-                        <th>⭐ Judge Marks</th>
+                        <th 
+                          onClick={() => setMarksSortOrder(prev => prev === "NONE" ? "DESC" : prev === "DESC" ? "ASC" : "NONE")}
+                          style={{ cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" }}
+                          title="Click to sort by Average Score"
+                        >
+                          ⭐ Judge Marks <span style={{ fontSize: "10px", marginLeft: "4px" }}>{marksSortOrder === "DESC" ? "▼" : marksSortOrder === "ASC" ? "▲" : "↕"}</span>
+                        </th>
                         <th>Actions</th>
-                        <th>🏆 Announce Winner</th>
+                        <th style={{ background: "#2563eb", color: "white", borderRadius: "0 8px 8px 0", textAlign: "center", padding: "10px 16px" }}>
+                          🏆 Announce Winner
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredSubmissions.map((sub) => (
                         <tr key={sub.submissionId}>
-                          <td className="id-cell">{sub.submissionId}</td>
-                          <td
-                            className="nowrap-cell"
-                            style={{ fontWeight: 600 }}
-                          >
-                            {sub.competitionId}
+                          <td className="wrap-cell">
+                            <div style={{ fontSize: "11px", color: "var(--sc-slate)", fontFamily: "monospace" }}>ID: {sub.submissionId}</div>
+                            <div style={{ fontSize: "11px", color: "var(--sc-slate)", fontWeight: 600, marginTop: "4px" }}>Comp: {sub.competitionId}</div>
+                            <div style={{ fontSize: "11px", color: "var(--sc-slate)", marginTop: "4px" }}>By: <span style={{ color: "var(--sc-navy)" }}>{sub.submittedBy || "N/A"}</span></div>
                           </td>
                           <td className="wrap-cell" style={{ minWidth: "180px" }}>
                             <div style={{ fontWeight: 700, color: "var(--sc-ink)" }}>{sub.studentName}</div>
@@ -1747,7 +1763,6 @@ export default function AdminCompetitionManager() {
                             </div>
                           </td>
                           <td className="wrap-cell">{sub.schoolName}</td>
-                          <td className="wrap-cell">{sub.submittedBy || "N/A"}</td>
                           <td className="wrap-cell">{sub.entryTitle}</td>
                           <td className="nowrap-cell">
                             {sub.videoUrl ? (
@@ -1792,23 +1807,58 @@ export default function AdminCompetitionManager() {
                           <td>
                             {sub.evaluations && sub.evaluations.length > 0 ? (
                               <div>
-                                {sub.evaluations.map((ev, idx) => (
-                                  <div key={idx} style={{ fontSize: 11, marginBottom: 6, borderBottom: idx < sub.evaluations.length - 1 ? "1px dashed #cbd5e1" : "none", paddingBottom: 4 }}>
-                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", alignItems: "center" }}>
-                                      <span className="admin-sc-badge evaluated" style={{ fontSize: 10, padding: "2px 4px", display: "inline-block" }}>
-                                        Judge {idx + 1} ({ev.judgeId.split("@")[0]}): ⭐ {ev.totalScore}/50
-                                      </span>
-                                    </div>
-                                    {ev.remarks && (
-                                      <div style={{ fontStyle: "italic", color: "var(--sc-slate)", marginTop: 2 }}>
-                                        "{ev.remarks}"
+                                {/* Default View: Average Score & Toggle Button */}
+                                <div 
+                                  style={{ 
+                                    display: "flex", 
+                                    alignItems: "center", 
+                                    justifyContent: "space-between", 
+                                    padding: "6px 10px", 
+                                    background: "#f8fafc", 
+                                    borderRadius: "8px",
+                                    border: "1px solid #e2e8f0",
+                                    cursor: "pointer",
+                                    transition: "background 0.2s"
+                                  }}
+                                  onClick={() => setExpandedSubmissions(prev => ({
+                                    ...prev,
+                                    [sub.submissionId]: !prev[sub.submissionId]
+                                  }))}
+                                  onMouseOver={(e) => e.currentTarget.style.background = "#f1f5f9"}
+                                  onMouseOut={(e) => e.currentTarget.style.background = "#f8fafc"}
+                                >
+                                  <div style={{ fontSize: 13, fontWeight: "700", color: "var(--sc-navy)" }}>
+                                    Avg Score: ⭐ {sub.totalScore}/25
+                                  </div>
+                                  <div style={{ fontSize: 11, color: "var(--sc-slate-soft)", fontStyle: "italic" }}>
+                                    {expandedSubmissions[sub.submissionId] ? "Hide" : "Click to view"}
+                                  </div>
+                                </div>
+
+                                {/* Expanded Details View */}
+                                {expandedSubmissions[sub.submissionId] && (
+                                  <div style={{ marginTop: "12px", padding: "10px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "#ffffff" }}>
+                                    {sub.evaluations.map((ev, idx) => (
+                                      <div key={idx} style={{ fontSize: 12, marginBottom: 8, borderBottom: idx < sub.evaluations.length - 1 ? "1px dashed #cbd5e1" : "none", paddingBottom: 8 }}>
+                                        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", alignItems: "center" }}>
+                                          <span className="admin-sc-badge evaluated" style={{ fontSize: 11, padding: "3px 6px", display: "inline-block", background: "#f0fdf4", color: "#166534", border: "1px solid #bbf7d0" }}>
+                                            Judge {idx + 1} ({ev.judgeId.split("@")[0]}): ⭐ {ev.totalScore}/25
+                                          </span>
+                                        </div>
+                                        {ev.remarks && (
+                                          <div style={{ fontStyle: "italic", color: "#475569", marginTop: 4, paddingLeft: "8px", borderLeft: "2px solid #cbd5e1" }}>
+                                            "{ev.remarks}"
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                    {/* Total Marks (Sum) at the bottom */}
+                                    {sub.evaluations.length > 1 && (
+                                      <div style={{ marginTop: 8, paddingTop: 8, borderTop: "2px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", fontWeight: "800", fontSize: 13, color: "var(--sc-navy)" }}>
+                                        <span>Total Marks:</span>
+                                        <span style={{ color: "#d97706" }}>⭐ {sub.evaluations.reduce((acc, ev) => acc + (ev.totalScore || 0), 0)} / {sub.evaluations.length * 25}</span>
                                       </div>
                                     )}
-                                  </div>
-                                ))}
-                                {sub.evaluations.length > 1 && (
-                                  <div style={{ fontSize: 11, fontWeight: "bold", color: "var(--sc-navy)", marginTop: 4 }}>
-                                    Average Score: ⭐ {sub.totalScore}/50
                                   </div>
                                 )}
                               </div>
@@ -1818,7 +1868,7 @@ export default function AdminCompetitionManager() {
                                   className="admin-sc-badge evaluated"
                                   style={{ fontSize: 12 }}
                                 >
-                                  ⭐ {sub.totalScore} / 50 Marks
+                                  ⭐ {sub.totalScore} / 25 Marks
                                 </span>
                                 {sub.judgeRemarks && (
                                   <div
@@ -1975,8 +2025,20 @@ export default function AdminCompetitionManager() {
                                     }}
                                   >
                                     {isManualMode && !sub.winnerRank && (
-                                      <span className="admin-sc-manual-flag">
-                                        ⚡ MANUAL MODE (Choose Winner)
+                                      <span style={{ 
+                                        display: "inline-block", 
+                                        padding: "4px 8px", 
+                                        borderRadius: "6px", 
+                                        background: "linear-gradient(135deg, #f59e0b, #d97706)", 
+                                        color: "white", 
+                                        fontSize: "10px", 
+                                        fontWeight: "700", 
+                                        letterSpacing: "0.5px",
+                                        boxShadow: "0 2px 4px rgba(245, 158, 11, 0.2)",
+                                        marginBottom: "4px",
+                                        textAlign: "center"
+                                      }}>
+                                        ⚡ SELECT WINNER
                                       </span>
                                     )}
                                     <select
@@ -2114,7 +2176,7 @@ export default function AdminCompetitionManager() {
           </div>
         )}
         {showModal && (
-          <div className="admin-sc-modal-overlay">
+          <div className="admin-sc-modal-overlay" style={{ paddingTop: "100px", paddingBottom: "40px", alignItems: "flex-start", overflowY: "auto" }}>
             <div className="admin-sc-modal hide-scrollbar">
               <button
                 type="button"
@@ -2299,84 +2361,104 @@ export default function AdminCompetitionManager() {
                     const availableSchools = masterSchools.filter(
                       (sch) => !schoolList.includes(sch.name),
                     );
+                    
                     return (
-                      <select
-                        className="admin-sc-filter-select"
-                        style={{ width: "100%", backgroundColor: "#fff" }}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (val === "ADD_ALL") {
-                            const allNames = masterSchools.map((s) => s.name);
-                            setSchoolList(
-                              Array.from(new Set([...schoolList, ...allNames])),
-                            );
-                          } else if (val && !schoolList.includes(val)) {
-                            setSchoolList([...schoolList, val]);
-                          }
-                        }}
-                        value=""
-                      >
-                        <option value="">
-                          -- Select School ({availableSchools.length} Remaining
-                          / Available) --
-                        </option>
-                        {availableSchools.length > 0 && (
-                          <option
-                            value="ADD_ALL"
-                            style={{
-                              fontWeight: 700,
-                              color: "var(--sc-green)",
-                            }}
-                          >
-                            ➕ Add All Schools ({availableSchools.length}{" "}
-                            Schools)
-                          </option>
+                      <div style={{ border: "1px solid #cbd5e1", borderRadius: "8px", padding: "10px", maxHeight: "300px", overflowY: "auto", backgroundColor: "#fff" }}>
+                        {availableSchools.length > 0 ? (
+                          <>
+                            <div style={{ padding: "4px 0", borderBottom: "1px solid #e2e8f0", marginBottom: "4px", display: "flex", alignItems: "center", gap: "8px" }}>
+                              <input 
+                                type="checkbox" 
+                                id="selectAllSchools"
+                                checked={false}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSchoolList(masterSchools.map((s) => s.name));
+                                  }
+                                }}
+                                style={{ cursor: "pointer", width: "16px", height: "16px" }}
+                              />
+                              <label htmlFor="selectAllSchools" style={{ fontWeight: "700", color: "var(--sc-green)", cursor: "pointer", fontSize: "13px" }}>
+                                Select All Remaining ({availableSchools.length})
+                              </label>
+                            </div>
+                            {availableSchools.map((sch) => (
+                              <div key={sch.id} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 0" }}>
+                                <input 
+                                  type="checkbox"
+                                  id={`school_${sch.id}`}
+                                  checked={false}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSchoolList([...schoolList, sch.name]);
+                                    }
+                                  }}
+                                  style={{ cursor: "pointer", width: "14px", height: "14px" }}
+                                />
+                                <label htmlFor={`school_${sch.id}`} style={{ cursor: "pointer", fontSize: "13px", color: "var(--sc-navy)", flex: 1 }}>
+                                  {sch.name}
+                                </label>
+                              </div>
+                            ))}
+                          </>
+                        ) : (
+                          <div style={{ fontSize: "13px", color: "var(--sc-slate)", textAlign: "center", padding: "10px 0" }}>
+                            All schools are selected!
+                          </div>
                         )}
-                        {availableSchools.map((sch) => (
-                          <option key={sch.id} value={sch.name}>
-                            {sch.name}
-                          </option>
-                        ))}
-                      </select>
+                      </div>
                     );
                   })()}
 
                   {/* Selected School Chips */}
-                  {schoolList.length > 0 ? (
-                    <div
-                      style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: 8,
-                        marginTop: 12,
-                      }}
-                    >
-                      {schoolList.map((s, idx) => (
-                        <span key={idx} className="admin-sc-chip">
-                          {s}
-                          <button
-                            type="button"
-                            className="admin-sc-chip-remove"
-                            onClick={() => handleRemoveSchool(s)}
-                          >
-                            ✕
-                          </button>
-                        </span>
-                      ))}
+                  <div style={{ marginTop: 12 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "var(--sc-navy)" }}>Selected Schools ({schoolList.length})</span>
+                      {schoolList.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setSchoolList([])}
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "bold",
+                            color: "#ef4444",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            textDecoration: "underline"
+                          }}
+                        >
+                          Clear All
+                        </button>
+                      )}
                     </div>
-                  ) : (
-                    <span
-                      style={{
-                        fontSize: 12,
-                        color: "var(--sc-slate)",
-                        marginTop: 6,
-                        display: "block",
-                      }}
-                    >
-                      No schools selected yet. Choose schools from dropdown
-                      above.
-                    </span>
-                  )}
+                    {schoolList.length > 0 ? (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                        {schoolList.map((s, idx) => (
+                          <span key={idx} className="admin-sc-chip">
+                            {s}
+                            <button
+                              type="button"
+                              className="admin-sc-chip-remove"
+                              onClick={() => handleRemoveSchool(s)}
+                            >
+                              ✕
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color: "var(--sc-slate)",
+                          display: "block",
+                        }}
+                      >
+                        No schools selected yet. Choose schools from list above.
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div
