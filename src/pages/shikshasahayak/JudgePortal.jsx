@@ -740,11 +740,9 @@ export default function JudgePortal() {
                     <table style={{ width: "100%", borderCollapse: "collapse" }}>
                       <thead>
                         <tr style={{ backgroundColor: "#f8fafc", textAlign: "left" }}>
-                          <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Submission ID</th>
-                          <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Competition ID</th>
+                          <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Submission Info</th>
                           <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Student Details</th>
                           <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>School Name</th>
-                          <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Submitted By</th>
                           <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Entry Title</th>
                           <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Action</th>
                           <th style={{ padding: "10px", borderBottom: "2px solid #e2e8f0" }}>Score & Marks</th>
@@ -753,8 +751,11 @@ export default function JudgePortal() {
                       <tbody>
                         {displaySubmissions.map((sub) => (
                           <tr key={sub.submissionId}>
-                            <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0", fontWeight: "700", color: "#2563eb" }}>{sub.submissionId}</td>
-                            <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0", fontWeight: "600" }}>{sub.competitionId}</td>
+                            <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0" }}>
+                              <div style={{ fontSize: "11px", color: "#64748b", fontFamily: "monospace" }}>ID: {sub.submissionId}</div>
+                              <div style={{ fontSize: "11px", color: "#64748b", fontWeight: 600, marginTop: "4px" }}>Comp: {sub.competitionId}</div>
+                              <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>By: <span style={{ color: "#0f172a" }}>{sub.submittedBy || "N/A"}</span></div>
+                            </td>
                             <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0" }}>
                               <div style={{ fontWeight: "700", color: "#0f172a" }}>{sub.studentName}</div>
                               <div style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>
@@ -767,7 +768,6 @@ export default function JudgePortal() {
                               </div>
                             </td>
                             <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0" }}>{sub.schoolName}</td>
-                            <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0" }}>{sub.submittedBy || "N/A"}</td>
                             <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0" }}>{sub.entryTitle}</td>
                             <td style={{ padding: "10px", borderBottom: "1px solid #e2e8f0" }}>
                               {activeTab === "past" ? (
@@ -775,9 +775,17 @@ export default function JudgePortal() {
                               ) : (
                                 <button
                                   onClick={() => handleSelect(sub)}
-                                  style={{ padding: "6px 14px", backgroundColor: "#2563eb", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600" }}
+                                  style={{ 
+                                    padding: "6px 14px", 
+                                    backgroundColor: (sub.status === "COMPLETED" || (sub.totalScore !== undefined && sub.totalScore !== null)) ? "#7c3aed" : "#2563eb", 
+                                    color: "#fff", 
+                                    border: "none", 
+                                    borderRadius: "6px", 
+                                    cursor: "pointer", 
+                                    fontWeight: "600" 
+                                  }}
                                 >
-                                  Evaluate Video
+                                  {(sub.status === "COMPLETED" || (sub.totalScore !== undefined && sub.totalScore !== null)) ? "🔄 Re-Evaluate" : "Evaluate Video"}
                                 </button>
                               )}
                             </td>
