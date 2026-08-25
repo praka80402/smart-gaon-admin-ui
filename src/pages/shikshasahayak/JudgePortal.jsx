@@ -484,10 +484,8 @@ export default function JudgePortal() {
             }}
           >
             🟢 Active Competitions ({competitions.filter(c => {
-              const today = new Date().toISOString().split("T")[0];
-              const isLive = c.isLive === true || c.isLive === 1 || String(c.isLive) === "true";
-              const isEnded = c.endDate && c.endDate < today;
-              return isLive && !isEnded && c.status !== "COMPLETED";
+              const isEnded = c.status === "COMPLETED" || String(c.status).toUpperCase() === "ENDED";
+              return !isEnded;
             }).length})
           </button>
           <button
@@ -503,9 +501,8 @@ export default function JudgePortal() {
             }}
           >
             📜 Past Competitions (View Only) ({competitions.filter(c => {
-              const today = new Date().toISOString().split("T")[0];
-              const isEnded = c.endDate && c.endDate < today;
-              return isEnded || c.status === "COMPLETED" || String(c.status).toUpperCase() === "ENDED";
+              const isEnded = c.status === "COMPLETED" || String(c.status).toUpperCase() === "ENDED";
+              return isEnded;
             }).length})
           </button>
           <button
@@ -523,8 +520,8 @@ export default function JudgePortal() {
             📅 Upcoming Competitions (View Only) ({competitions.filter(c => {
               const today = new Date().toISOString().split("T")[0];
               const isStarted = c.startDate && c.startDate <= today;
-              const isEnded = c.endDate && c.endDate < today;
-              return (!isStarted && !isEnded && c.status !== "COMPLETED");
+              const isEnded = c.status === "COMPLETED" || String(c.status).toUpperCase() === "ENDED";
+              return (!isStarted && !isEnded);
             }).length})
           </button>
         </div>
@@ -534,18 +531,17 @@ export default function JudgePortal() {
           {(() => {
             const today = new Date().toISOString().split("T")[0];
             const filteredComps = competitions.filter((c) => {
-              const isLive = c.isLive === true || c.isLive === 1 || String(c.isLive) === "true";
               const isStarted = c.startDate && c.startDate <= today;
-              const isEnded = c.endDate && c.endDate < today;
+              const isEnded = c.status === "COMPLETED" || String(c.status).toUpperCase() === "ENDED";
 
               if (activeTab === "active") {
-                return isLive && !isEnded && c.status !== "COMPLETED";
+                return !isEnded;
               }
               if (activeTab === "past") {
-                return isEnded || c.status === "COMPLETED" || String(c.status).toUpperCase() === "ENDED";
+                return isEnded;
               }
               if (activeTab === "upcoming") {
-                return !isStarted && !isEnded && c.status !== "COMPLETED";
+                return !isStarted && !isEnded;
               }
               return false;
             });

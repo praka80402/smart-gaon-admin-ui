@@ -783,6 +783,8 @@ export default function AdminCompetitionManager() {
     useState("NONE");
   const [selectedGroupFilter, setSelectedGroupFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+  const [subPage, setSubPage] = useState(1);
+  const subPageSize = 10;
   const [playingVideoUrl, setPlayingVideoUrl] = useState(null);
   const [downloadingCompetitionId, setDownloadingCompetitionId] = useState("");
 
@@ -1568,7 +1570,7 @@ export default function AdminCompetitionManager() {
                   className="admin-sc-search-input"
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => { setSearchQuery(e.target.value); setSubPage(1); }}
                   placeholder="🔍 Search Student, School, Competition..."
                   style={{ minWidth: 280, maxWidth: 360, flex: 1 }}
                 />
@@ -1577,7 +1579,7 @@ export default function AdminCompetitionManager() {
                 <select
                   className="admin-sc-filter-select"
                   value={selectedCompetitionFilter}
-                  onChange={(e) => setSelectedCompetitionFilter(e.target.value)}
+                  onChange={(e) => { setSelectedCompetitionFilter(e.target.value); setSubPage(1); }}
                 >
                   <option value="ALL">
                     All Competitions ({submissions.length})
@@ -1607,7 +1609,7 @@ export default function AdminCompetitionManager() {
                 <select
                   className="admin-sc-filter-select"
                   value={selectedGroupFilter}
-                  onChange={(e) => setSelectedGroupFilter(e.target.value)}
+                  onChange={(e) => { setSelectedGroupFilter(e.target.value); setSubPage(1); }}
                   style={{ minWidth: 155 }}
                 >
                   <option value="ALL">All Groups</option>
@@ -1712,7 +1714,8 @@ export default function AdminCompetitionManager() {
                 });
               }
 
-              if (filteredSubmissions.length === 0) {
+              const totalSubmissions = filteredSubmissions.length;
+              if (totalSubmissions === 0) {
                 return (
                   <p className="admin-sc-empty-note">
                     No student submissions found matching your filter.
@@ -1720,8 +1723,17 @@ export default function AdminCompetitionManager() {
                 );
               }
 
+              const totalPages = Math.ceil(totalSubmissions / subPageSize);
+              const activePage = Math.min(subPage, totalPages) || 1;
+              const startIndex = (activePage - 1) * subPageSize;
+              const paginatedSubmissions = filteredSubmissions.slice(
+                startIndex,
+                startIndex + subPageSize,
+              );
+
               return (
-                <div style={{ overflowX: "auto" }}>
+                <>
+                  <div style={{ overflowX: "auto" }}>
                   <table className="admin-sc-table">
                     <thead>
                       <tr>
@@ -1731,7 +1743,10 @@ export default function AdminCompetitionManager() {
                         <th>Entry Title</th>
                         <th>Video Link</th>
                         <th 
-                          onClick={() => setMarksSortOrder(prev => prev === "NONE" ? "DESC" : prev === "DESC" ? "ASC" : "NONE")}
+                          onClick={() => {
+                            setMarksSortOrder(prev => prev === "NONE" ? "DESC" : prev === "DESC" ? "ASC" : "NONE");
+                            setSubPage(1);
+                          }}
                           style={{ cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" }}
                           title="Click to sort by Average Score"
                         >
@@ -1744,7 +1759,7 @@ export default function AdminCompetitionManager() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredSubmissions.map((sub) => (
+                      {paginatedSubmissions.map((sub) => (
                         <tr key={sub.submissionId}>
                           <td className="wrap-cell">
                             <div style={{ fontSize: "11px", color: "var(--sc-slate)", fontFamily: "monospace" }}>ID: {sub.submissionId}</div>
@@ -2080,8 +2095,73 @@ export default function AdminCompetitionManager() {
                     </tbody>
                   </table>
                 </div>
-              );
-            })()}
+
+                {/* PAGINATION CONTROLS */}
+                {totalPages > 1 && (
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "16px", padding: "12px 16px", backgroundColor: "#f8fafc", borderRadius: "8px", border: "1px solid #cbd5e1", flexWrap: "wrap", gap: "12px" }}>
+                    <div style={{ fontSize: "13px", color: "var(--sc-slate)", fontWeight: "600" }}>
+                      Showing {startIndex + 1} to {Math.min(startIndex + subPageSize, totalSubmissions)} of {totalSubmissions} submissions
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <button
+                        type="button"
+                        disabled={activePage === 1}
+                        onClick={() => setSubPage((prev) => Math.max(prev - 1, 1))}
+                        style={{
+                          padding: "6px 12px",
+                          borderRadius: "6px",
+                          border: "1px solid #cbd5e1",
+                          backgroundColor: activePage === 1 ? "#f1f5f9" : "#fff",
+                          color: activePage === 1 ? "#94a3b8" : "var(--sc-navy)",
+                          cursor: activePage === 1 ? "not-allowed" : "pointer",
+                          fontWeight: "600",
+                          fontSize: "13px"
+                        }}
+                      >
+                        ◀ Prev
+                      </button>
+                      {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pageNum) => (
+                        <button
+                          key={pageNum}
+                          type="button"
+                          onClick={() => setSubPage(pageNum)}
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: "6px",
+                            border: pageNum === activePage ? "1px solid #2563eb" : "1px solid #cbd5e1",
+                            backgroundColor: pageNum === activePage ? "#2563eb" : "#fff",
+                            color: pageNum === activePage ? "#fff" : "#334155",
+                            fontWeight: "700",
+                            fontSize: "13px",
+                            cursor: "pointer"
+                          }}
+                        >
+                          {pageNum}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        disabled={activePage === totalPages}
+                        onClick={() => setSubPage((prev) => Math.min(prev + 1, totalPages))}
+                        style={{
+                          padding: "6px 12px",
+                          borderRadius: "6px",
+                          border: "1px solid #cbd5e1",
+                          backgroundColor: activePage === totalPages ? "#f1f5f9" : "#fff",
+                          color: activePage === totalPages ? "#94a3b8" : "var(--sc-navy)",
+                          cursor: activePage === totalPages ? "not-allowed" : "pointer",
+                          fontWeight: "600",
+                          fontSize: "13px"
+                        }}
+                      >
+                        Next ▶
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
           </div>
         )}
 
