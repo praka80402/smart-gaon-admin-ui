@@ -1822,7 +1822,6 @@ export default function AdminCompetitionManager() {
                           <td>
                             {sub.evaluations && sub.evaluations.length > 0 ? (
                               <div>
-                                {/* Default View: Average Score & Toggle Button */}
                                 <div 
                                   style={{ 
                                     display: "flex", 
@@ -1843,14 +1842,13 @@ export default function AdminCompetitionManager() {
                                   onMouseOut={(e) => e.currentTarget.style.background = "#f8fafc"}
                                 >
                                   <div style={{ fontSize: 13, fontWeight: "700", color: "var(--sc-navy)" }}>
-                                    Avg Score: ⭐ {sub.totalScore}/25
+                                    Total Score: ⭐ {sub.evaluations.reduce((acc, ev) => acc + (ev.totalScore || 0), 0)} / {sub.evaluations.length * 25}
                                   </div>
                                   <div style={{ fontSize: 11, color: "var(--sc-slate-soft)", fontStyle: "italic" }}>
                                     {expandedSubmissions[sub.submissionId] ? "Hide" : "Click to view"}
                                   </div>
                                 </div>
 
-                                {/* Expanded Details View */}
                                 {expandedSubmissions[sub.submissionId] && (
                                   <div style={{ marginTop: "12px", padding: "10px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "#ffffff" }}>
                                     {sub.evaluations.map((ev, idx) => (
@@ -1867,13 +1865,10 @@ export default function AdminCompetitionManager() {
                                         )}
                                       </div>
                                     ))}
-                                    {/* Total Marks (Sum) at the bottom */}
-                                    {sub.evaluations.length > 1 && (
-                                      <div style={{ marginTop: 8, paddingTop: 8, borderTop: "2px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", fontWeight: "800", fontSize: 13, color: "var(--sc-navy)" }}>
-                                        <span>Total Marks:</span>
-                                        <span style={{ color: "#d97706" }}>⭐ {sub.evaluations.reduce((acc, ev) => acc + (ev.totalScore || 0), 0)} / {sub.evaluations.length * 25}</span>
-                                      </div>
-                                    )}
+                                    <div style={{ marginTop: 8, paddingTop: 8, borderTop: "2px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", fontWeight: "800", fontSize: 13, color: "var(--sc-navy)" }}>
+                                      <span>Average Score:</span>
+                                      <span style={{ color: "#2563eb" }}>⭐ {sub.totalScore !== undefined && sub.totalScore !== null ? sub.totalScore : (Math.round(sub.evaluations.reduce((acc, ev) => acc + (ev.totalScore || 0), 0) / sub.evaluations.length * 10) / 10)} / 25</span>
+                                    </div>
                                   </div>
                                 )}
                               </div>
