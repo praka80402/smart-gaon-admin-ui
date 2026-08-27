@@ -45,18 +45,44 @@ function SchoolAdminGate() {
   return null;
 }
 
+const SESSION_MAX_AGE_MS = 3600000; // 1 Hour
+
+function isSessionValid() {
+  const token = localStorage.getItem("adminToken");
+  const isLoggedIn = localStorage.getItem("isAdminLoggedIn") === "true";
+  const loginTime = localStorage.getItem("loginTimestamp");
+
+  if (!token || !isLoggedIn || !loginTime) {
+    return false;
+  }
+
+  const age = Date.now() - parseInt(loginTime, 10);
+  if (isNaN(age) || age > SESSION_MAX_AGE_MS) {
+    localStorage.clear();
+    sessionStorage.clear();
+    return false;
+  }
+  return true;
+}
+
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem("isAdminLoggedIn") === "true"
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(isSessionValid());
+
+  useEffect(() => {
+    if (!isSessionValid()) {
+      setIsLoggedIn(false);
+    }
+  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("isAdminLoggedIn");
+    localStorage.clear();
+    sessionStorage.clear();
     setIsLoggedIn(false);
   };
 
   const handleLogin = () => {
     localStorage.setItem("isAdminLoggedIn", "true");
+    localStorage.setItem("loginTimestamp", Date.now().toString());
     setIsLoggedIn(true);
   };
 
