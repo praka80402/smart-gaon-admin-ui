@@ -47,16 +47,16 @@ function SchoolAdminGate() {
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem("isAdminLoggedIn") === "true"
+    Boolean(localStorage.getItem("adminToken") || sessionStorage.getItem("adminToken"))
   );
 
   const handleLogout = () => {
-    localStorage.removeItem("isAdminLoggedIn");
+    localStorage.clear();
+    sessionStorage.clear();
     setIsLoggedIn(false);
   };
 
   const handleLogin = () => {
-    localStorage.setItem("isAdminLoggedIn", "true");
     setIsLoggedIn(true);
   };
 

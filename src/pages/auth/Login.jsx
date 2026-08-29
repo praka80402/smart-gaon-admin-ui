@@ -113,7 +113,6 @@ try {
   localStorage.setItem("adminToken", res.token);
   localStorage.setItem("adminRole", res.role);
   localStorage.setItem("adminEmail", res.email);
-  localStorage.setItem("loginTimestamp", Date.now().toString());
 
     if (res.role !== "ACCOUNT_ADMIN" && res.role !== "JUDGE") {
       try {

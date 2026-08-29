@@ -30,17 +30,9 @@ export function authHeader() {
   return { Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}` };
 }
 
-// Shared axios instance.
-// withCredentials:true also sends the session cookie, covering cookie-based auth.
-export const api = axios.create({
-  baseURL: BASE_URL,
-  withCredentials: true,
-});
+import api from "../../../services/axiosInstance";
 
-api.interceptors.request.use((cfg) => {
-  cfg.headers = { ...cfg.headers, ...authHeader() };
-  return cfg;
-});
+export { api };
 
 // ── base64 helpers ──
 export function fileToBase64(file) {

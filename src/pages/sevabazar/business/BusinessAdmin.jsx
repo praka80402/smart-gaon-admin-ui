@@ -1,23 +1,15 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../services/axiosInstance";
 import "./businessAdmin.css";
 
- const BASE_URL = "https://smartgaonadmin.duckdns.org/api/admin/business";
-//const BASE_URL = "http://localhost:9090/api/admin/business";
+const BASE_URL = "/api/admin/business";
 
 const BusinessAdmin = () => {
 
   const role = localStorage.getItem("adminRole");
-  const token = localStorage.getItem("adminToken");
 
   const canManage =
     role === "SUPER_ADMIN" || role === "STATE_ADMIN";
-
-  const authHeader = {
-    headers: {
-      Authorization: "Bearer " + token,
-    },
-  };
 
   const [businesses, setBusinesses] = useState([]);
   const [page, setPage] = useState(0);
@@ -39,16 +31,15 @@ const BusinessAdmin = () => {
     setLoading(true);
 
     try {
-      const res = await axios.get(
-        `${BASE_URL}?page=${page}&size=${size}`,
-        authHeader
+      const res = await api.get(
+        `${BASE_URL}?page=${page}&size=${size}`
       );
 
-      setBusinesses(res.data.content);
-      setTotalPages(res.data.totalPages);
+      setBusinesses(res.data.content || []);
+      setTotalPages(res.data.totalPages || 0);
 
     } catch (error) {
-      alert("Failed to load businesses");
+      console.error("Failed to load businesses", error);
     } finally {
       setLoading(false);
     }
@@ -58,17 +49,16 @@ const BusinessAdmin = () => {
   const fetchReports = async (id) => {
 
     try {
-      const res = await axios.get(
-        `${BASE_URL}/${id}/reports`,
-        authHeader
+      const res = await api.get(
+        `${BASE_URL}/${id}/reports`
       );
 
-      setReports(res.data);
+      setReports(res.data || []);
       setSelectedId(id);
       setShowModal(true);
 
     } catch (error) {
-      alert("Failed to load reports");
+      console.error("Failed to load reports", error);
     }
   };
 
@@ -82,10 +72,10 @@ const BusinessAdmin = () => {
     }
 
     try {
-      await axios.delete(`${BASE_URL}/${id}`, authHeader);
+      await api.delete(`${BASE_URL}/${id}`);
       fetchBusinesses();
     } catch (error) {
-      alert("Delete failed");
+      console.error("Delete failed", error);
     }
   };
 
