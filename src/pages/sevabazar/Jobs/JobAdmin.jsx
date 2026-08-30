@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../services/axiosInstance";
 import "./jobAdmin.css";
 
-const BASE_URL = "https://smartgaonadmin.duckdns.org/api/admin";
+const BASE_URL = "/api/admin";
 
 const JobAdmin = () => {
   const role = localStorage.getItem("adminRole");
-  const token = localStorage.getItem("adminToken");
 
   const canManage = role === "SUPER_ADMIN" || role === "STATE_ADMIN";
-
-  const authHeader = {
-    headers: { Authorization: "Bearer " + token },
-  };
 
   const [jobs, setJobs] = useState([]);
   const [page, setPage] = useState(0);
@@ -37,27 +32,29 @@ const JobAdmin = () => {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(
-        `${BASE_URL}/jobs?page=${page}&size=${size}`,
-        authHeader
+      const res = await api.get(
+        `${BASE_URL}/jobs?page=${page}&size=${size}`
       );
 
-      const jobsData = res.data.content;
+      const jobsData = res.data.content || [];
 
       const jobsWithCount = await Promise.all(
         jobsData.map(async (job) => {
-          const countRes = await axios.get(
-            `${BASE_URL}/jobs/${job.jobId}/reports/count`,
-            authHeader
-          );
-          return { ...job, reportCount: countRes.data };
+          try {
+            const countRes = await api.get(
+              `${BASE_URL}/jobs/${job.jobId}/reports/count`
+            );
+            return { ...job, reportCount: countRes.data };
+          } catch {
+            return { ...job, reportCount: 0 };
+          }
         })
       );
 
       setJobs(jobsWithCount);
-      setTotalPages(res.data.totalPages);
+      setTotalPages(res.data.totalPages || 0);
     } catch (error) {
-      alert("Unauthorized or failed to load jobs");
+      console.error("Failed to load jobs", error);
     } finally {
       setLoading(false);
     }
@@ -66,15 +63,14 @@ const JobAdmin = () => {
   // ================= FETCH REPORTS =================
   const fetchReports = async (jobId) => {
     try {
-      const res = await axios.get(
-        `${BASE_URL}/jobs/${jobId}/reports?page=0&size=10`,
-        authHeader
+      const res = await api.get(
+        `${BASE_URL}/jobs/${jobId}/reports?page=0&size=10`
       );
-      setReports(res.data.content);
+      setReports(res.data.content || []);
       setSelectedJobId(jobId);
       setShowReportModal(true);
     } catch (error) {
-      alert("Failed to load reports");
+      console.error("Failed to load reports", error);
     }
   };
 
@@ -83,11 +79,11 @@ const JobAdmin = () => {
     if (!canManage) return;
     if (!window.confirm("Are you sure you want to delete this job?")) return;
     try {
-      await axios.delete(`${BASE_URL}/jobs/${jobId}`, authHeader);
+      await api.delete(`${BASE_URL}/jobs/${jobId}`);
       alert("Job deleted successfully");
       fetchJobs();
     } catch (error) {
-      alert("Unauthorized or failed to delete job");
+      console.error("Failed to delete job", error);
     }
   };
 

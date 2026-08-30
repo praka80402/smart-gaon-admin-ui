@@ -60,19 +60,12 @@
 //   });
 // };
 
- const BASE_URL = "https://smartgaonadmin.duckdns.org";
-// const BASE_URL = "http://localhost:9090";
-
-const authHeader = () => ({
-  Authorization: "Bearer " + localStorage.getItem("adminToken"),
-});
+import api from "../../services/axiosInstance";
 
 // GET all success stories
 export const fetchSuccessStories = async () => {
-  const res = await fetch(`${BASE_URL}/api/success-stories`, {
-    headers: authHeader(),
-  });
-  return res.json();
+  const res = await api.get("/api/success-stories");
+  return res.data;
 };
 
 // CREATE success story
@@ -85,13 +78,8 @@ export const createSuccessStory = async (form) => {
   fd.append("pincode", form.pincode);
   fd.append("profileImage", form.profileImage);
 
-  const res = await fetch(`${BASE_URL}/api/success-stories`, {
-    method: "POST",
-    headers: authHeader(),
-    body: fd,
-  });
-
-  return res.json();
+  const res = await api.post("/api/success-stories", fd);
+  return res.data;
 };
 
 // EDIT success story
@@ -107,19 +95,11 @@ export const updateSuccessStory = async (id, form) => {
     fd.append("profileImage", form.profileImage);
   }
 
-  const res = await fetch(`${BASE_URL}/api/success-stories/${id}`, {
-    method: "PUT",
-    headers: authHeader(),
-    body: fd,
-  });
-
-  return res.json();
+  const res = await api.put(`/api/success-stories/${id}`, fd);
+  return res.data;
 };
 
 // DELETE success story
 export const deleteSuccessStory = async (id) => {
-  await fetch(`${BASE_URL}/api/success-stories/${id}`, {
-    method: "DELETE",
-    headers: authHeader(),
-  });
+  await api.delete(`/api/success-stories/${id}`);
 };
