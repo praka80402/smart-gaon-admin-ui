@@ -1,4 +1,5 @@
 import axios from "axios";
+import api from "../../../services/axiosInstance";
 
 // ── Backend host ──
 export const BASE_URL = "https://smartgaonadmin.duckdns.org";
@@ -29,8 +30,6 @@ export function authHeader() {
   // If the stored value already includes "Bearer ", don't double it.
   return { Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}` };
 }
-
-import api from "../../../services/axiosInstance";
 
 export { api };
 
