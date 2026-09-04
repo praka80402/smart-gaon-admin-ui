@@ -639,10 +639,12 @@
   background-color: var(--sc-navy-dark);
   border-radius: 14px;
   padding: 16px;
-  width: 100%;
-  max-width: 800px;
+  width: 50vw;
+  max-width: 900px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .admin-sc-video-modal-header {
