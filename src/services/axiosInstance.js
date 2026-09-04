@@ -2,7 +2,9 @@ import axios from "axios";
 import { loaderStore } from "../loaderStore";
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || "http://localhost:9090",
+  baseURL: process.env.REACT_APP_API_BASE_URL ||
+  "https://smartgaonadmin.duckdns.org",
+  // "http://localhost:9090",
 });
 
 // Helper: check if a JWT token is expired based on its payload exp claim
