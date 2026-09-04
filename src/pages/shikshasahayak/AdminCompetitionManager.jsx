@@ -1,61 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axiosInstance from "../../services/axiosInstance";
 import * as XLSX from "xlsx";
 import "./adminSchoolCompetition.css";
-
-function AsyncVideoPlayer({ videoUrl }) {
-  const [blobUrl, setBlobUrl] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    if (videoUrl && videoUrl.startsWith("data:video")) {
-      setLoading(true);
-      fetch(videoUrl)
-        .then((res) => res.blob())
-        .then((blob) => {
-          if (active) {
-            const url = URL.createObjectURL(blob);
-            setBlobUrl(url);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.error("Async video fetch error:", err);
-          if (active) setLoading(false);
-        });
-    } else {
-      setBlobUrl(videoUrl);
-    }
-    return () => {
-      active = false;
-      if (blobUrl && blobUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(blobUrl);
-      }
-    };
-  }, [videoUrl]);
-
-  if (loading) {
-    return (
-      <div style={{ backgroundColor: "#0f172a", padding: 30, borderRadius: 8, color: "#38bdf8", textAlign: "center" }}>
-        ⏳ Loading & Decoding High Quality Video Stream...
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ backgroundColor: "#0f172a", padding: 10, borderRadius: 8, textAlign: "center" }}>
-      <video
-        key={blobUrl || "vid-player"}
-        src={blobUrl || videoUrl}
-        controls
-        autoPlay
-        playsInline
-        style={{ width: "100%", maxHeight: "480px", borderRadius: 6, objectFit: "contain", backgroundColor: "#000" }}
-      />
-    </div>
-  );
-}
+import PastCompetitionVideosSection from "./PastCompetitionVideosSection";
+import AsyncVideoPlayer from "../../components/AsyncVideoPlayer";
 
 export default function AdminCompetitionManager() {
   const [competitions, setCompetitions] = useState([]);
@@ -316,7 +264,7 @@ export default function AdminCompetitionManager() {
     winnerAnnouncementMode: "MANUAL",
   });
 
-  const [categories, setCategories] = useState(["Public Speaking", "Science Project", "Kojo Competition"]);
+  const [categories, setCategories] = useState(["Public Speaking", "Science Competition", "Kojo Competition"]);
   const [isCreatingCustomCategory, setIsCreatingCustomCategory] = useState(false);
   const [customCategoryName, setCustomCategoryName] = useState("");
 
@@ -507,7 +455,7 @@ export default function AdminCompetitionManager() {
 
   const COMPETITION_CATEGORIES = [
     "Public Speaking",
-    "Science Project",
+    "Science Competition",
     "Kojo Competition",
   ];
 
@@ -828,6 +776,343 @@ export default function AdminCompetitionManager() {
     videoUrl: "",
   });
 
+  const [pastVideoForm, setPastVideoForm] = useState({
+    competitionName: "",
+    year: new Date().getFullYear().toString(),
+    month: "January",
+    competitionType: "Public Speaking",
+    groupCategory: "Group A",
+    videoUrl: "",
+    winnerRank: "1",
+    prizeAmount: "",
+  });
+
+  const initialBatchWinners = [
+    { groupCategory: "Group A (Class 1-2)", winnerRank: 1, label: "🥇 Group A (Class 1-2) — Rank 1 Winner", prizeAmount: "₹ 5,000", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group A (Class 1-2)", winnerRank: 2, label: "🥈 Group A (Class 1-2) — Rank 2 Runner-up", prizeAmount: "₹ 3,000", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group A (Class 1-2)", winnerRank: 3, label: "🥉 Group A (Class 1-2) — Rank 3 Runner-up", prizeAmount: "₹ 1,000", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group A (Class 1-2)", winnerRank: 4, label: "🎁 Group A (Class 1-2) — Consolation #1", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
+    { groupCategory: "Group A (Class 1-2)", winnerRank: 5, label: "🎁 Group A (Class 1-2) — Consolation #2", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
+    { groupCategory: "Group A (Class 1-2)", winnerRank: 6, label: "🎁 Group A (Class 1-2) — Consolation #3", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
+    
+    { groupCategory: "Group B (Class 3-5)", winnerRank: 1, label: "🥇 Group B (Class 3-5) — Rank 1 Winner", prizeAmount: "₹ 5,000", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group B (Class 3-5)", winnerRank: 2, label: "🥈 Group B (Class 3-5) — Rank 2 Runner-up", prizeAmount: "₹ 3,000", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group B (Class 3-5)", winnerRank: 3, label: "🥉 Group B (Class 3-5) — Rank 3 Runner-up", prizeAmount: "₹ 1,000", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group B (Class 3-5)", winnerRank: 4, label: "🎁 Group B (Class 3-5) — Consolation #1", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
+    { groupCategory: "Group B (Class 3-5)", winnerRank: 5, label: "🎁 Group B (Class 3-5) — Consolation #2", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
+    { groupCategory: "Group B (Class 3-5)", winnerRank: 6, label: "🎁 Group B (Class 3-5) — Consolation #3", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
+    
+    { groupCategory: "Group C (Class 6-8)", winnerRank: 1, label: "🥇 Group C (Class 6-8) — Rank 1 Winner", prizeAmount: "₹ 5,000", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group C (Class 6-8)", winnerRank: 2, label: "🥈 Group C (Class 6-8) — Rank 2 Runner-up", prizeAmount: "₹ 3,000", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group C (Class 6-8)", winnerRank: 3, label: "🥉 Group C (Class 6-8) — Rank 3 Runner-up", prizeAmount: "₹ 1,000", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group C (Class 6-8)", winnerRank: 4, label: "🎁 Group C (Class 6-8) — Consolation #1", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
+    { groupCategory: "Group C (Class 6-8)", winnerRank: 5, label: "🎁 Group C (Class 6-8) — Consolation #2", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
+    { groupCategory: "Group C (Class 6-8)", winnerRank: 6, label: "🎁 Group C (Class 6-8) — Consolation #3", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
+    
+    { groupCategory: "Group D (Class 9-12)", winnerRank: 1, label: "🥇 Group D (Class 9-12) — Rank 1 Winner", prizeAmount: "₹ 5,000", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group D (Class 9-12)", winnerRank: 2, label: "🥈 Group D (Class 9-12) — Rank 2 Runner-up", prizeAmount: "₹ 3,000", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group D (Class 9-12)", winnerRank: 3, label: "🥉 Group D (Class 9-12) — Rank 3 Runner-up", prizeAmount: "₹ 1,000", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group D (Class 9-12)", winnerRank: 4, label: "🎁 Group D (Class 9-12) — Consolation #1", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
+    { groupCategory: "Group D (Class 9-12)", winnerRank: 5, label: "🎁 Group D (Class 9-12) — Consolation #2", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
+    { groupCategory: "Group D (Class 9-12)", winnerRank: 6, label: "🎁 Group D (Class 9-12) — Consolation #3", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
+  ];
+
+  const [batchWinners, setBatchWinners] = useState(initialBatchWinners);
+  const [includeConsolation, setIncludeConsolation] = useState({});
+  const [isEditingGroup, setIsEditingGroup] = useState(false);
+  const [editingGroupCompName, setEditingGroupCompName] = useState("");
+
+  const [isCreatingPastCustomCategory, setIsCreatingPastCustomCategory] = useState(false);
+  const [pastCustomCategoryName, setPastCustomCategoryName] = useState("");
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+
+  const [adminVideoYearFilter, setAdminVideoYearFilter] = useState("ALL");
+  const [adminVideoMonthFilter, setAdminVideoMonthFilter] = useState("ALL");
+  const [adminVideoCategoryFilter, setAdminVideoCategoryFilter] = useState("ALL");
+  const [adminVideoGroupFilter, setAdminVideoGroupFilter] = useState("ALL");
+
+  const [selectedCompetitionModal, setSelectedCompetitionModal] = useState(null);
+
+  const [appliedYearFilter, setAppliedYearFilter] = useState("ALL");
+  const [appliedMonthFilter, setAppliedMonthFilter] = useState("ALL");
+  const [appliedCategoryFilter, setAppliedCategoryFilter] = useState("ALL");
+  const [appliedGroupFilter, setAppliedGroupFilter] = useState("ALL");
+
+  const handleSearch4thTabVideos = () => {
+    setAppliedYearFilter(adminVideoYearFilter);
+    setAppliedMonthFilter(adminVideoMonthFilter);
+    setAppliedCategoryFilter(adminVideoCategoryFilter);
+    setAppliedGroupFilter(adminVideoGroupFilter);
+  };
+
+  const handleReset4thTabVideos = () => {
+    setAdminVideoYearFilter("ALL");
+    setAdminVideoMonthFilter("ALL");
+    setAdminVideoCategoryFilter("ALL");
+    setAdminVideoGroupFilter("ALL");
+    setAppliedYearFilter("ALL");
+    setAppliedMonthFilter("ALL");
+    setAppliedCategoryFilter("ALL");
+    setAppliedGroupFilter("ALL");
+  };
+
+  const [editingWinnerItem, setEditingWinnerItem] = useState(null);
+
+  const handleDeleteCompetitionGroup = async (compGroup) => {
+    if (!window.confirm(`⚠️ Are you sure you want to delete all winner entries for "${compGroup.competitionName}"?`)) {
+      return;
+    }
+    try {
+      const deletePromises = compGroup.videos
+        .filter((v) => !v.isAnnouncedWinner && v.id && !v.id.startsWith("sub-"))
+        .map((v) => axiosInstance.delete(`/admin/school-competitions/prize-videos/${v.id}`));
+
+      await Promise.all(deletePromises);
+      setMsg(`✓ Successfully deleted entries for competition '${compGroup.competitionName}'`);
+      await fetchPrizeVideos();
+      await fetchSubmissions();
+      if (selectedCompetitionModal && (selectedCompetitionModal.competitionId === compGroup.competitionId || selectedCompetitionModal.competitionName === compGroup.competitionName)) {
+        setSelectedCompetitionModal(null);
+      }
+    } catch (err) {
+      console.error("Failed to delete competition group", err);
+      alert("Failed to delete competition entries.");
+    }
+  };
+
+  const handleEditCompetitionGroup = (compGroup) => {
+    setIsEditingGroup(true);
+    setEditingGroupCompName(compGroup.competitionName || "");
+    setPastVideoForm({
+      competitionName: compGroup.competitionName || "",
+      year: compGroup.year || new Date().getFullYear().toString(),
+      month: compGroup.month || "January",
+      competitionType: compGroup.category || "Public Speaking",
+      groupCategory: "Group A",
+      videoUrl: "",
+      winnerRank: "1",
+      prizeAmount: "",
+    });
+
+    const newBatch = initialBatchWinners.map((template) => {
+      const existing = compGroup.videos.find((v) => {
+        const cat = (v.groupCategory || "").toLowerCase();
+        const tCat = template.groupCategory.toLowerCase();
+        const isMatchCat = (cat.includes("group a") && tCat.includes("group a")) ||
+                           (cat.includes("group b") && tCat.includes("group b")) ||
+                           (cat.includes("group c") && tCat.includes("group c")) ||
+                           (cat.includes("group d") && tCat.includes("group d")) ||
+                           (cat.includes("consolation") && tCat.includes("consolation"));
+        return isMatchCat && Number(v.winnerRank) === Number(template.winnerRank);
+      });
+
+      if (existing) {
+        return {
+          ...template,
+          id: existing.id || null,
+          prizeAmount: existing.prizeAmount || template.prizeAmount,
+          studentName: existing.studentName || "",
+          studentClass: existing.studentClass || "",
+          schoolName: existing.schoolName || "",
+          rollNumber: existing.rollNumber || "",
+          videoUrl: existing.videoUrl || "",
+        };
+      }
+      return template;
+    });
+
+    setBatchWinners(newBatch);
+    setPrizeModalTab("PAST");
+    setShowPrizeModal(true);
+  };
+
+  const handleDeleteIndividualWinner = async (winnerItem) => {
+    if (!window.confirm(`⚠️ Are you sure you want to delete this winner entry (${winnerItem.groupCategory} - Rank ${winnerItem.winnerRank})?`)) {
+      return;
+    }
+    try {
+      if (!winnerItem.isAnnouncedWinner && winnerItem.id && !winnerItem.id.startsWith("sub-")) {
+        await axiosInstance.delete(`/admin/school-competitions/prize-videos/${winnerItem.id}`);
+      } else if (winnerItem.id && winnerItem.id.startsWith("sub-")) {
+        const subId = winnerItem.id.replace("sub-", "");
+        await axiosInstance.post(`/admin/school-competitions/submissions/${subId}/announce-winner`, { winnerRank: 0 });
+      }
+      setMsg("✓ Winner entry deleted successfully");
+      await fetchPrizeVideos();
+      await fetchSubmissions();
+
+      if (selectedCompetitionModal) {
+        const updatedVideos = selectedCompetitionModal.videos.filter((v) => v.id !== winnerItem.id);
+        if (updatedVideos.length === 0) {
+          setSelectedCompetitionModal(null);
+        } else {
+          setSelectedCompetitionModal((prev) => ({ ...prev, videos: updatedVideos }));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to delete individual winner", err);
+      alert("Failed to delete winner entry.");
+    }
+  };
+
+  const handleSaveEditedIndividualWinner = async (e) => {
+    e.preventDefault();
+    if (!editingWinnerItem) return;
+
+    try {
+      if (!editingWinnerItem.isAnnouncedWinner && editingWinnerItem.id && !editingWinnerItem.id.startsWith("sub-")) {
+        const payload = {
+          competitionName: editingWinnerItem.competitionName,
+          category: editingWinnerItem.category,
+          competitionType: editingWinnerItem.category,
+          groupCategory: editingWinnerItem.groupCategory,
+          winnerRank: parseInt(editingWinnerItem.winnerRank, 10),
+          prizeAmount: editingWinnerItem.prizeAmount,
+          videoUrl: editingWinnerItem.videoUrl,
+          year: editingWinnerItem.year,
+          month: editingWinnerItem.month,
+          isPastCompetition: true,
+        };
+        await axiosInstance.put(`/admin/school-competitions/prize-videos/${editingWinnerItem.id}`, payload);
+      }
+      setMsg("✓ Winner entry updated successfully!");
+      await fetchPrizeVideos();
+      await fetchSubmissions();
+      setEditingWinnerItem(null);
+    } catch (err) {
+      console.error("Failed to update individual winner", err);
+      alert("Failed to update winner entry.");
+    }
+  };
+
+  const getAutoWinnerRank = (sub) => {
+    if (!sub) return null;
+    if (sub.winnerRank && Number(sub.winnerRank) > 0) return Number(sub.winnerRank);
+
+    const comp = (competitions || []).find((c) => String(c.competitionId) === String(sub.competitionId));
+    if (!comp || (comp.winnerAnnouncementMode !== "AUTOMATIC" && comp.winnerAnnouncementMode !== "AUTO")) return null;
+
+    // Filter submissions of the same competition and groupCategory
+    const groupSubs = (submissions || []).filter(
+      (s) =>
+        String(s.competitionId) === String(sub.competitionId) &&
+        (s.groupCategory === sub.groupCategory || !sub.groupCategory) &&
+        s.status !== "REJECTED"
+    );
+
+    if (groupSubs.length === 0) return null;
+
+    // Sort by totalScore / score descending
+    const sorted = [...groupSubs].sort((a, b) => {
+      const scoreA = a.totalScore !== undefined && a.totalScore !== null ? a.totalScore : (a.score || 0);
+      const scoreB = b.totalScore !== undefined && b.totalScore !== null ? b.totalScore : (b.score || 0);
+      return scoreB - scoreA;
+    });
+
+    // Find the rank (index + 1)
+    const idx = sorted.findIndex((s) => (s.submissionId && s.submissionId === sub.submissionId) || (s.id && s.id === sub.id));
+    if (idx >= 0 && idx < 3) {
+      return idx + 1; // 1, 2, or 3
+    }
+    return null;
+  };
+
+  const allAdminUploadedVideos = useMemo(() => {
+    const winnerSubItems = (submissions || [])
+      .filter((s) => {
+        const manualRank = s.winnerRank || s.winner_rank || s.rank;
+        const isWinnerFlag = Boolean(s.isWinner) || String(s.isWinner) === "true" || Boolean(s.is_winner) || String(s.is_winner) === "true";
+        const isStatusWinner = s.status === "WINNER" || s.status === "APPROVED";
+        const hasManualRank = manualRank && Number(manualRank) > 0;
+
+        const autoRank = getAutoWinnerRank(s);
+        const hasAutoRank = autoRank && autoRank > 0;
+
+        return isWinnerFlag || isStatusWinner || hasManualRank || hasAutoRank;
+      })
+      .map((s) => {
+        const comp = (competitions || []).find((c) => String(c.competitionId) === String(s.competitionId));
+        const url = s.videoUrl || s.fileUrl || s.mediaUrl || s.url || s.submissionFile || s.contentUrl || s.video_url || s.file_url || s.link || s.youtubeUrl || "";
+        const computedRank = getAutoWinnerRank(s) || Number(s.winnerRank || s.winner_rank || s.rank) || 1;
+
+        return {
+          id: `sub-${s.submissionId || s.id}`,
+          competitionId: s.competitionId,
+          competitionName: `${s.studentName || s.userName || "Student"} — ${comp ? comp.title : (s.competitionTitle || s.competitionName || "Announced Winner")}`,
+          category: comp ? comp.category : (s.category || s.competitionType || "General"),
+          competitionType: comp ? comp.category : (s.competitionType || "General"),
+          groupCategory: s.groupCategory || "Group A",
+          winnerRank: computedRank,
+          prizeAmount: s.prizeAmount || (computedRank === 1 ? "₹ 5,000" : computedRank === 2 ? "₹ 3,000" : "₹ 1,000"),
+          videoUrl: url,
+          year: comp && comp.startDate ? new Date(comp.startDate).getFullYear().toString() : new Date().getFullYear().toString(),
+          month: comp && comp.startDate ? new Date(comp.startDate).toLocaleString("default", { month: "long" }) : "January",
+          isPastCompetition: false,
+          isAnnouncedWinner: true,
+          studentName: s.studentName || s.userName,
+          schoolName: s.schoolName,
+        };
+      });
+
+    return [...(prizeVideos || []), ...winnerSubItems];
+  }, [prizeVideos, submissions, competitions]);
+
+  const handleBatchFileUpload = async (file, index) => {
+    if (!file) return;
+    setUploadingVideo(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await axiosInstance.post(
+        "/admin/school-competitions/prize-videos/upload-video-file",
+        formData
+      );
+      if (res.data && res.data.videoUrl) {
+        const uploadedUrl = res.data.videoUrl;
+        setBatchWinners((prev) => {
+          const updated = [...prev];
+          updated[index] = { ...updated[index], videoUrl: uploadedUrl };
+          return updated;
+        });
+        setMsg(`✓ Video file uploaded for ${batchWinners[index].label}!`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || err.response?.data || "Failed to upload video file.");
+    } finally {
+      setUploadingVideo(false);
+    }
+  };
+
+  const handleFileUploadForVideo = async (file, targetForm) => {
+    if (!file) return;
+    setUploadingVideo(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await axiosInstance.post(
+        "/admin/school-competitions/prize-videos/upload-video-file",
+        formData
+      );
+      if (res.data && res.data.videoUrl) {
+        const uploadedUrl = res.data.videoUrl;
+        if (targetForm === "PAST") {
+          setPastVideoForm((prev) => ({ ...prev, videoUrl: uploadedUrl }));
+        } else {
+          setPrizeVideoForm((prev) => ({ ...prev, videoUrl: uploadedUrl }));
+        }
+        setMsg("✓ Video file uploaded successfully!");
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data || "Failed to upload video file.");
+    } finally {
+      setUploadingVideo(false);
+    }
+  };
+
   // Fetch the persisted list of prize distribution videos from the backend
   const fetchPrizeVideos = async () => {
     setPrizeVideosLoading(true);
@@ -844,6 +1129,8 @@ export default function AdminCompetitionManager() {
   };
 
   const handleOpenPrizeModal = () => {
+    setIsEditingGroup(false);
+    setEditingGroupCompName("");
     setPrizeModalTab("ADD");
     setPrizeVideoForm({
       competitionId: "",
@@ -853,13 +1140,32 @@ export default function AdminCompetitionManager() {
       endDate: "",
       videoUrl: "",
     });
+    setPastVideoForm({
+      competitionName: "",
+      year: new Date().getFullYear().toString(),
+      month: "January",
+      competitionType: categories[0] || "Public Speaking",
+      groupCategory: "Group A",
+      videoUrl: "",
+      winnerRank: "1",
+      prizeAmount: "",
+    });
     setEditingPrizeVideoId(null);
+    setBatchWinners(initialBatchWinners);
+    setIncludeConsolation({});
     setShowPrizeModal(true);
     fetchPrizeVideos();
   };
 
+  const handleOpenPastPrizeModal = () => {
+    handleOpenPrizeModal();
+    setPrizeModalTab("PAST");
+  };
+
   const handleClosePrizeModal = () => {
     setShowPrizeModal(false);
+    setIsEditingGroup(false);
+    setEditingGroupCompName("");
     setPrizeVideoForm({
       competitionId: "",
       competitionName: "",
@@ -868,7 +1174,19 @@ export default function AdminCompetitionManager() {
       endDate: "",
       videoUrl: "",
     });
+    setPastVideoForm({
+      competitionName: "",
+      year: new Date().getFullYear().toString(),
+      month: "January",
+      competitionType: categories[0] || "Public Speaking",
+      groupCategory: "Group A",
+      videoUrl: "",
+      winnerRank: "1",
+      prizeAmount: "",
+    });
     setEditingPrizeVideoId(null);
+    setBatchWinners(initialBatchWinners);
+    setIncludeConsolation({});
   };
 
   const handleSelectPrizeCompetition = (compId) => {
@@ -885,36 +1203,65 @@ export default function AdminCompetitionManager() {
 
   const handleSubmitPrizeVideo = async (e) => {
     e.preventDefault();
-    if (!prizeVideoForm.competitionId) {
-      alert("⚠️ Please select a Competition ID!");
+    if (!prizeVideoForm.competitionId || !prizeVideoForm.competitionId.trim()) {
+      alert("⚠️ Please enter a Competition ID!");
       return;
     }
-    if (!prizeVideoForm.videoUrl.trim()) {
-      alert("⚠️ Please paste a Video URL!");
+    const rawUrl = (prizeVideoForm.videoUrl || "").trim();
+    if (!rawUrl) {
+      alert("⚠️ Please paste a YouTube or Google Drive Video URL!");
+      return;
+    }
+
+    const lower = rawUrl.toLowerCase();
+    const isYouTube = lower.includes("youtube.com") || lower.includes("youtu.be");
+    const isGoogleDrive = lower.includes("drive.google.com");
+
+    if (!isYouTube && !isGoogleDrive) {
+      alert("⚠️ Only YouTube or Google Drive video links are allowed for Prize Distribution Ceremony!");
       return;
     }
 
     const payload = {
-      competitionId: prizeVideoForm.competitionId,
-      videoUrl: prizeVideoForm.videoUrl.trim(),
+      competitionId: prizeVideoForm.competitionId.trim(),
+      competitionName: (prizeVideoForm.competitionName || "").trim(),
+      category: (prizeVideoForm.category || "").trim(),
+      startDate: prizeVideoForm.startDate || null,
+      endDate: prizeVideoForm.endDate || null,
+      videoUrl: rawUrl,
+      isPastCompetition: false,
     };
 
     try {
       if (editingPrizeVideoId) {
-        await axiosInstance.put(
-          `/admin/school-competitions/prize-videos/${editingPrizeVideoId}`,
-          payload,
-        );
+        try {
+          await axiosInstance.put(
+            `/admin/school-competitions/ceremony-videos/${editingPrizeVideoId}`,
+            payload,
+          );
+        } catch (ceremonyPutErr) {
+          await axiosInstance.put(
+            `/admin/school-competitions/prize-videos/${editingPrizeVideoId}`,
+            payload,
+          );
+        }
         setMsg(
-          `✓ Prize distribution video for '${prizeVideoForm.competitionName || prizeVideoForm.competitionId}' updated successfully!`,
+          `✓ Prize distribution ceremony video for '${prizeVideoForm.competitionName || prizeVideoForm.competitionId}' updated successfully!`,
         );
       } else {
-        await axiosInstance.post(
-          "/admin/school-competitions/prize-videos",
-          payload,
-        );
+        try {
+          await axiosInstance.post(
+            "/admin/school-competitions/ceremony-videos",
+            payload,
+          );
+        } catch (ceremonyPostErr) {
+          await axiosInstance.post(
+            "/admin/school-competitions/prize-videos",
+            payload,
+          );
+        }
         setMsg(
-          `✓ Prize distribution video for '${prizeVideoForm.competitionName || prizeVideoForm.competitionId}' added successfully!`,
+          `✓ Prize distribution ceremony video for '${prizeVideoForm.competitionName || prizeVideoForm.competitionId}' added successfully!`,
         );
       }
 
@@ -931,21 +1278,192 @@ export default function AdminCompetitionManager() {
       setPrizeModalTab("EDIT");
     } catch (err) {
       console.error(err);
-      alert(err.response?.data || "Failed to save prize distribution video.");
+      const errorMsg =
+        (typeof err.response?.data === "string" ? err.response?.data : null) ||
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to save prize distribution ceremony video.";
+      alert(`⚠️ ${errorMsg}`);
+    }
+  };
+
+  const handleSubmitPastVideo = async (e) => {
+    e.preventDefault();
+    if (!pastVideoForm.competitionName.trim()) {
+      alert("⚠️ Please enter Competition Name!");
+      return;
+    }
+
+    if (editingPrizeVideoId) {
+      // Editing a single video entry
+      if (!pastVideoForm.videoUrl.trim()) {
+        alert("⚠️ Please paste a Video URL!");
+        return;
+      }
+      const payload = {
+        competitionName: pastVideoForm.competitionName.trim(),
+        year: pastVideoForm.year,
+        month: pastVideoForm.month,
+        competitionType: pastVideoForm.competitionType.trim(),
+        category: pastVideoForm.competitionType.trim(),
+        groupCategory: pastVideoForm.groupCategory,
+        videoUrl: pastVideoForm.videoUrl.trim(),
+        isPastCompetition: true,
+        winnerRank: pastVideoForm.winnerRank ? parseInt(pastVideoForm.winnerRank, 10) : null,
+        prizeAmount: pastVideoForm.prizeAmount ? pastVideoForm.prizeAmount.trim() : "",
+      };
+
+      try {
+        await axiosInstance.put(
+          `/admin/school-competitions/prize-videos/${editingPrizeVideoId}`,
+          payload,
+        );
+        setMsg(`✓ Past competition video '${pastVideoForm.competitionName}' updated successfully!`);
+        await fetchPrizeVideos();
+        handleClosePrizeModal();
+        setPrizeModalTab("EDIT");
+      } catch (err) {
+        console.error(err);
+        alert(err.response?.data?.message || err.response?.data || "Failed to update past competition video.");
+      }
+      return;
+    }
+
+    // New Past Competition: Batch upload (restricted to Group C if Kojo Competition)
+    const isKojoCompetition = Boolean(
+      (pastVideoForm.competitionType && pastVideoForm.competitionType.toLowerCase().includes("kojo")) ||
+      (pastVideoForm.competitionName && pastVideoForm.competitionName.toLowerCase().includes("kojo"))
+    );
+
+    const allowedWinners = isKojoCompetition
+      ? batchWinners.filter((w) => w.groupCategory && w.groupCategory.includes("Group C"))
+      : batchWinners;
+
+    const activeWinners = allowedWinners.filter((w) => w.videoUrl && w.videoUrl.trim() !== "");
+    if (activeWinners.length === 0) {
+      alert(`⚠️ Please upload or paste a Video URL for at least 1 Winner Rank${isKojoCompetition ? " in Group C" : ""}!`);
+      return;
+    }
+
+    const payload = {
+      competitionName: pastVideoForm.competitionName.trim(),
+      originalCompetitionName: isEditingGroup ? editingGroupCompName : pastVideoForm.competitionName.trim(),
+      year: pastVideoForm.year,
+      month: pastVideoForm.month,
+      competitionType: pastVideoForm.competitionType.trim(),
+      winners: activeWinners.map((w) => ({
+        id: w.id || null,
+        groupCategory: w.groupCategory,
+        winnerRank: w.winnerRank,
+        prizeAmount: w.prizeAmount ? w.prizeAmount.trim() : "",
+        studentName: w.studentName ? w.studentName.trim() : "",
+        studentClass: w.studentClass ? w.studentClass.trim() : "",
+        schoolName: w.schoolName ? w.schoolName.trim() : "",
+        rollNumber: w.rollNumber ? w.rollNumber.trim() : "",
+        videoUrl: w.videoUrl.trim(),
+      })),
+    };
+
+    try {
+      await axiosInstance.post(
+        "/admin/school-competitions/prize-videos/batch",
+        payload,
+      );
+      setMsg(`✓ ${isEditingGroup ? "Updated" : "Saved"} ${activeWinners.length} winner videos for '${pastVideoForm.competitionName}' successfully!`);
+      await fetchPrizeVideos();
+      handleClosePrizeModal();
+      setPrizeModalTab("EDIT");
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || err.response?.data || "Failed to save batch winner videos.");
     }
   };
 
   const handleEditPrizeVideo = (video) => {
-    setPrizeVideoForm({
-      competitionId: video.competitionId,
-      competitionName: video.competitionName,
-      category: video.category,
-      startDate: toDateInputValue(video.startDate),
-      endDate: toDateInputValue(video.endDate),
-      videoUrl: video.videoUrl,
-    });
-    setEditingPrizeVideoId(video.id);
-    setPrizeModalTab("ADD");
+    if (video.isPastCompetition) {
+      setPastVideoForm({
+        competitionName: video.competitionName || "",
+        year: video.year || new Date().getFullYear().toString(),
+        month: video.month || "January",
+        competitionType: video.competitionType || video.category || "Drawing",
+        groupCategory: video.groupCategory || "Group A",
+        videoUrl: video.videoUrl || "",
+        winnerRank: video.winnerRank ? String(video.winnerRank) : "1",
+        prizeAmount: video.prizeAmount || "",
+      });
+      setEditingPrizeVideoId(video.id);
+      setPrizeModalTab("PAST");
+    } else {
+      setPrizeVideoForm({
+        competitionId: video.competitionId || "",
+        competitionName: video.competitionName || "",
+        category: video.category || "",
+        startDate: toDateInputValue(video.startDate),
+        endDate: toDateInputValue(video.endDate),
+        videoUrl: video.videoUrl || "",
+      });
+      setEditingPrizeVideoId(video.id);
+      setPrizeModalTab("ADD");
+    }
+  };
+
+  const renderAdminVideoPreview = (url) => {
+    if (!url || !url.trim()) return null;
+    const cleanUrl = url.trim();
+    const isYoutube = cleanUrl.includes("youtube.com") || cleanUrl.includes("youtu.be");
+    if (isYoutube) {
+      let embedUrl = cleanUrl;
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
+      const match = cleanUrl.match(regExp);
+      if (match && match[2].length === 11) {
+        embedUrl = `https://www.youtube.com/embed/${match[2]}`;
+      }
+      return (
+        <div style={{ marginTop: 12, borderRadius: 8, overflow: "hidden", border: "1px solid var(--sc-border)", background: "#000", height: 220 }}>
+          <iframe
+            width="100%"
+            height="100%"
+            src={embedUrl}
+            title="Video Preview"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
+      );
+    }
+
+    const isGoogleDrive = cleanUrl.includes("drive.google.com");
+    if (isGoogleDrive) {
+      let previewUrl = cleanUrl;
+      const gdMatch = cleanUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (gdMatch && gdMatch[1]) {
+        previewUrl = `https://drive.google.com/file/d/${gdMatch[1]}/preview`;
+      }
+      return (
+        <div style={{ marginTop: 12, borderRadius: 8, overflow: "hidden", border: "1px solid var(--sc-border)", background: "#000", height: 220 }}>
+          <iframe
+            width="100%"
+            height="100%"
+            src={previewUrl}
+            title="Google Drive Video Preview"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
+      );
+    }
+
+    return (
+      <div style={{ marginTop: 12, borderRadius: 8, overflow: "hidden", border: "1px solid var(--sc-border)", background: "#000", height: 220 }}>
+        <video
+          src={cleanUrl}
+          controls
+          style={{ width: "100%", height: "100%", objectFit: "contain" }}
+        />
+      </div>
+    );
   };
 
   const handleDeletePrizeVideo = async (id) => {
@@ -982,44 +1500,6 @@ export default function AdminCompetitionManager() {
     if (isUpcomingComp(c)) return "status-upcoming";
     if (isActiveComp(c)) return "status-live";
     return "status-past";
-  };
-
-  const getAutoWinnerRank = (sub) => {
-    const comp = competitions.find((c) => c.competitionId === sub.competitionId);
-    if (!comp || comp.winnerAnnouncementMode !== "AUTOMATIC") return null;
-
-    // Filter submissions of the same competition and groupCategory
-    const groupSubs = submissions.filter(
-      (s) =>
-        s.competitionId === sub.competitionId &&
-        s.groupCategory === sub.groupCategory &&
-        s.status !== "REJECTED"
-    );
-
-    if (groupSubs.length === 0) return null;
-
-    // Check if ALL active submissions in this category have been evaluated by ALL judges
-    const requiredJudges = sub.totalJudges || 3;
-    const allEvaluated = groupSubs.every(s => {
-      const evalsCount = s.evaluations ? s.evaluations.length : 0;
-      return evalsCount >= requiredJudges;
-    });
-
-    if (!allEvaluated) {
-      return null; // Not all judges have graded all entries in this category yet
-    }
-
-    const evaluatedSubs = groupSubs.filter(s => s.totalScore !== undefined && s.totalScore !== null);
-
-    // Sort by totalScore descending
-    const sorted = [...evaluatedSubs].sort((a, b) => b.totalScore - a.totalScore);
-
-    // Find the rank (index + 1)
-    const idx = sorted.findIndex((s) => s.submissionId === sub.submissionId);
-    if (idx >= 0 && idx < 3) {
-      return idx + 1; // 1, 2, or 3
-    }
-    return null;
   };
 
   const rankClass = (sub, isManualMode) => {
@@ -1069,7 +1549,13 @@ export default function AdminCompetitionManager() {
               className="admin-sc-btn admin-sc-btn-outline"
               onClick={handleOpenPrizeModal}
             >
-              🎬 Upload Prize Distribution Video
+              🎬 Prize Ceremony Video
+            </button>
+            <button
+              className="admin-sc-btn admin-sc-btn-outline"
+              onClick={handleOpenPastPrizeModal}
+            >
+              📜 Add Past Competition Video
             </button>
             <button
               className="admin-sc-btn admin-sc-btn-outline"
@@ -1124,6 +1610,20 @@ export default function AdminCompetitionManager() {
             📜 Past
             <span className="admin-sc-tab-count">
               {competitions.filter(isPastComp).length}
+            </span>
+          </button>
+
+          <button
+            className={`admin-sc-tab-btn ${activeTab === "pastVideos" ? "active" : ""}`}
+            onClick={() => {
+              setActiveTab("pastVideos");
+              setSelectedCompetitionFilter("NONE");
+              fetchPrizeVideos();
+            }}
+          >
+            🎬 All Past Uploaded Competition Videos
+            <span className="admin-sc-tab-count">
+              {allAdminUploadedVideos.length}
             </span>
           </button>
         </div>
@@ -1258,12 +1758,13 @@ export default function AdminCompetitionManager() {
         )}
 
         {/* SECTION 1: COMPETITIONS TABLE FOR ACTIVE / UPCOMING / PAST */}
-        <div className="admin-sc-panel-card">
-          <h3 className="admin-sc-panel-title">
-            {activeTab === "active" && "🏆 Active Competitions"}
-            {activeTab === "upcoming" && "⏳ Upcoming Competitions"}
-            {activeTab === "past" && "📜 Past Competitions"}
-          </h3>
+        {activeTab !== "pastVideos" && (
+          <div className="admin-sc-panel-card">
+            <h3 className="admin-sc-panel-title">
+              {activeTab === "active" && "🏆 Active Competitions"}
+              {activeTab === "upcoming" && "⏳ Upcoming Competitions"}
+              {activeTab === "past" && "📜 Past Competitions"}
+            </h3>
 
           {(() => {
             const filteredComps = competitions.filter((c) => {
@@ -1511,6 +2012,21 @@ export default function AdminCompetitionManager() {
             );
           })()}
         </div>
+      )}
+
+        {/* SECTION FOR 4TH TAB: ALL PAST VIDEOS */}
+        {activeTab === "pastVideos" && (
+          <PastCompetitionVideosSection
+            allAdminUploadedVideos={allAdminUploadedVideos}
+            categories={categories}
+            prizeVideosLoading={prizeVideosLoading}
+            handleOpenPastPrizeModal={handleOpenPastPrizeModal}
+            handleEditCompetitionGroup={handleEditCompetitionGroup}
+            fetchPrizeVideos={fetchPrizeVideos}
+            fetchSubmissions={fetchSubmissions}
+            setMsg={setMsg}
+          />
+        )}
 
         {/* SECTION 2: STUDENT SUBMISSIONS TABLE BELOW (APPEARS WHEN ADMIN SELECTS A COMPETITION) */}
         {selectedCompetitionFilter !== "NONE" && activeTab !== "upcoming" && (
@@ -1779,7 +2295,7 @@ export default function AdminCompetitionManager() {
                           </td>
                           <td className="wrap-cell">{sub.schoolName}</td>
                           <td className="wrap-cell">{sub.entryTitle}</td>
-                          <td className="nowrap-cell">
+                          <td className="nowrap-cell" style={{ textAlign: "center" }}>
                             {sub.videoUrl ? (
                               (sub.videoUrl.startsWith("data:") && !sub.videoUrl.startsWith("data:image") && !sub.videoUrl.startsWith("data:video")) ? (
                                 <button
@@ -2245,7 +2761,7 @@ export default function AdminCompetitionManager() {
                   ></iframe>
                 </div>
               ) : (
-                <AsyncVideoPlayer videoUrl={playingVideoUrl} />
+                <AsyncVideoPlayer videoUrl={playingVideoUrl} halfScreen={true} />
               )}
             </div>
           </div>
@@ -3371,7 +3887,11 @@ export default function AdminCompetitionManager() {
               </button>
 
               <h3 className="admin-sc-modal-title">
-                🎬 Prize Distribution Video
+                {prizeModalTab === "PAST"
+                  ? (isEditingGroup || editingPrizeVideoId ? "✏️ Edit Past Competition Video" : "📜 Add Past Competition Video")
+                  : prizeModalTab === "EDIT"
+                    ? "✏️ Prize & Past Videos List"
+                    : "🎬 Prize Ceremony Video"}
               </h3>
 
               {/* Tab Selector */}
@@ -3382,6 +3902,13 @@ export default function AdminCompetitionManager() {
                   onClick={() => setPrizeModalTab("ADD")}
                 >
                   + Add Video URL
+                </button>
+                <button
+                  type="button"
+                  className={`admin-sc-segmented-btn ${prizeModalTab === "PAST" ? "active" : ""}`}
+                  onClick={() => setPrizeModalTab("PAST")}
+                >
+                  📜 Add Past Competition Video
                 </button>
                 <button
                   type="button"
@@ -3402,38 +3929,41 @@ export default function AdminCompetitionManager() {
                     <label className="admin-sc-field-label">
                       Competition ID *
                     </label>
-                    <select
-                      className="admin-sc-filter-select"
+                    <input
+                      className="admin-sc-input"
                       required
+                      type="text"
                       value={prizeVideoForm.competitionId}
                       onChange={(e) =>
-                        handleSelectPrizeCompetition(e.target.value)
+                        setPrizeVideoForm({
+                          ...prizeVideoForm,
+                          competitionId: e.target.value,
+                        })
                       }
+                      placeholder="Enter Competition ID (e.g. COMP-2025-001)"
                       style={{ width: "100%", backgroundColor: "#fff" }}
-                    >
-                      <option value="">-- Select Competition --</option>
-                      {competitions.map((c) => (
-                        <option key={c.competitionId} value={c.competitionId}>
-                          {c.competitionId} — {c.title}
-                        </option>
-                      ))}
-                    </select>
+                    />
                   </div>
 
                   <div>
                     <label className="admin-sc-field-label">
-                      Competition Name
+                      Competition Name *
                     </label>
                     <input
                       className="admin-sc-input"
+                      required
                       type="text"
                       value={prizeVideoForm.competitionName}
-                      readOnly
-                      placeholder="Auto-filled from Competition ID"
+                      onChange={(e) =>
+                        setPrizeVideoForm({
+                          ...prizeVideoForm,
+                          competitionName: e.target.value,
+                        })
+                      }
+                      placeholder="Enter Competition Name"
                       style={{
                         width: "100%",
-                        backgroundColor: "var(--sc-paper)",
-                        color: "var(--sc-slate)",
+                        backgroundColor: "#fff",
                       }}
                     />
                   </div>
@@ -3441,7 +3971,7 @@ export default function AdminCompetitionManager() {
                   <div
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
+                      gridTemplateColumns: "1fr 1fr 1fr",
                       gap: 16,
                     }}
                   >
@@ -3451,33 +3981,52 @@ export default function AdminCompetitionManager() {
                         className="admin-sc-input"
                         type="text"
                         value={prizeVideoForm.category}
-                        readOnly
-                        placeholder="Auto-filled from Competition ID"
+                        onChange={(e) =>
+                          setPrizeVideoForm({
+                            ...prizeVideoForm,
+                            category: e.target.value,
+                          })
+                        }
+                        placeholder="e.g. Drawing, Speech, Science"
                         style={{
                           width: "100%",
-                          backgroundColor: "var(--sc-paper)",
-                          color: "var(--sc-slate)",
+                          backgroundColor: "#fff",
                         }}
                       />
                     </div>
                     <div>
-                      <label className="admin-sc-field-label">
-                        Start – End Date
-                      </label>
+                      <label className="admin-sc-field-label">Start Date</label>
                       <input
                         className="admin-sc-input"
-                        type="text"
-                        value={
-                          prizeVideoForm.startDate || prizeVideoForm.endDate
-                            ? `${prizeVideoForm.startDate || "—"}  →  ${prizeVideoForm.endDate || "—"}`
-                            : ""
+                        type="date"
+                        value={prizeVideoForm.startDate || ""}
+                        onChange={(e) =>
+                          setPrizeVideoForm({
+                            ...prizeVideoForm,
+                            startDate: e.target.value,
+                          })
                         }
-                        readOnly
-                        placeholder="Auto-filled from Competition ID"
                         style={{
                           width: "100%",
-                          backgroundColor: "var(--sc-paper)",
-                          color: "var(--sc-slate)",
+                          backgroundColor: "#fff",
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label className="admin-sc-field-label">End Date</label>
+                      <input
+                        className="admin-sc-input"
+                        type="date"
+                        value={prizeVideoForm.endDate || ""}
+                        onChange={(e) =>
+                          setPrizeVideoForm({
+                            ...prizeVideoForm,
+                            endDate: e.target.value,
+                          })
+                        }
+                        style={{
+                          width: "100%",
+                          backgroundColor: "#fff",
                         }}
                       />
                     </div>
@@ -3485,7 +4034,7 @@ export default function AdminCompetitionManager() {
 
                   <div>
                     <label className="admin-sc-field-label">
-                      Prize Distribution Video URL *
+                      Video URL * (Only YouTube or Google Drive Link)
                     </label>
                     <input
                       className="admin-sc-input"
@@ -3498,9 +4047,13 @@ export default function AdminCompetitionManager() {
                           videoUrl: e.target.value,
                         })
                       }
-                      placeholder="Paste YouTube link..."
+                      placeholder="e.g. https://www.youtube.com/watch?v=... or https://drive.google.com/file/d/.../view"
                       style={{ width: "100%" }}
                     />
+                    <span style={{ fontSize: "12px", color: "var(--sc-slate)", marginTop: "4px", display: "block" }}>
+                      ℹ️ Video file upload is disabled for Prize Distribution Ceremony. Please enter a valid YouTube or Google Drive link.
+                    </span>
+                    {renderAdminVideoPreview(prizeVideoForm.videoUrl)}
                   </div>
 
                   <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
@@ -3523,7 +4076,785 @@ export default function AdminCompetitionManager() {
                 </form>
               )}
 
-              {/* TAB 2: EDIT INFORMATION */}
+              {/* TAB 2: ADD PAST COMPETITION VIDEO */}
+              {prizeModalTab === "PAST" && (() => {
+                const isKojoCompetition = Boolean(
+                  (pastVideoForm.competitionType && pastVideoForm.competitionType.toLowerCase().includes("kojo")) ||
+                  (pastVideoForm.competitionName && pastVideoForm.competitionName.toLowerCase().includes("kojo"))
+                );
+
+                return (
+                <form
+                  onSubmit={handleSubmitPastVideo}
+                  style={{ display: "flex", flexDirection: "column", gap: 16 }}
+                >
+                  <div>
+                    <label className="admin-sc-field-label">
+                      Competition Name *
+                    </label>
+                    <input
+                      className="admin-sc-input"
+                      type="text"
+                      required
+                      value={pastVideoForm.competitionName}
+                      onChange={(e) =>
+                        setPastVideoForm({
+                          ...pastVideoForm,
+                          competitionName: e.target.value,
+                        })
+                      }
+                      placeholder="e.g. Annual Drawing Competition 2024"
+                      style={{ width: "100%" }}
+                    />
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 16,
+                    }}
+                  >
+                    <div>
+                      <label className="admin-sc-field-label">Year *</label>
+                      <select
+                        className="admin-sc-filter-select"
+                        value={pastVideoForm.year}
+                        onChange={(e) =>
+                          setPastVideoForm({
+                            ...pastVideoForm,
+                            year: e.target.value,
+                          })
+                        }
+                        style={{ width: "100%", backgroundColor: "#fff" }}
+                      >
+                        {[2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027].map((yr) => (
+                          <option key={yr} value={yr}>
+                            {yr}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="admin-sc-field-label">Month *</label>
+                      <select
+                        className="admin-sc-filter-select"
+                        value={pastVideoForm.month}
+                        onChange={(e) =>
+                          setPastVideoForm({
+                            ...pastVideoForm,
+                            month: e.target.value,
+                          })
+                        }
+                        style={{ width: "100%", backgroundColor: "#fff" }}
+                      >
+                        {[
+                          "January", "February", "March", "April", "May", "June",
+                          "July", "August", "September", "October", "November", "December"
+                        ].map((m) => (
+                          <option key={m} value={m}>
+                            {m}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 16,
+                    }}
+                  >
+                    <div>
+                      <label className="admin-sc-field-label">Competition Type / Category *</label>
+                      <select
+                        className="admin-sc-filter-select"
+                        value={isCreatingPastCustomCategory ? "ADD_NEW" : pastVideoForm.competitionType}
+                        onChange={(e) => {
+                          if (e.target.value === "ADD_NEW") {
+                            setIsCreatingPastCustomCategory(true);
+                          } else {
+                            setIsCreatingPastCustomCategory(false);
+                            const selectedType = e.target.value;
+                            const isKojo = selectedType.toLowerCase().includes("kojo");
+                            setPastVideoForm({
+                              ...pastVideoForm,
+                              competitionType: selectedType,
+                              groupCategory: isKojo ? "Group C" : pastVideoForm.groupCategory,
+                            });
+                          }
+                        }}
+                        style={{ width: "100%", backgroundColor: "#fff" }}
+                      >
+                        {categories.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                        <option value="ADD_NEW">+ Add New Category</option>
+                      </select>
+
+                      {isCreatingPastCustomCategory && (
+                        <div style={{ marginTop: "10px", display: "flex", gap: "8px", alignItems: "flex-end" }}>
+                          <div style={{ flex: 1 }}>
+                            <label className="admin-sc-field-label">New Category Name *</label>
+                            <input
+                              type="text"
+                              className="admin-sc-input"
+                              value={pastCustomCategoryName}
+                              onChange={(e) => setPastCustomCategoryName(e.target.value)}
+                              placeholder="e.g. Art, Quiz, Essay, etc."
+                              style={{ width: "100%" }}
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            className="admin-sc-btn admin-sc-btn-primary"
+                            onClick={() => {
+                              const val = pastCustomCategoryName.trim();
+                              if (val) {
+                                if (!categories.includes(val)) {
+                                  setCategories([...categories, val]);
+                                }
+                                const isKojo = val.toLowerCase().includes("kojo");
+                                setPastVideoForm({
+                                  ...pastVideoForm,
+                                  competitionType: val,
+                                  groupCategory: isKojo ? "Group C" : pastVideoForm.groupCategory,
+                                });
+                                setIsCreatingPastCustomCategory(false);
+                                setPastCustomCategoryName("");
+                              }
+                            }}
+                          >
+                            Add
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* IF EDITING SINGLE PAST VIDEO */}
+                  {editingPrizeVideoId ? (
+                    <>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "1fr 1fr",
+                          gap: 16,
+                        }}
+                      >
+                        <div>
+                          <label className="admin-sc-field-label">Group Category *</label>
+                          <select
+                            className="admin-sc-filter-select"
+                            value={isKojoCompetition ? "Group C" : pastVideoForm.groupCategory}
+                            onChange={(e) =>
+                              setPastVideoForm({
+                                ...pastVideoForm,
+                                groupCategory: e.target.value,
+                              })
+                            }
+                            style={{ width: "100%", backgroundColor: "#fff" }}
+                          >
+                            {isKojoCompetition ? (
+                              <option value="Group C">Group C (Class 6-8)</option>
+                            ) : (
+                              <>
+                                <option value="Group A">Group A (Class 1-2)</option>
+                                <option value="Group B">Group B (Class 3-5)</option>
+                                <option value="Group C">Group C (Class 6-8)</option>
+                                <option value="Group D">Group D (Class 9-12)</option>
+                              </>
+                            )}
+                          </select>
+                          {isKojoCompetition && (
+                            <span style={{ fontSize: "11px", color: "#2563eb", marginTop: "4px", display: "block", fontWeight: "600" }}>
+                              ℹ️ Kojo Competition: Only Group C participates (Group A, B, D restricted).
+                            </span>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="admin-sc-field-label">Winner Rank</label>
+                          <select
+                            className="admin-sc-filter-select"
+                            value={pastVideoForm.winnerRank}
+                            onChange={(e) =>
+                              setPastVideoForm({
+                                ...pastVideoForm,
+                                winnerRank: e.target.value,
+                              })
+                            }
+                            style={{ width: "100%", backgroundColor: "#fff" }}
+                          >
+                            <option value="1">🥇 Rank 1 (1st Winner)</option>
+                            <option value="2">🥈 Rank 2 (2nd Runner-up)</option>
+                            <option value="3">🥉 Rank 3 (3rd Runner-up)</option>
+                            <option value="0">General Video (No Rank)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="admin-sc-field-label">Prize Amount (₹)</label>
+                        <input
+                          className="admin-sc-input"
+                          type="text"
+                          value={pastVideoForm.prizeAmount}
+                          onChange={(e) =>
+                            setPastVideoForm({
+                              ...pastVideoForm,
+                              prizeAmount: e.target.value,
+                            })
+                          }
+                          placeholder="e.g. ₹5,000 or 5000"
+                          style={{ width: "100%" }}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="admin-sc-field-label">
+                          Upload Video File (MP4 / WebM / Mov)
+                        </label>
+                        <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "8px" }}>
+                          <input
+                            type="file"
+                            accept="video/*"
+                            disabled={uploadingVideo}
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                handleFileUploadForVideo(e.target.files[0], "PAST");
+                              }
+                            }}
+                            style={{ flex: 1, padding: "8px", background: "#fff", border: "1px solid var(--sc-border)", borderRadius: "8px" }}
+                          />
+                          {uploadingVideo && (
+                            <span style={{ fontSize: "13px", color: "var(--sc-accent)", fontWeight: "600" }}>
+                              ⏳ Uploading to S3...
+                            </span>
+                          )}
+                        </div>
+
+                        <label className="admin-sc-field-label">
+                          Or Paste Video Link * (YouTube / Google Cloud / MP4 Video)
+                        </label>
+                        <input
+                          className="admin-sc-input"
+                          required
+                          type="text"
+                          value={pastVideoForm.videoUrl}
+                          onChange={(e) =>
+                            setPastVideoForm({
+                              ...pastVideoForm,
+                              videoUrl: e.target.value,
+                            })
+                          }
+                          placeholder="Paste YouTube link (https://youtube.com/...) or Google Cloud Link..."
+                          style={{ width: "100%" }}
+                        />
+                        {renderAdminVideoPreview(pastVideoForm.videoUrl)}
+                      </div>
+                    </>
+                  ) : (
+                    /* NEW PAST COMPETITION: 12 WINNERS BATCH GRID */
+                    <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 16 }}>
+                      {/* Notice when Kojo Competition */}
+                      {isKojoCompetition && (
+                        <div style={{ background: "#eff6ff", border: "1.5px solid #3b82f6", borderRadius: "10px", padding: "12px 16px", display: "flex", alignItems: "center", gap: "12px" }}>
+                          <span style={{ fontSize: "24px" }}>📘</span>
+                          <div>
+                            <div style={{ color: "#1e40af", fontWeight: "800", fontSize: "14px" }}>
+                              Kojo Competition &mdash; Participation Restricted to Group C:
+                            </div>
+                            <div style={{ color: "#2563eb", fontSize: "12.5px", marginTop: "2px" }}>
+                              Only <strong>Group C (Class 6-8)</strong> is participating. Classes for <strong>Group A (Class 1-2), Group B (Class 3-5), and Group D (Class 9-12)</strong> are restricted and will not participate.
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      <div style={{ background: "var(--sc-paper)", padding: "12px 16px", borderRadius: "8px", border: "1px solid var(--sc-border)" }}>
+                        <h4 style={{ margin: "0 0 4px 0", color: "var(--sc-navy)", fontSize: "15px", fontWeight: "700" }}>
+                          🏆 Winner Videos Grid {isKojoCompetition ? "(Group C Only — Class 6-8)" : "(4 Groups × 3 Ranks = 12 Winner Videos)"}
+                        </h4>
+                        <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
+                          {isKojoCompetition
+                            ? "Upload video files or paste video links for Group C (Class 6-8) rank winners."
+                            : "Upload video files or paste video links for each group's 1st, 2nd, and 3rd rank winners."}
+                        </p>
+                      </div>
+
+                      {(isKojoCompetition
+                        ? ["Group C (Class 6-8)"]
+                        : ["Group A (Class 1-2)", "Group B (Class 3-5)", "Group C (Class 6-8)", "Group D (Class 9-12)"]
+                      ).map((groupName) => {
+                        const isGroupA = groupName.includes("Group A");
+                        const isGroupB = groupName.includes("Group B");
+                        const isGroupC = groupName.includes("Group C");
+                        
+                        const headerBg = isGroupA ? "linear-gradient(135deg, #0284c7, #0369a1)"
+                          : isGroupB ? "linear-gradient(135deg, #0d9488, #0f766e)"
+                          : isGroupC ? "linear-gradient(135deg, #4f46e5, #4338ca)"
+                          : "linear-gradient(135deg, #9333ea, #7e22ce)";
+                        
+                        const icon = isGroupA ? "🌱" : isGroupB ? "🌿" : isGroupC ? "📘" : "🎓";
+
+                        return (
+                          <div key={groupName} style={{ border: "1px solid #e2e8f0", borderRadius: "14px", overflow: "hidden", background: "#fff", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)" }}>
+                            <div style={{ background: headerBg, padding: "12px 16px", color: "#fff", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                              <h5 style={{ margin: 0, fontSize: "15px", fontWeight: "800", display: "flex", alignItems: "center", gap: "8px" }}>
+                                <span>{icon}</span> {groupName} Winners Card
+                              </h5>
+                              <span style={{ background: "rgba(255,255,255,0.2)", fontSize: "11px", padding: "3px 10px", borderRadius: "12px", fontWeight: "700" }}>
+                                3 Winners (Rank 1 - 3)
+                              </span>
+                            </div>
+
+                            <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                            {/* MAIN TOP 3 RANK WINNERS */}
+                            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                              {batchWinners
+                                .map((w, idx) => ({ ...w, originalIndex: idx }))
+                                .filter((w) => w.groupCategory === groupName && !w.isConsolation)
+                                .map((item) => (
+                                  <div
+                                    key={item.originalIndex}
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      gap: "10px",
+                                      background: "#f8fafc",
+                                      padding: "12px 14px",
+                                      borderRadius: "10px",
+                                      border: "1px solid #e2e8f0",
+                                      boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+                                    }}
+                                  >
+                                    {/* ROW 1: Identifying info */}
+                                    <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+                                      <div style={{ minWidth: "180px", fontWeight: "700", fontSize: "13px", color: "var(--sc-navy)" }}>
+                                        {item.label}
+                                      </div>
+                                      <div style={{ flex: 1, minWidth: "150px" }}>
+                                        <input
+                                          type="text"
+                                          className="admin-sc-input"
+                                          placeholder="Student Name"
+                                          value={item.studentName || ""}
+                                          onChange={(e) => {
+                                            const updated = [...batchWinners];
+                                            updated[item.originalIndex].studentName = e.target.value;
+                                            setBatchWinners(updated);
+                                          }}
+                                          style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
+                                        />
+                                      </div>
+                                      <div style={{ width: "90px" }}>
+                                        <input
+                                          type="text"
+                                          className="admin-sc-input"
+                                          placeholder="Class"
+                                          value={item.studentClass || ""}
+                                          onChange={(e) => {
+                                            const updated = [...batchWinners];
+                                            updated[item.originalIndex].studentClass = e.target.value;
+                                            setBatchWinners(updated);
+                                          }}
+                                          style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
+                                        />
+                                      </div>
+                                      <div style={{ width: "90px" }}>
+                                        <input
+                                          type="text"
+                                          className="admin-sc-input"
+                                          placeholder="Roll No"
+                                          value={item.rollNumber || ""}
+                                          onChange={(e) => {
+                                            const updated = [...batchWinners];
+                                            updated[item.originalIndex].rollNumber = e.target.value;
+                                            setBatchWinners(updated);
+                                          }}
+                                          style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
+                                        />
+                                      </div>
+                                      <div style={{ flex: 1, minWidth: "180px" }}>
+                                        <input
+                                          type="text"
+                                          className="admin-sc-input"
+                                          placeholder="School Name"
+                                          value={item.schoolName || ""}
+                                          onChange={(e) => {
+                                            const updated = [...batchWinners];
+                                            updated[item.originalIndex].schoolName = e.target.value;
+                                            setBatchWinners(updated);
+                                          }}
+                                          style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
+                                        />
+                                      </div>
+                                    </div>
+
+                                    {/* ROW 2: Prize & Video info */}
+                                    <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+                                      <div style={{ width: "130px" }}>
+                                        <input
+                                          type="text"
+                                          className="admin-sc-input"
+                                          placeholder="Prize Amount"
+                                          value={item.prizeAmount || ""}
+                                          onChange={(e) => {
+                                            const updated = [...batchWinners];
+                                            updated[item.originalIndex].prizeAmount = e.target.value;
+                                            setBatchWinners(updated);
+                                          }}
+                                          style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
+                                        />
+                                      </div>
+
+                                      <div style={{ flex: 1, minWidth: "200px", display: "flex", gap: "6px" }}>
+                                        <input
+                                          type="file"
+                                          accept="video/*"
+                                          disabled={uploadingVideo}
+                                          onChange={(e) => {
+                                            if (e.target.files && e.target.files[0]) {
+                                              handleBatchFileUpload(e.target.files[0], item.originalIndex);
+                                            }
+                                          }}
+                                          style={{ flex: 1, padding: "4px 8px", fontSize: "12px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: "6px" }}
+                                        />
+                                      </div>
+
+                                      <div style={{ flex: 1, minWidth: "200px" }}>
+                                        <input
+                                          type="text"
+                                          className="admin-sc-input"
+                                          placeholder="Or paste video URL..."
+                                          value={item.videoUrl}
+                                          onChange={(e) => {
+                                            const updated = [...batchWinners];
+                                            updated[item.originalIndex].videoUrl = e.target.value;
+                                            setBatchWinners(updated);
+                                          }}
+                                          style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
+                                        />
+                                      </div>
+
+                                      {item.videoUrl && (
+                                        <div style={{ minWidth: "100px" }}>
+                                          {renderAdminVideoPreview(item.videoUrl)}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                            </div>
+
+                            {/* MODERN CONSOLATION PRIZE SECTION */}
+                            <div
+                              style={{
+                                marginTop: "14px",
+                                background: includeConsolation[groupName] ? "#fffdf5" : "#f8fafc",
+                                border: includeConsolation[groupName] ? "1.5px solid #f59e0b" : "1.5px dashed #cbd5e1",
+                                borderRadius: "12px",
+                                padding: "14px 16px",
+                                transition: "all 0.25s ease-in-out",
+                              }}
+                            >
+                              {/* TOGGLE HEADER BAR */}
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  flexWrap: "wrap",
+                                  gap: "12px",
+                                  cursor: "pointer",
+                                  userSelect: "none",
+                                }}
+                                onClick={() =>
+                                  setIncludeConsolation({
+                                    ...includeConsolation,
+                                    [groupName]: !includeConsolation[groupName],
+                                  })
+                                }
+                              >
+                                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                  <div
+                                    style={{
+                                      width: "40px",
+                                      height: "40px",
+                                      borderRadius: "10px",
+                                      background: includeConsolation[groupName] ? "linear-gradient(135deg, #fef3c7, #fde68a)" : "#f1f5f9",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      fontSize: "20px",
+                                      border: includeConsolation[groupName] ? "1px solid #f59e0b" : "1px solid #cbd5e1",
+                                      boxShadow: includeConsolation[groupName] ? "0 2px 6px rgba(245, 158, 11, 0.2)" : "none",
+                                    }}
+                                  >
+                                    🎁
+                                  </div>
+                                  <div>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                                      <span style={{ fontWeight: "800", fontSize: "14.5px", color: includeConsolation[groupName] ? "#92400e" : "#1e293b" }}>
+                                        Add Consolation Prize Winners?
+                                      </span>
+                                      <span
+                                        style={{
+                                          fontSize: "11px",
+                                          fontWeight: "800",
+                                          padding: "3px 10px",
+                                          borderRadius: "20px",
+                                          background: includeConsolation[groupName] ? "#f59e0b" : "#e2e8f0",
+                                          color: includeConsolation[groupName] ? "#ffffff" : "#64748b",
+                                          letterSpacing: "0.2px",
+                                        }}
+                                      >
+                                        Optional — 3 Winners
+                                      </span>
+                                    </div>
+                                    <p style={{ margin: "3px 0 0 0", fontSize: "12px", color: includeConsolation[groupName] ? "#b45309" : "#64748b" }}>
+                                      {includeConsolation[groupName]
+                                        ? "✓ Consolation prizes active! Add student names, details, and videos below."
+                                        : "Click here to add 3 extra consolation prize winners (Consolation #1, #2, #3)."}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* Custom Animated Toggle Switch */}
+                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                  <span style={{ fontSize: "12px", fontWeight: "700", color: includeConsolation[groupName] ? "#d97706" : "#94a3b8" }}>
+                                    {includeConsolation[groupName] ? "ENABLED" : "OFF"}
+                                  </span>
+                                  <div
+                                    style={{
+                                      position: "relative",
+                                      width: "48px",
+                                      height: "26px",
+                                      borderRadius: "13px",
+                                      backgroundColor: includeConsolation[groupName] ? "#f59e0b" : "#cbd5e1",
+                                      transition: "background-color 0.25s ease",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        position: "absolute",
+                                        top: "3px",
+                                        left: includeConsolation[groupName] ? "25px" : "3px",
+                                        width: "20px",
+                                        height: "20px",
+                                        borderRadius: "50%",
+                                        backgroundColor: "#ffffff",
+                                        boxShadow: "0 2px 5px rgba(0,0,0,0.25)",
+                                        transition: "left 0.25s ease",
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* IF ACTIVE: RENDER THE 3 CONSOLATION WINNER CARDS */}
+                              {includeConsolation[groupName] && (
+                                <div
+                                  style={{
+                                    marginTop: "14px",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "10px",
+                                    borderTop: "1.5px dashed #fde68a",
+                                    paddingTop: "14px",
+                                  }}
+                                >
+                                  {batchWinners
+                                    .map((w, idx) => ({ ...w, originalIndex: idx }))
+                                    .filter((w) => w.groupCategory === groupName && w.isConsolation)
+                                    .map((item) => (
+                                      <div
+                                        key={item.originalIndex}
+                                        style={{
+                                          display: "flex",
+                                          flexDirection: "column",
+                                          gap: "10px",
+                                          background: "#ffffff",
+                                          padding: "12px 14px",
+                                          borderRadius: "10px",
+                                          border: "1.5px solid #fde68a",
+                                          boxShadow: "0 2px 8px rgba(245, 158, 11, 0.08)",
+                                        }}
+                                      >
+                                        {/* ROW 1: Identifying info */}
+                                        <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+                                          <div
+                                            style={{
+                                              minWidth: "180px",
+                                              fontWeight: "800",
+                                              fontSize: "13px",
+                                              color: "#b45309",
+                                              display: "flex",
+                                              alignItems: "center",
+                                              gap: "6px",
+                                            }}
+                                          >
+                                            <span style={{ fontSize: "16px" }}>🎁</span>
+                                            <span>{item.label.replace(/^🎁\s*/, "")}</span>
+                                          </div>
+                                          <div style={{ flex: 1, minWidth: "150px" }}>
+                                            <input
+                                              type="text"
+                                              className="admin-sc-input"
+                                              placeholder="Student Name"
+                                              value={item.studentName || ""}
+                                              onChange={(e) => {
+                                                const updated = [...batchWinners];
+                                                updated[item.originalIndex].studentName = e.target.value;
+                                                setBatchWinners(updated);
+                                              }}
+                                              style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
+                                            />
+                                          </div>
+                                          <div style={{ width: "90px" }}>
+                                            <input
+                                              type="text"
+                                              className="admin-sc-input"
+                                              placeholder="Class"
+                                              value={item.studentClass || ""}
+                                              onChange={(e) => {
+                                                const updated = [...batchWinners];
+                                                updated[item.originalIndex].studentClass = e.target.value;
+                                                setBatchWinners(updated);
+                                              }}
+                                              style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
+                                            />
+                                          </div>
+                                          <div style={{ width: "90px" }}>
+                                            <input
+                                              type="text"
+                                              className="admin-sc-input"
+                                              placeholder="Roll No"
+                                              value={item.rollNumber || ""}
+                                              onChange={(e) => {
+                                                const updated = [...batchWinners];
+                                                updated[item.originalIndex].rollNumber = e.target.value;
+                                                setBatchWinners(updated);
+                                              }}
+                                              style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
+                                            />
+                                          </div>
+                                          <div style={{ flex: 1, minWidth: "180px" }}>
+                                            <input
+                                              type="text"
+                                              className="admin-sc-input"
+                                              placeholder="School Name"
+                                              value={item.schoolName || ""}
+                                              onChange={(e) => {
+                                                const updated = [...batchWinners];
+                                                updated[item.originalIndex].schoolName = e.target.value;
+                                                setBatchWinners(updated);
+                                              }}
+                                              style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
+                                            />
+                                          </div>
+                                        </div>
+
+                                        {/* ROW 2: Prize & Video info */}
+                                        <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+                                          <div style={{ width: "130px" }}>
+                                            <input
+                                              type="text"
+                                              className="admin-sc-input"
+                                              placeholder="Prize Amount"
+                                              value={item.prizeAmount || ""}
+                                              onChange={(e) => {
+                                                const updated = [...batchWinners];
+                                                updated[item.originalIndex].prizeAmount = e.target.value;
+                                                setBatchWinners(updated);
+                                              }}
+                                              style={{
+                                                width: "100%",
+                                                padding: "6px 10px",
+                                                fontSize: "12px",
+                                                borderColor: "#fde68a",
+                                                backgroundColor: "#fffdf5",
+                                                fontWeight: "600",
+                                                color: "#92400e",
+                                              }}
+                                            />
+                                          </div>
+
+                                          <div style={{ flex: 1, minWidth: "200px", display: "flex", gap: "6px" }}>
+                                            <input
+                                              type="file"
+                                              accept="video/*"
+                                              disabled={uploadingVideo}
+                                              onChange={(e) => {
+                                                if (e.target.files && e.target.files[0]) {
+                                                  handleBatchFileUpload(e.target.files[0], item.originalIndex);
+                                                }
+                                              }}
+                                              style={{ flex: 1, padding: "4px 8px", fontSize: "12px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: "6px" }}
+                                            />
+                                          </div>
+
+                                          <div style={{ flex: 1, minWidth: "200px" }}>
+                                            <input
+                                              type="text"
+                                              className="admin-sc-input"
+                                              placeholder="Or paste video URL..."
+                                              value={item.videoUrl}
+                                              onChange={(e) => {
+                                                const updated = [...batchWinners];
+                                                updated[item.originalIndex].videoUrl = e.target.value;
+                                                setBatchWinners(updated);
+                                              }}
+                                              style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
+                                            />
+                                          </div>
+
+                                          {item.videoUrl && (
+                                            <div style={{ minWidth: "100px" }}>
+                                              {renderAdminVideoPreview(item.videoUrl)}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                      })}
+                    </div>
+                  )}
+
+                  <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+                    <button
+                      type="button"
+                      className="admin-sc-btn admin-sc-btn-ghost"
+                      onClick={handleClosePrizeModal}
+                      style={{ flex: 1, padding: 13 }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="admin-sc-btn admin-sc-btn-accent"
+                      style={{ flex: 1, padding: 13 }}
+                    >
+                      {isEditingGroup || editingPrizeVideoId ? "✓ Update Past Video" : "📜 Save Past Competition Video"}
+                    </button>
+                  </div>
+                </form>
+                );
+              })()}
+
+              {/* TAB 3: EDIT INFORMATION */}
               {prizeModalTab === "EDIT" && (
                 <div>
                   {prizeVideosLoading ? (
@@ -3535,8 +4866,8 @@ export default function AdminCompetitionManager() {
                       className="admin-sc-empty-note"
                       style={{ padding: "20px 0" }}
                     >
-                      No prize distribution videos uploaded yet. Switch to "Add
-                      Video URL" to add one.
+                      No prize ceremony videos uploaded yet. Switch to "Add
+                      Video URL" or "Add Past Competition Video" to add one.
                     </p>
                   ) : (
                     <div
@@ -3551,10 +4882,10 @@ export default function AdminCompetitionManager() {
                       <table className="admin-sc-table">
                         <thead>
                           <tr>
-                            <th>Competition ID</th>
+                            <th>Type</th>
                             <th>Competition Name</th>
-                            <th>Category</th>
-                            <th>Dates</th>
+                            <th>Category / Group</th>
+                            <th>Rank</th>
                             <th>Video</th>
                             <th>Actions</th>
                           </tr>
@@ -3563,21 +4894,33 @@ export default function AdminCompetitionManager() {
                           {prizeVideos.map((v) => (
                             <tr key={v.id}>
                               <td className="id-cell nowrap-cell">
-                                {v.competitionId}
+                                {v.isPastCompetition ? (
+                                  <span style={{ background: "#fef3c7", color: "#92400e", padding: "3px 8px", borderRadius: 4, fontWeight: 700, fontSize: 11 }}>
+                                    PAST
+                                  </span>
+                                ) : (
+                                  <span style={{ background: "#e0f2fe", color: "#0369a1", padding: "3px 8px", borderRadius: 4, fontWeight: 700, fontSize: 11 }}>
+                                    ACTIVE
+                                  </span>
+                                )}
                               </td>
                               <td className="wrap-cell">{v.competitionName}</td>
-                              <td className="nowrap-cell">{v.category}</td>
-                              <td className="nowrap-cell" style={{ fontSize: 12 }}>
-                                {toDateInputValue(v.startDate) || "—"} →{" "}
-                                {toDateInputValue(v.endDate) || "—"}
-                              </td>
                               <td className="nowrap-cell">
-                                <button
-                                  className="admin-sc-btn-play"
-                                  onClick={() => setPlayingVideoUrl(v.videoUrl)}
-                                >
-                                  ▶ Play Video
-                                </button>
+                                {v.category || v.competitionType}
+                                {v.groupCategory ? ` (${v.groupCategory})` : ""}
+                              </td>
+                              <td className="nowrap-cell" style={{ fontSize: 12 }}>
+                                Rank {v.winnerRank || "-"}
+                              </td>
+                              <td className="nowrap-cell" style={{ textAlign: "center" }}>
+                                {v.videoUrl ? (
+                                  <button
+                                    className="admin-sc-btn-play"
+                                    onClick={() => setPlayingVideoUrl(v.videoUrl)}
+                                  >
+                                    ▶ Play Video
+                                  </button>
+                                ) : "No Video"}
                               </td>
                               <td
                                 className="nowrap-cell"
@@ -3589,13 +4932,6 @@ export default function AdminCompetitionManager() {
                                   style={{ fontSize: 12 }}
                                 >
                                   ✏️ Edit
-                                </button>
-                                <button
-                                  className="admin-sc-btn admin-sc-btn-danger"
-                                  onClick={() => handleDeletePrizeVideo(v.id)}
-                                  style={{ fontSize: 12 }}
-                                >
-                                  🗑️ Delete
                                 </button>
                               </td>
                             </tr>
