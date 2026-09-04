@@ -1038,7 +1038,7 @@ export default function AdminCompetitionManager() {
         return {
           id: `sub-${s.submissionId || s.id}`,
           competitionId: s.competitionId,
-          competitionName: `${s.studentName || s.userName || "Student"} — ${comp ? comp.title : (s.competitionTitle || s.competitionName || "Announced Winner")}`,
+          competitionName: `${comp ? comp.title : (s.competitionTitle || s.competitionName || "Announced Winner")}`,
           category: comp ? comp.category : (s.category || s.competitionType || "General"),
           competitionType: comp ? comp.category : (s.competitionType || "General"),
           groupCategory: s.groupCategory || "Group A",
