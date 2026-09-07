@@ -129,21 +129,92 @@ function AsyncVideoPlayer({ videoUrl, halfScreen }) {
     );
   }
 
-  // 3. Image
-  const isImage = rawUrl.startsWith("data:image") || rawUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp|heic)/i);
+  // 3. All Image formats (.jpg, .jpeg, .png, .gif, .webp, .bmp, .heic, .heif, .svg, .tiff, etc.)
+  const isImage = rawUrl.startsWith("data:image") || rawUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp|heic|heif|svg|tiff|tif)(\?|$)/i);
   if (isImage) {
     return (
-      <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #e2e8f0" }}>
-        <img
-          src={rawUrl}
-          alt="Winner Media"
-          style={{ width: "100%", maxHeight: halfScreen ? "50vh" : "200px", objectFit: "contain", backgroundColor: "#0f172a" }}
-        />
+      <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #e2e8f0", background: "#0f172a", textAlign: "center" }}>
+        <a href={rawUrl} target="_blank" rel="noreferrer" title="Click to view full image">
+          <img
+            src={rawUrl}
+            alt="Winner Entry"
+            style={{ width: "100%", maxHeight: halfScreen ? "50vh" : "200px", objectFit: "contain", display: "block", margin: "0 auto" }}
+          />
+        </a>
       </div>
     );
   }
 
-  // 4. Direct Video Stream (MP4/WebM/S3 Direct File)
+  // 4. PDF Document
+  const isPdf = rawUrl.startsWith("data:application/pdf") || rawUrl.match(/\.pdf(\?|$)/i);
+  if (isPdf) {
+    return (
+      <div style={{ borderRadius: 8, overflow: "hidden", border: "1.5px solid #ef4444", background: "#fef2f2", padding: "16px 14px", textAlign: "center" }}>
+        <div style={{ fontSize: "36px", marginBottom: "6px" }}>📄</div>
+        <div style={{ fontSize: "13px", fontWeight: "700", color: "#991b1b", marginBottom: "8px" }}>
+          PDF Document Submission
+        </div>
+        <a
+          href={rawUrl}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            background: "#dc2626",
+            color: "#ffffff",
+            padding: "6px 14px",
+            borderRadius: "6px",
+            fontSize: "12px",
+            fontWeight: "600",
+            textDecoration: "none"
+          }}
+        >
+          👁️ View / Open PDF
+        </a>
+      </div>
+    );
+  }
+
+  // 5. Word Document / Text File / Code
+  const isDocOrText = rawUrl.startsWith("data:application/msword") ||
+    rawUrl.startsWith("data:text") ||
+    rawUrl.startsWith("data:application/vnd.openxmlformats") ||
+    rawUrl.match(/\.(doc|docx|dot|dotx|rtf|txt|text|csv|json)(\?|$)/i);
+  if (isDocOrText) {
+    const isWord = rawUrl.match(/\.(doc|docx|dot|dotx|rtf)(\?|$)/i) || rawUrl.startsWith("data:application/msword") || rawUrl.startsWith("data:application/vnd.openxmlformats");
+    return (
+      <div style={{ borderRadius: 8, overflow: "hidden", border: "1.5px solid #3b82f6", background: "#eff6ff", padding: "16px 14px", textAlign: "center" }}>
+        <div style={{ fontSize: "36px", marginBottom: "6px" }}>{isWord ? "📘" : "📝"}</div>
+        <div style={{ fontSize: "13px", fontWeight: "700", color: "#1e40af", marginBottom: "8px" }}>
+          {isWord ? "Word Document Submission (.doc / .docx)" : "Text / Code File Submission (.txt)"}
+        </div>
+        <a
+          href={rawUrl}
+          target="_blank"
+          rel="noreferrer"
+          download
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            background: "#2563eb",
+            color: "#ffffff",
+            padding: "6px 14px",
+            borderRadius: "6px",
+            fontSize: "12px",
+            fontWeight: "600",
+            textDecoration: "none"
+          }}
+        >
+          📥 Download / Open File
+        </a>
+      </div>
+    );
+  }
+
+  // 6. Direct Video Stream (MP4/WebM/S3 Direct File)
   return (
     <div style={{ backgroundColor: "#0f172a", padding: 4, borderRadius: 8, textAlign: "center", height: halfScreen ? "50vh" : "auto", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <video

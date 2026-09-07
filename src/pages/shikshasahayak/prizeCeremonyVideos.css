@@ -1,0 +1,395 @@
+/* ===================================================
+   PRIZE CEREMONY VIDEOS SECTION STYLING (5TH TAB)
+   =================================================== */
+
+.prize-ceremony-container {
+  padding: 24px;
+}
+
+.prize-ceremony-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.prize-ceremony-title {
+  margin: 0;
+  font-family: var(--sc-font-display, inherit);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--sc-navy, #0f172a);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.prize-ceremony-subtitle {
+  margin: 4px 0 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Filter Toolbar */
+.prize-ceremony-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  background: var(--sc-paper, #f8fafc);
+  padding: 18px 20px;
+  border-radius: 14px;
+  border: 1px solid var(--sc-border, #e2e8f0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.prize-ceremony-filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.prize-ceremony-filter-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.prize-ceremony-filter-select {
+  min-width: 150px;
+  padding: 9px 13px;
+  border: 1px solid var(--sc-border, #cbd5e1);
+  border-radius: 8px;
+  background-color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sc-ink, #1e293b);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.prize-ceremony-filter-select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.prize-ceremony-search-input {
+  min-width: 220px;
+  padding: 9px 13px;
+  border: 1px solid var(--sc-border, #cbd5e1);
+  border-radius: 8px;
+  background-color: #ffffff;
+  font-size: 13px;
+  color: var(--sc-ink, #1e293b);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.prize-ceremony-search-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.prize-ceremony-filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  margin-left: auto;
+}
+
+/* Initial Prompt / Empty States */
+.prize-ceremony-prompt-card {
+  text-align: center;
+  padding: 60px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  border: 2px dashed #cbd5e1;
+  margin: 10px 0 30px 0;
+}
+
+.prize-ceremony-prompt-icon {
+  font-size: 48px;
+  margin-bottom: 14px;
+}
+
+.prize-ceremony-prompt-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.prize-ceremony-prompt-text {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0 auto 18px auto;
+  max-width: 480px;
+  line-height: 1.5;
+}
+
+/* Video Grid */
+.prize-ceremony-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 24px;
+}
+
+.prize-ceremony-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid var(--sc-border, #e2e8f0);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.prize-ceremony-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.09);
+  border-color: #cbd5e1;
+}
+
+.prize-ceremony-card-top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #f59e0b, #ef4444, #8b5cf6);
+}
+
+.prize-ceremony-badges-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prize-ceremony-badge-category {
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid #bfdbfe;
+}
+
+.prize-ceremony-badge-date {
+  background: #fef3c7;
+  color: #b45309;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid #fde68a;
+}
+
+.prize-ceremony-card-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 10px 0;
+  line-height: 1.35;
+}
+
+.prize-ceremony-player-wrapper {
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+  margin-bottom: 14px;
+  border: 1px solid #e2e8f0;
+}
+
+.prize-ceremony-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.prize-ceremony-card-btns-left {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.prize-ceremony-card-btns-right {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Modal for full-size video player */
+.prize-ceremony-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.prize-ceremony-modal-content {
+  background: #ffffff;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 840px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.prize-ceremony-modal-header {
+  padding: 16px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.prize-ceremony-modal-close-btn {
+  background: #f1f5f9;
+  border: none;
+  color: #64748b;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.15s;
+}
+
+.prize-ceremony-modal-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.prize-ceremony-modal-body {
+  padding: 20px 22px;
+  background: #0f172a;
+}
+
+/* Pagination Styling */
+.prize-ceremony-pagination-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 14px 18px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.prize-ceremony-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.prize-ceremony-page-btn {
+  padding: 6px 12px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+}
+
+.prize-ceremony-page-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.prize-ceremony-page-btn.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.prize-ceremony-page-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Animated Spinner & Loader Card */
+.prize-ceremony-loader-card {
+  text-align: center;
+  padding: 60px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  margin: 10px 0 30px 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+}
+
+.prize-ceremony-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-right-color: #3b82f6;
+  border-radius: 50%;
+  animation: prizeCeremonySpin 0.75s linear infinite;
+  margin: 0 auto 16px auto;
+}
+
+@keyframes prizeCeremonySpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.prize-ceremony-spinner-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 6px 0;
+}
+
+.prize-ceremony-spinner-text {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+
