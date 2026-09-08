@@ -1045,11 +1045,11 @@ export default function AdminCompetitionManager() {
     }
     try {
       const isSub = winnerItem.isAnnouncedWinner || (winnerItem.id && (String(winnerItem.id).startsWith("sub-") || String(winnerItem.id).startsWith("winner-sub-")));
+      const cleanId = String(winnerItem.id).replace(/^(prize-video-|video-)/, "");
       if (isSub) {
         const subId = String(winnerItem.id).replace(/^(sub-|winner-sub-)/, "");
         await axiosInstance.post(`/admin/school-competitions/submissions/${encodeURIComponent(subId)}/announce-winner`, { winnerRank: 0 });
       } else {
-        const cleanId = String(winnerItem.id).replace(/^(prize-video-|video-)/, "");
         await axiosInstance.delete(`/admin/school-competitions/prize-videos/${encodeURIComponent(cleanId)}`);
       }
 
