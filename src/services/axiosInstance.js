@@ -2,9 +2,8 @@ import axios from "axios";
 import { loaderStore } from "../loaderStore";
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL ||
-  "https://smartgaonadmin.duckdns.org",
-  // "http://localhost:9090",
+  baseURL: process.env.REACT_APP_API_BASE_URL || "https://smartgaonadmin.duckdns.org", // Server Base URL
+  //baseURL: process.env.REACT_APP_API_BASE_URL || "http://localhost:9090", // Localhost
 });
 
 // Helper: check if a JWT token is expired based on its payload exp claim
@@ -74,10 +73,19 @@ const responseErrorInterceptor = (error) => {
   const isLogin = url.includes("/login") || url.includes("/admin/login");
 
   if (!isLogin) {
-    // 401 Unauthorized: token missing, invalid, or expired -> log out
+    // 401 Unauthorized: only log out if token is missing/expired or explicitly declared invalid
     if (status === 401) {
-      handleTokenLogout();
-      return new Promise(() => {}); // Halt promise chain to prevent downstream error alerts
+      const token = localStorage.getItem("adminToken") || sessionStorage.getItem("adminToken");
+      if (!token || isJwtExpired(token)) {
+        handleTokenLogout();
+        return new Promise(() => {}); // Halt promise chain
+      }
+
+      const errorMsg = error.response?.data?.message || error.response?.data?.error || "";
+      if (typeof errorMsg === "string" && (errorMsg.toLowerCase().includes("token expired") || errorMsg.toLowerCase().includes("token invalid"))) {
+        handleTokenLogout();
+        return new Promise(() => {}); // Halt promise chain
+      }
     }
 
     // 403 Forbidden: check if token is expired before logging out

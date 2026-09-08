@@ -3,6 +3,7 @@ import axiosInstance from "../../services/axiosInstance";
 import * as XLSX from "xlsx";
 import "./adminSchoolCompetition.css";
 import PastCompetitionVideosSection from "./PastCompetitionVideosSection";
+import PrizeCeremonyVideosSection from "./PrizeCeremonyVideosSection";
 import AsyncVideoPlayer from "../../components/AsyncVideoPlayer";
 
 export default function AdminCompetitionManager() {
@@ -28,11 +29,26 @@ export default function AdminCompetitionManager() {
     fetchPrizeVideos();
   }, []);
 
+  const normalizeCategory = (cat) => {
+    if (!cat) return cat;
+    const trimmed = String(cat).trim();
+    if (/^kojo(\s+competition)?$/i.test(trimmed)) {
+      return "KoJo Competition";
+    }
+    if (/^science(\s+compertition|\s+competition)?$/i.test(trimmed)) {
+      return "Science Competition";
+    }
+    if (/^public\s+speaking$/i.test(trimmed)) {
+      return "Public Speaking";
+    }
+    return trimmed;
+  };
+
   useEffect(() => {
     if (competitions.length > 0) {
-      const uniqueCats = Array.from(new Set(competitions.map(c => c.category).filter(Boolean)));
+      const uniqueCats = Array.from(new Set(competitions.map(c => c.category).filter(Boolean).map(normalizeCategory)));
       setCategories(prev => {
-        const merged = Array.from(new Set([...prev, ...uniqueCats]));
+        const merged = Array.from(new Set([...prev.map(normalizeCategory), ...uniqueCats]));
         return merged;
       });
     }
@@ -264,9 +280,13 @@ export default function AdminCompetitionManager() {
     winnerAnnouncementMode: "MANUAL",
   });
 
-  const [categories, setCategories] = useState(["Public Speaking", "Science Competition", "Kojo Competition"]);
+  const [categories, setCategories] = useState(["Public Speaking", "Science Competition", "KoJo Competition"]);
   const [isCreatingCustomCategory, setIsCreatingCustomCategory] = useState(false);
   const [customCategoryName, setCustomCategoryName] = useState("");
+  const [isCreatingPrizeCustomCategory, setIsCreatingPrizeCustomCategory] = useState(false);
+  const [prizeCustomCategoryName, setPrizeCustomCategoryName] = useState("");
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [newCategoryModalInput, setNewCategoryModalInput] = useState("");
 
   const [isManageCategoriesModalOpen, setIsManageCategoriesModalOpen] = useState(false);
   const [editingCategoryIndex, setEditingCategoryIndex] = useState(null);
@@ -456,7 +476,7 @@ export default function AdminCompetitionManager() {
   const COMPETITION_CATEGORIES = [
     "Public Speaking",
     "Science Competition",
-    "Kojo Competition",
+    "KoJo Competition",
   ];
 
   const handleOpenEdit = (comp) => {
@@ -618,12 +638,6 @@ export default function AdminCompetitionManager() {
   };
 
   const handleDeleteCompetition = (comp) => {
-    if (!comp.isLive || comp.status === "COMPLETED") {
-      setDeleteWarningMsg(
-        "⚠️ Over/Completed competitions cannot be deleted once completed or winners are announced!"
-      );
-      return;
-    }
     setDeleteTargetComp(comp);
   };
 
@@ -736,12 +750,20 @@ export default function AdminCompetitionManager() {
   const [playingVideoUrl, setPlayingVideoUrl] = useState(null);
   const [downloadingCompetitionId, setDownloadingCompetitionId] = useState("");
 
-  const handleDeleteSubmission = (subId) => {
+  const handleDeleteSubmission = async (subId) => {
     if (
       window.confirm(`Are you sure you want to delete submission '${subId}'?`)
     ) {
-      setSubmissions(submissions.filter((s) => s.submissionId !== subId));
-      setMsg(`Submission '${subId}' deleted successfully!`);
+      try {
+        await axiosInstance.delete(`/admin/school-competitions/submissions/${encodeURIComponent(subId)}`);
+        setSubmissions((prev) => prev.filter((s) => s.submissionId !== subId));
+        setMsg(`✓ Submission '${subId}' deleted successfully!`);
+        await fetchSubmissions();
+        await fetchPrizeVideos();
+      } catch (err) {
+        console.error("Failed to delete submission", err);
+        setMsg("⚠️ Failed to delete submission: " + (err.response?.data?.message || err.response?.data || err.message));
+      }
     }
   };
 
@@ -762,8 +784,8 @@ export default function AdminCompetitionManager() {
     return url;
   };
 
-  const [showPrizeModal, setShowPrizeModal] = useState(false);
-  const [prizeModalTab, setPrizeModalTab] = useState("ADD"); // ADD vs EDIT
+  const [showPrizeCeremonyModal, setShowPrizeCeremonyModal] = useState(false);
+  const [showPastVideoModal, setShowPastVideoModal] = useState(false);
   const [prizeVideos, setPrizeVideos] = useState([]);
   const [prizeVideosLoading, setPrizeVideosLoading] = useState(false);
   const [editingPrizeVideoId, setEditingPrizeVideoId] = useState(null);
@@ -819,8 +841,10 @@ export default function AdminCompetitionManager() {
 
   const [batchWinners, setBatchWinners] = useState(initialBatchWinners);
   const [includeConsolation, setIncludeConsolation] = useState({});
+  const [consolationShowOnWeb, setConsolationShowOnWeb] = useState({});
   const [isEditingGroup, setIsEditingGroup] = useState(false);
   const [editingGroupCompName, setEditingGroupCompName] = useState("");
+  const [editingGroupCompId, setEditingGroupCompId] = useState(null);
 
   const [isCreatingPastCustomCategory, setIsCreatingPastCustomCategory] = useState(false);
   const [pastCustomCategoryName, setPastCustomCategoryName] = useState("");
@@ -858,31 +882,102 @@ export default function AdminCompetitionManager() {
 
   const [editingWinnerItem, setEditingWinnerItem] = useState(null);
 
-  const handleDeleteCompetitionGroup = async (compGroup) => {
-    if (!window.confirm(`⚠️ Are you sure you want to delete all winner entries for "${compGroup.competitionName}"?`)) {
+  const handleDeleteCompetitionGroup = async (compGroup, skipConfirm = false) => {
+    if (!compGroup) return;
+    const targetTitle = compGroup.competitionName || "this competition";
+    if (!skipConfirm && !window.confirm(`⚠️ Are you sure you want to delete competition "${targetTitle}" and all associated winners and prize videos?`)) {
       return;
     }
     try {
-      const deletePromises = compGroup.videos
-        .filter((v) => !v.isAnnouncedWinner && v.id && !v.id.startsWith("sub-"))
-        .map((v) => axiosInstance.delete(`/admin/school-competitions/prize-videos/${v.id}`));
+      const videos = compGroup.videos || [];
+      const compId = compGroup.competitionId;
 
-      await Promise.all(deletePromises);
-      setMsg(`✓ Successfully deleted entries for competition '${compGroup.competitionName}'`);
+      // 1. Reset announced student submissions if any
+      const subEntries = videos.filter((v) => v.id && (String(v.id).startsWith("sub-") || String(v.id).startsWith("winner-sub-") || v.isAnnouncedWinner));
+      for (const sub of subEntries) {
+        const subId = String(sub.id).replace(/^(sub-|winner-sub-)/, "");
+        try {
+          await axiosInstance.post(`/admin/school-competitions/submissions/${encodeURIComponent(subId)}/announce-winner`, { winnerRank: 0 });
+          await axiosInstance.delete(`/admin/school-competitions/prize-videos/sub-${encodeURIComponent(subId)}`);
+        } catch (subErr) {
+          console.warn("Failed resetting winner rank for submission", subId, subErr);
+        }
+      }
+
+      // 2. Bulk delete prize distribution videos atomically by competition params
+      try {
+        await axiosInstance.delete("/admin/school-competitions/prize-videos/by-competition", {
+          params: {
+            competitionId: compId || "",
+            competitionName: compGroup.competitionName || "",
+          },
+        });
+      } catch (bulkErr) {
+        console.warn("Bulk delete endpoint failed, falling back to individual ids", bulkErr);
+      }
+
+      if (compId) {
+        try {
+          await axiosInstance.delete(`/admin/school-competitions/prize-videos/${encodeURIComponent(compId)}`);
+        } catch (e) {}
+        try {
+          await axiosInstance.delete(`/admin/school-competitions/ceremony-videos/${encodeURIComponent(compId)}`);
+        } catch (e) {}
+      }
+
+      // 3. Fallback: delete individual non-submission video rows
+      const prizeVideoEntries = videos.filter((v) => !v.isAnnouncedWinner && v.id && !String(v.id).startsWith("sub-") && !String(v.id).startsWith("winner-sub-"));
+      for (const pv of prizeVideoEntries) {
+        const cleanId = String(pv.id).replace(/^(prize-video-|video-)/, "");
+        try {
+          await axiosInstance.delete(`/admin/school-competitions/prize-videos/${encodeURIComponent(cleanId)}`);
+        } catch (delErr) {}
+      }
+
+      // 4. If registered competition, soft-delete it so it is removed from active/over tabs as well
+      if (compId && competitions.some((c) => c.competitionId === compId)) {
+        try {
+          await axiosInstance.delete(`/admin/school-competitions/${encodeURIComponent(compId)}`);
+          setCompetitions((prev) => prev.filter((c) => c.competitionId !== compId));
+        } catch (compErr) {
+          console.warn("Failed to delete main competition entity", compErr);
+        }
+      }
+
+      // Optimistically filter out deleted group immediately from prizeVideos
+      setPrizeVideos((prev) =>
+        prev.filter((p) => {
+          if (compId && p.competitionId === compId) return false;
+          if (compGroup.competitionName && p.competitionName && p.competitionName.trim().toLowerCase() === compGroup.competitionName.trim().toLowerCase()) return false;
+          return true;
+        })
+      );
+
+      // Optimistically clear winner ranks in submissions
+      if (compId) {
+        setSubmissions((prev) =>
+          prev.map((s) => (s.competitionId === compId ? { ...s, winnerRank: 0 } : s))
+        );
+      }
+
+      setMsg(`✓ Successfully deleted competition '${targetTitle}' and all associated videos!`);
       await fetchPrizeVideos();
       await fetchSubmissions();
-      if (selectedCompetitionModal && (selectedCompetitionModal.competitionId === compGroup.competitionId || selectedCompetitionModal.competitionName === compGroup.competitionName)) {
+      await fetchCompetitions();
+
+      if (selectedCompetitionModal && (selectedCompetitionModal.competitionId === compId || selectedCompetitionModal.competitionName === compGroup.competitionName)) {
         setSelectedCompetitionModal(null);
       }
     } catch (err) {
       console.error("Failed to delete competition group", err);
-      alert("Failed to delete competition entries.");
+      alert("Failed to delete competition entries: " + (err.response?.data?.message || err.response?.data || err.message));
     }
   };
 
   const handleEditCompetitionGroup = (compGroup) => {
     setIsEditingGroup(true);
     setEditingGroupCompName(compGroup.competitionName || "");
+    setEditingGroupCompId(compGroup.competitionId || null);
     setPastVideoForm({
       competitionName: compGroup.competitionName || "",
       year: compGroup.year || new Date().getFullYear().toString(),
@@ -921,28 +1016,52 @@ export default function AdminCompetitionManager() {
       return template;
     });
 
+    const activeConsolation = {};
+    const webVisibility = {};
+    if (Array.isArray(compGroup.videos)) {
+      compGroup.videos.forEach((v) => {
+        const isConsol = Boolean(v.isConsolation) || (v.winnerRank && Number(v.winnerRank) > 3);
+        if (isConsol && v.groupCategory) {
+          activeConsolation[v.groupCategory] = true;
+          if (v.showOnWeb === true || v.showOnWeb === 1 || String(v.showOnWeb) === "true") {
+            webVisibility[v.groupCategory] = true;
+          } else if (v.showOnWeb === false || v.showOnWeb === 0 || String(v.showOnWeb) === "false") {
+            webVisibility[v.groupCategory] = false;
+          }
+        }
+      });
+    }
+    setIncludeConsolation(activeConsolation);
+    setConsolationShowOnWeb(webVisibility);
+
     setBatchWinners(newBatch);
-    setPrizeModalTab("PAST");
-    setShowPrizeModal(true);
+    setShowPastVideoModal(true);
   };
 
   const handleDeleteIndividualWinner = async (winnerItem) => {
+    if (!winnerItem) return;
     if (!window.confirm(`⚠️ Are you sure you want to delete this winner entry (${winnerItem.groupCategory} - Rank ${winnerItem.winnerRank})?`)) {
       return;
     }
     try {
-      if (!winnerItem.isAnnouncedWinner && winnerItem.id && !winnerItem.id.startsWith("sub-")) {
-        await axiosInstance.delete(`/admin/school-competitions/prize-videos/${winnerItem.id}`);
-      } else if (winnerItem.id && winnerItem.id.startsWith("sub-")) {
-        const subId = winnerItem.id.replace("sub-", "");
-        await axiosInstance.post(`/admin/school-competitions/submissions/${subId}/announce-winner`, { winnerRank: 0 });
+      const isSub = winnerItem.isAnnouncedWinner || (winnerItem.id && (String(winnerItem.id).startsWith("sub-") || String(winnerItem.id).startsWith("winner-sub-")));
+      if (isSub) {
+        const subId = String(winnerItem.id).replace(/^(sub-|winner-sub-)/, "");
+        await axiosInstance.post(`/admin/school-competitions/submissions/${encodeURIComponent(subId)}/announce-winner`, { winnerRank: 0 });
+      } else {
+        const cleanId = String(winnerItem.id).replace(/^(prize-video-|video-)/, "");
+        await axiosInstance.delete(`/admin/school-competitions/prize-videos/${encodeURIComponent(cleanId)}`);
       }
+
+      // Optimistically remove from state
+      setPrizeVideos((prev) => prev.filter((p) => String(p.id) !== String(winnerItem.id) && String(p.id) !== String(cleanId)));
+
       setMsg("✓ Winner entry deleted successfully");
       await fetchPrizeVideos();
       await fetchSubmissions();
 
       if (selectedCompetitionModal) {
-        const updatedVideos = selectedCompetitionModal.videos.filter((v) => v.id !== winnerItem.id);
+        const updatedVideos = selectedCompetitionModal.videos.filter((v) => String(v.id) !== String(winnerItem.id));
         if (updatedVideos.length === 0) {
           setSelectedCompetitionModal(null);
         } else {
@@ -951,7 +1070,7 @@ export default function AdminCompetitionManager() {
       }
     } catch (err) {
       console.error("Failed to delete individual winner", err);
-      alert("Failed to delete winner entry.");
+      alert("Failed to delete winner entry: " + (err.response?.data?.message || err.response?.data || err.message));
     }
   };
 
@@ -981,12 +1100,14 @@ export default function AdminCompetitionManager() {
       setEditingWinnerItem(null);
     } catch (err) {
       console.error("Failed to update individual winner", err);
-      alert("Failed to update winner entry.");
+      setMsg("⚠️ Failed to update winner entry: " + (err.response?.data?.message || err.response?.data || err.message || "Unknown error"));
     }
   };
 
   const getAutoWinnerRank = (sub) => {
     if (!sub) return null;
+    // Explicitly reset/deleted winner
+    if (sub.winnerRank === 0 || sub.winnerRank === "0") return null;
     if (sub.winnerRank && Number(sub.winnerRank) > 0) return Number(sub.winnerRank);
 
     const comp = (competitions || []).find((c) => String(c.competitionId) === String(sub.competitionId));
@@ -997,7 +1118,10 @@ export default function AdminCompetitionManager() {
       (s) =>
         String(s.competitionId) === String(sub.competitionId) &&
         (s.groupCategory === sub.groupCategory || !sub.groupCategory) &&
-        s.status !== "REJECTED"
+        s.status !== "REJECTED" &&
+        s.status !== "DELETED" &&
+        s.winnerRank !== 0 &&
+        s.winnerRank !== "0"
     );
 
     if (groupSubs.length === 0) return null;
@@ -1020,6 +1144,10 @@ export default function AdminCompetitionManager() {
   const allAdminUploadedVideos = useMemo(() => {
     const winnerSubItems = (submissions || [])
       .filter((s) => {
+        if (s.winnerRank === 0 || s.winnerRank === "0" || s.status === "DELETED" || s.status === "REJECTED") {
+          return false;
+        }
+
         const manualRank = s.winnerRank || s.winner_rank || s.rank;
         const isWinnerFlag = Boolean(s.isWinner) || String(s.isWinner) === "true" || Boolean(s.is_winner) || String(s.is_winner) === "true";
         const isStatusWinner = s.status === "WINNER" || s.status === "APPROVED";
@@ -1054,8 +1182,56 @@ export default function AdminCompetitionManager() {
         };
       });
 
-    return [...(prizeVideos || []), ...winnerSubItems];
+    // Strictly exclude official prize ceremony videos from the 4th tab (All Past Uploaded Competition Videos)
+    const nonCeremonyPrizeVideos = (prizeVideos || []).filter((v) => {
+      if (Boolean(v.isPastCompetition) || String(v.isPastCompetition) === "true") {
+        return true;
+      }
+      if (v.studentName || v.rollNumber || (v.winnerRank && Number(v.winnerRank) > 0)) {
+        return true;
+      }
+      return false;
+    });
+
+    return [...nonCeremonyPrizeVideos, ...winnerSubItems];
   }, [prizeVideos, submissions, competitions]);
+
+  const pastCompetitionsCount = useMemo(() => {
+    const uniqueCompKeys = new Set(
+      allAdminUploadedVideos.map((v) => v.competitionId || v.competitionName).filter(Boolean)
+    );
+    return uniqueCompKeys.size;
+  }, [allAdminUploadedVideos]);
+
+  const ceremonyVideosList = useMemo(() => {
+    return (prizeVideos || [])
+      .filter((v) => {
+        if (!v.videoUrl || !v.videoUrl.trim()) return false;
+        // Strictly ceremony videos: must not be past competition batch videos
+        if (Boolean(v.isPastCompetition) || String(v.isPastCompetition) === "true") return false;
+        // Must not be student winner submission items
+        if (Boolean(v.isAnnouncedWinner) || String(v.isAnnouncedWinner) === "true") return false;
+        if (v.id && (String(v.id).startsWith("sub-") || String(v.id).startsWith("winner-sub-"))) return false;
+        // Must not be individual winner rank entry or student entry
+        if (v.winnerRank && Number(v.winnerRank) > 0) return false;
+        if (v.studentName || v.rollNumber) return false;
+        return true;
+      })
+      .map((v) => {
+        const matchedComp = (competitions || []).find(
+          (c) => String(c.competitionId) === String(v.competitionId)
+        );
+        return {
+          ...v,
+          resolvedCompetitionName:
+            v.competitionName && v.competitionName.trim() && v.competitionName !== v.competitionId
+              ? v.competitionName
+              : (matchedComp ? matchedComp.title : (v.competitionName || v.competitionId || "Competition")),
+          resolvedCategory:
+            v.category || (matchedComp ? matchedComp.category : (v.competitionType || "General")),
+        };
+      });
+  }, [prizeVideos, competitions]);
 
   const handleBatchFileUpload = async (file, index) => {
     if (!file) return;
@@ -1129,9 +1305,6 @@ export default function AdminCompetitionManager() {
   };
 
   const handleOpenPrizeModal = () => {
-    setIsEditingGroup(false);
-    setEditingGroupCompName("");
-    setPrizeModalTab("ADD");
     setPrizeVideoForm({
       competitionId: "",
       competitionName: "",
@@ -1140,32 +1313,15 @@ export default function AdminCompetitionManager() {
       endDate: "",
       videoUrl: "",
     });
-    setPastVideoForm({
-      competitionName: "",
-      year: new Date().getFullYear().toString(),
-      month: "January",
-      competitionType: categories[0] || "Public Speaking",
-      groupCategory: "Group A",
-      videoUrl: "",
-      winnerRank: "1",
-      prizeAmount: "",
-    });
     setEditingPrizeVideoId(null);
-    setBatchWinners(initialBatchWinners);
-    setIncludeConsolation({});
-    setShowPrizeModal(true);
+    setIsCreatingPrizeCustomCategory(false);
+    setPrizeCustomCategoryName("");
+    setShowPrizeCeremonyModal(true);
     fetchPrizeVideos();
   };
 
-  const handleOpenPastPrizeModal = () => {
-    handleOpenPrizeModal();
-    setPrizeModalTab("PAST");
-  };
-
-  const handleClosePrizeModal = () => {
-    setShowPrizeModal(false);
-    setIsEditingGroup(false);
-    setEditingGroupCompName("");
+  const handleClosePrizeCeremonyModal = () => {
+    setShowPrizeCeremonyModal(false);
     setPrizeVideoForm({
       competitionId: "",
       competitionName: "",
@@ -1174,6 +1330,15 @@ export default function AdminCompetitionManager() {
       endDate: "",
       videoUrl: "",
     });
+    setEditingPrizeVideoId(null);
+    setIsCreatingPrizeCustomCategory(false);
+    setPrizeCustomCategoryName("");
+  };
+
+  const handleOpenPastPrizeModal = () => {
+    setIsEditingGroup(false);
+    setEditingGroupCompName("");
+    setEditingGroupCompId(null);
     setPastVideoForm({
       competitionName: "",
       year: new Date().getFullYear().toString(),
@@ -1187,6 +1352,39 @@ export default function AdminCompetitionManager() {
     setEditingPrizeVideoId(null);
     setBatchWinners(initialBatchWinners);
     setIncludeConsolation({});
+    setConsolationShowOnWeb({});
+    setIsCreatingPastCustomCategory(false);
+    setPastCustomCategoryName("");
+    setShowPastVideoModal(true);
+    fetchPrizeVideos();
+  };
+
+  const handleClosePastVideoModal = () => {
+    setShowPastVideoModal(false);
+    setIsEditingGroup(false);
+    setEditingGroupCompName("");
+    setEditingGroupCompId(null);
+    setPastVideoForm({
+      competitionName: "",
+      year: new Date().getFullYear().toString(),
+      month: "January",
+      competitionType: categories[0] || "Public Speaking",
+      groupCategory: "Group A",
+      videoUrl: "",
+      winnerRank: "1",
+      prizeAmount: "",
+    });
+    setEditingPrizeVideoId(null);
+    setBatchWinners(initialBatchWinners);
+    setIncludeConsolation({});
+    setConsolationShowOnWeb({});
+    setIsCreatingPastCustomCategory(false);
+    setPastCustomCategoryName("");
+  };
+
+  const handleClosePrizeModal = () => {
+    handleClosePrizeCeremonyModal();
+    handleClosePastVideoModal();
   };
 
   const handleSelectPrizeCompetition = (compId) => {
@@ -1266,16 +1464,7 @@ export default function AdminCompetitionManager() {
       }
 
       await fetchPrizeVideos();
-      setPrizeVideoForm({
-        competitionId: "",
-        competitionName: "",
-        category: "",
-        startDate: "",
-        endDate: "",
-        videoUrl: "",
-      });
-      setEditingPrizeVideoId(null);
-      setPrizeModalTab("EDIT");
+      handleClosePrizeCeremonyModal();
     } catch (err) {
       console.error(err);
       const errorMsg =
@@ -1314,14 +1503,14 @@ export default function AdminCompetitionManager() {
       };
 
       try {
+        const cleanId = String(editingPrizeVideoId).replace(/^(prize-video-|video-)/, "");
         await axiosInstance.put(
-          `/admin/school-competitions/prize-videos/${editingPrizeVideoId}`,
+          `/admin/school-competitions/prize-videos/${encodeURIComponent(cleanId)}`,
           payload,
         );
         setMsg(`✓ Past competition video '${pastVideoForm.competitionName}' updated successfully!`);
         await fetchPrizeVideos();
-        handleClosePrizeModal();
-        setPrizeModalTab("EDIT");
+        handleClosePastVideoModal();
       } catch (err) {
         console.error(err);
         alert(err.response?.data?.message || err.response?.data || "Failed to update past competition video.");
@@ -1341,27 +1530,58 @@ export default function AdminCompetitionManager() {
 
     const activeWinners = allowedWinners.filter((w) => w.videoUrl && w.videoUrl.trim() !== "");
     if (activeWinners.length === 0) {
-      alert(`⚠️ Please upload or paste a Video URL for at least 1 Winner Rank${isKojoCompetition ? " in Group C" : ""}!`);
+      if (isKojoCompetition) {
+        setMsg("⚠️ Please upload or paste a Word (.doc/.docx), PDF (.pdf), TXT (.txt), or Image file for at least 1 Winner Rank in Group C!");
+      } else {
+        setMsg("⚠️ Please upload or paste a Video URL for at least 1 Winner Rank!");
+      }
       return;
     }
 
+    if (isKojoCompetition) {
+      const hasVideo = activeWinners.some((w) =>
+        w.videoUrl && (
+          w.videoUrl.includes("youtube.com") ||
+          w.videoUrl.includes("youtu.be") ||
+          w.videoUrl.match(/\.(mp4|mov|avi|mkv|3gp|webm|wmv|flv)(\?|$)/i) ||
+          w.videoUrl.startsWith("data:video")
+        )
+      );
+      if (hasVideo) {
+        setMsg("⚠️ Video entries are NOT allowed for Kojo Competition! Please upload Word (.doc, .docx), PDF (.pdf), TXT (.txt) files, or any Image format.");
+        return;
+      }
+    }
+
     const payload = {
+      competitionId: isEditingGroup ? editingGroupCompId : null,
       competitionName: pastVideoForm.competitionName.trim(),
       originalCompetitionName: isEditingGroup ? editingGroupCompName : pastVideoForm.competitionName.trim(),
       year: pastVideoForm.year,
       month: pastVideoForm.month,
       competitionType: pastVideoForm.competitionType.trim(),
-      winners: activeWinners.map((w) => ({
-        id: w.id || null,
-        groupCategory: w.groupCategory,
-        winnerRank: w.winnerRank,
-        prizeAmount: w.prizeAmount ? w.prizeAmount.trim() : "",
-        studentName: w.studentName ? w.studentName.trim() : "",
-        studentClass: w.studentClass ? w.studentClass.trim() : "",
-        schoolName: w.schoolName ? w.schoolName.trim() : "",
-        rollNumber: w.rollNumber ? w.rollNumber.trim() : "",
-        videoUrl: w.videoUrl.trim(),
-      })),
+      winners: activeWinners.map((w) => {
+        let numericId = null;
+        if (w.id && !String(w.id).startsWith("sub-")) {
+          const num = Number(String(w.id).replace(/\D/g, ""));
+          if (!isNaN(num) && num > 0) numericId = num;
+        }
+        const isConsol = Boolean(w.isConsolation) || (w.winnerRank && Number(w.winnerRank) > 3);
+        const showWeb = isConsol ? Boolean(consolationShowOnWeb[w.groupCategory]) : true;
+        return {
+          id: numericId,
+          groupCategory: w.groupCategory,
+          winnerRank: w.winnerRank,
+          prizeAmount: w.prizeAmount ? w.prizeAmount.trim() : "",
+          studentName: w.studentName ? w.studentName.trim() : "",
+          studentClass: w.studentClass ? w.studentClass.trim() : "",
+          schoolName: w.schoolName ? w.schoolName.trim() : "",
+          rollNumber: w.rollNumber ? w.rollNumber.trim() : "",
+          videoUrl: w.videoUrl.trim(),
+          isConsolation: isConsol,
+          showOnWeb: showWeb,
+        };
+      }),
     };
 
     try {
@@ -1371,8 +1591,7 @@ export default function AdminCompetitionManager() {
       );
       setMsg(`✓ ${isEditingGroup ? "Updated" : "Saved"} ${activeWinners.length} winner videos for '${pastVideoForm.competitionName}' successfully!`);
       await fetchPrizeVideos();
-      handleClosePrizeModal();
-      setPrizeModalTab("EDIT");
+      handleClosePastVideoModal();
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || err.response?.data || "Failed to save batch winner videos.");
@@ -1385,14 +1604,14 @@ export default function AdminCompetitionManager() {
         competitionName: video.competitionName || "",
         year: video.year || new Date().getFullYear().toString(),
         month: video.month || "January",
-        competitionType: video.competitionType || video.category || "Drawing",
+        competitionType: video.competitionType || video.category || "Public Speaking",
         groupCategory: video.groupCategory || "Group A",
         videoUrl: video.videoUrl || "",
         winnerRank: video.winnerRank ? String(video.winnerRank) : "1",
         prizeAmount: video.prizeAmount || "",
       });
       setEditingPrizeVideoId(video.id);
-      setPrizeModalTab("PAST");
+      setShowPastVideoModal(true);
     } else {
       setPrizeVideoForm({
         competitionId: video.competitionId || "",
@@ -1403,13 +1622,73 @@ export default function AdminCompetitionManager() {
         videoUrl: video.videoUrl || "",
       });
       setEditingPrizeVideoId(video.id);
-      setPrizeModalTab("ADD");
+      setShowPrizeCeremonyModal(true);
     }
   };
 
   const renderAdminVideoPreview = (url) => {
     if (!url || !url.trim()) return null;
     const cleanUrl = url.trim();
+
+    // 1. All Image formats (.jpg, .jpeg, .png, .gif, .webp, .bmp, .heic, .heif, .svg, .tiff, etc.)
+    const isImage = cleanUrl.startsWith("data:image") || cleanUrl.match(/\.(jpeg|jpg|png|gif|webp|bmp|heic|heif|svg|tiff|tif)(\?|$)/i);
+    if (isImage) {
+      return (
+        <div style={{ marginTop: 12, borderRadius: 8, overflow: "hidden", border: "1px solid var(--sc-border)", background: "#0f172a", maxHeight: 220, textAlign: "center" }}>
+          <img
+            src={cleanUrl}
+            alt="Preview"
+            style={{ maxHeight: 220, maxWidth: "100%", objectFit: "contain", display: "inline-block" }}
+          />
+        </div>
+      );
+    }
+
+    // 2. PDF Document
+    const isPdf = cleanUrl.startsWith("data:application/pdf") || cleanUrl.match(/\.pdf(\?|$)/i);
+    if (isPdf) {
+      return (
+        <div style={{ marginTop: 12, borderRadius: 8, border: "1.5px solid #ef4444", background: "#fef2f2", padding: "16px 14px", textAlign: "center" }}>
+          <div style={{ fontSize: "32px", marginBottom: "6px" }}>📄</div>
+          <div style={{ fontSize: "13px", fontWeight: "700", color: "#991b1b", marginBottom: "8px" }}>
+            PDF Document Attached
+          </div>
+          <a
+            href={cleanUrl}
+            target="_blank"
+            rel="noreferrer"
+            style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "#dc2626", color: "#ffffff", padding: "6px 14px", borderRadius: "6px", fontSize: "12px", fontWeight: "600", textDecoration: "none" }}
+          >
+            👁️ Open PDF
+          </a>
+        </div>
+      );
+    }
+
+    // 3. Word Document / TXT file
+    const isWord = cleanUrl.match(/\.(doc|docx|dot|dotx|rtf)(\?|$)/i) || cleanUrl.startsWith("data:application/msword") || cleanUrl.startsWith("data:application/vnd.openxmlformats");
+    const isTxt = cleanUrl.match(/\.(txt|text|csv|json)(\?|$)/i) || cleanUrl.startsWith("data:text");
+    if (isWord || isTxt) {
+      return (
+        <div style={{ marginTop: 12, borderRadius: 8, border: "1.5px solid #3b82f6", background: "#eff6ff", padding: "16px 14px", textAlign: "center" }}>
+          <div style={{ fontSize: "32px", marginBottom: "6px" }}>{isWord ? "📘" : "📝"}</div>
+          <div style={{ fontSize: "13px", fontWeight: "700", color: "#1e40af", marginBottom: "8px" }}>
+            {isWord ? "Word Document Attached (.doc / .docx)" : "Text File Attached (.txt)"}
+          </div>
+          <a
+            href={cleanUrl}
+            target="_blank"
+            rel="noreferrer"
+            download
+            style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "#2563eb", color: "#ffffff", padding: "6px 14px", borderRadius: "6px", fontSize: "12px", fontWeight: "600", textDecoration: "none" }}
+          >
+            📥 Download / View File
+          </a>
+        </div>
+      );
+    }
+
+    // 4. YouTube Video
     const isYoutube = cleanUrl.includes("youtube.com") || cleanUrl.includes("youtu.be");
     if (isYoutube) {
       let embedUrl = cleanUrl;
@@ -1433,6 +1712,7 @@ export default function AdminCompetitionManager() {
       );
     }
 
+    // 5. Google Drive Video
     const isGoogleDrive = cleanUrl.includes("drive.google.com");
     if (isGoogleDrive) {
       let previewUrl = cleanUrl;
@@ -1455,6 +1735,7 @@ export default function AdminCompetitionManager() {
       );
     }
 
+    // 6. Direct Video
     return (
       <div style={{ marginTop: 12, borderRadius: 8, overflow: "hidden", border: "1px solid var(--sc-border)", background: "#000", height: 220 }}>
         <video
@@ -1467,6 +1748,7 @@ export default function AdminCompetitionManager() {
   };
 
   const handleDeletePrizeVideo = async (id) => {
+    if (!id) return;
     if (
       !window.confirm(
         "Are you sure you want to delete this prize distribution video?",
@@ -1474,7 +1756,18 @@ export default function AdminCompetitionManager() {
     )
       return;
     try {
-      await axiosInstance.delete(`/admin/school-competitions/prize-videos/${id}`);
+      const cleanId = String(id).replace(/^(prize-video-|video-)/, "");
+      try {
+        await axiosInstance.delete(`/admin/school-competitions/ceremony-videos/${encodeURIComponent(cleanId)}`);
+      } catch (cErr) {
+        await axiosInstance.delete(`/admin/school-competitions/prize-videos/${encodeURIComponent(cleanId)}`);
+      }
+
+      // Optimistically remove from state so the count and list update immediately!
+      setPrizeVideos((prev) =>
+        prev.filter((p) => String(p.id) !== String(id) && String(p.id) !== String(cleanId))
+      );
+
       await fetchPrizeVideos();
       setMsg("✓ Prize distribution video deleted successfully!");
     } catch (err) {
@@ -1534,7 +1827,7 @@ export default function AdminCompetitionManager() {
           </div>
           <div className="admin-sc-header-actions">
             <button
-              className="admin-sc-btn admin-sc-btn-outline"
+              className={`admin-sc-btn ${showSchoolModal ? "admin-sc-btn-accent" : "admin-sc-btn-outline"}`}
               onClick={() => setShowSchoolModal(true)}
             >
               🏫 Manage Schools{" "}
@@ -1546,28 +1839,28 @@ export default function AdminCompetitionManager() {
               </span>
             </button>
             <button
-              className="admin-sc-btn admin-sc-btn-outline"
-              onClick={handleOpenPrizeModal}
-            >
-              🎬 Prize Ceremony Video
-            </button>
-            <button
-              className="admin-sc-btn admin-sc-btn-outline"
-              onClick={handleOpenPastPrizeModal}
-            >
-              📜 Add Past Competition Video
-            </button>
-            <button
-              className="admin-sc-btn admin-sc-btn-outline"
+              className={`admin-sc-btn ${isManageCategoriesModalOpen ? "admin-sc-btn-accent" : "admin-sc-btn-outline"}`}
               onClick={() => setIsManageCategoriesModalOpen(true)}
             >
               🏷️ Manage Categories
             </button>
             <button
-              className="admin-sc-btn admin-sc-btn-accent"
+              className={`admin-sc-btn ${showModal ? "admin-sc-btn-accent" : "admin-sc-btn-outline"}`}
               onClick={handleOpenCreate}
             >
               + Create New Competition
+            </button>
+            <button
+              className={`admin-sc-btn ${showPastVideoModal ? "admin-sc-btn-accent" : "admin-sc-btn-outline"}`}
+              onClick={handleOpenPastPrizeModal}
+            >
+              📜 + Add Past Competition Video
+            </button>
+            <button
+              className={`admin-sc-btn ${showPrizeCeremonyModal ? "admin-sc-btn-accent" : "admin-sc-btn-outline"}`}
+              onClick={handleOpenPrizeModal}
+            >
+              🎬 + Add Prize Ceremony Video
             </button>
           </div>
         </div>
@@ -1623,13 +1916,27 @@ export default function AdminCompetitionManager() {
           >
             🎬 All Past Uploaded Competition Videos
             <span className="admin-sc-tab-count">
-              {allAdminUploadedVideos.length}
+              {pastCompetitionsCount}
+            </span>
+          </button>
+
+          <button
+            className={`admin-sc-tab-btn ${activeTab === "ceremonyVideos" ? "active" : ""}`}
+            onClick={() => {
+              setActiveTab("ceremonyVideos");
+              setSelectedCompetitionFilter("NONE");
+              fetchPrizeVideos();
+            }}
+          >
+            🎬 Prize Ceremony Video
+            <span className="admin-sc-tab-count">
+              {ceremonyVideosList.length}
             </span>
           </button>
         </div>
 
         {deleteWarningMsg && (
-          <div className="admin-sc-modal-overlay" style={{ zIndex: 2000 }}>
+          <div className="admin-sc-modal-overlay" style={{ zIndex: 9999 }}>
             <div className="admin-sc-modal" style={{ maxWidth: 450, padding: "30px 24px", textAlign: "center", borderRadius: "16px", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}>
               <div style={{
                 width: "60px",
@@ -1665,7 +1972,7 @@ export default function AdminCompetitionManager() {
         )}
 
         {deleteTargetComp && (
-          <div className="admin-sc-modal-overlay" style={{ zIndex: 2000 }}>
+          <div className="admin-sc-modal-overlay" style={{ zIndex: 9999 }}>
             <div className="admin-sc-modal" style={{ maxWidth: 450, padding: "30px 24px", textAlign: "center", borderRadius: "16px", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" }}>
               <div style={{
                 width: "60px",
@@ -1722,43 +2029,59 @@ export default function AdminCompetitionManager() {
         )}
 
         {msg && (
-          <div className="admin-sc-modal-overlay" style={{ zIndex: 2000 }}>
-            <div className="admin-sc-modal" style={{ maxWidth: 450, padding: "30px 24px", textAlign: "center", borderRadius: "16px", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}>
-              <div style={{
-                width: "60px",
-                height: "60px",
-                borderRadius: "50%",
-                backgroundColor: "#ecfdf5",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 16px auto",
-                border: "2px solid #34d399",
-                color: "#10b981",
-                fontSize: "30px"
-              }}>
-                ✓
-              </div>
-              <h3 style={{ margin: "0 0 10px 0", fontFamily: "var(--sc-font-display)", fontSize: "20px", fontWeight: "600", color: "var(--sc-navy)" }}>
-                Success!
-              </h3>
-              <p style={{ fontSize: "15px", color: "#475569", lineHeight: "1.5", margin: "0 0 24px 0" }}>
-                {msg}
-              </p>
-              <button
-                type="button"
-                className="admin-sc-btn admin-sc-btn-accent solid"
-                style={{ width: "120px", padding: "10px 24px", borderRadius: "8px", margin: "0 auto", display: "block", cursor: "pointer" }}
-                onClick={() => setMsg("")}
-              >
-                OK
-              </button>
+          <div className="admin-sc-modal-overlay" style={{ zIndex: 9999 }}>
+            <div className="admin-sc-modal" style={{ maxWidth: 450, padding: "30px 24px", textAlign: "center", borderRadius: "18px", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)", border: "1px solid #e2e8f0", background: "#ffffff", margin: "auto" }}>
+              {(() => {
+                const isWarnOrErr = typeof msg === "string" && (msg.startsWith("⚠️") || msg.toLowerCase().includes("failed") || msg.toLowerCase().includes("error"));
+                return (
+                  <>
+                    <div style={{
+                      width: "60px",
+                      height: "60px",
+                      borderRadius: "50%",
+                      backgroundColor: isWarnOrErr ? "#fef2f2" : "#ecfdf5",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      margin: "0 auto 16px auto",
+                      border: isWarnOrErr ? "2px solid #fca5a5" : "2px solid #34d399",
+                      color: isWarnOrErr ? "#dc2626" : "#10b981",
+                      fontSize: isWarnOrErr ? "28px" : "30px"
+                    }}>
+                      {isWarnOrErr ? "⚠️" : "✓"}
+                    </div>
+                    <h3 style={{ margin: "0 0 10px 0", fontFamily: "var(--sc-font-display)", fontSize: "20px", fontWeight: "700", color: isWarnOrErr ? "#991b1b" : "var(--sc-navy)" }}>
+                      {isWarnOrErr ? "Notice" : "Success!"}
+                    </h3>
+                    <p style={{ fontSize: "15px", color: "#475569", lineHeight: "1.5", margin: "0 0 24px 0" }}>
+                      {msg}
+                    </p>
+                    <button
+                      type="button"
+                      className="admin-sc-btn admin-sc-btn-accent solid"
+                      style={{
+                        width: "120px",
+                        padding: "10px 24px",
+                        borderRadius: "8px",
+                        margin: "0 auto",
+                        display: "block",
+                        cursor: "pointer",
+                        backgroundColor: isWarnOrErr ? "#dc2626" : undefined,
+                        borderColor: isWarnOrErr ? "#dc2626" : undefined
+                      }}
+                      onClick={() => setMsg("")}
+                    >
+                      OK
+                    </button>
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}
 
         {/* SECTION 1: COMPETITIONS TABLE FOR ACTIVE / UPCOMING / PAST */}
-        {activeTab !== "pastVideos" && (
+        {activeTab !== "pastVideos" && activeTab !== "ceremonyVideos" && (
           <div className="admin-sc-panel-card">
             <h3 className="admin-sc-panel-title">
               {activeTab === "active" && "🏆 Active Competitions"}
@@ -2022,14 +2345,32 @@ export default function AdminCompetitionManager() {
             prizeVideosLoading={prizeVideosLoading}
             handleOpenPastPrizeModal={handleOpenPastPrizeModal}
             handleEditCompetitionGroup={handleEditCompetitionGroup}
+            handleDeleteCompetitionGroup={handleDeleteCompetitionGroup}
             fetchPrizeVideos={fetchPrizeVideos}
             fetchSubmissions={fetchSubmissions}
+            onAddNewCategory={() => setShowAddCategoryModal(true)}
+            setMsg={setMsg}
+          />
+        )}
+
+        {/* SECTION FOR 5TH TAB: PRIZE CEREMONY VIDEOS */}
+        {activeTab === "ceremonyVideos" && (
+          <PrizeCeremonyVideosSection
+            ceremonyVideos={ceremonyVideosList}
+            prizeVideosLoading={prizeVideosLoading}
+            handleOpenPrizeModal={handleOpenPrizeModal}
+            handleEditPrizeVideo={handleEditPrizeVideo}
+            handleDeletePrizeVideo={handleDeletePrizeVideo}
+            fetchPrizeVideos={fetchPrizeVideos}
+            competitions={competitions}
+            categories={categories}
+            onAddNewCategory={() => setShowAddCategoryModal(true)}
             setMsg={setMsg}
           />
         )}
 
         {/* SECTION 2: STUDENT SUBMISSIONS TABLE BELOW (APPEARS WHEN ADMIN SELECTS A COMPETITION) */}
-        {selectedCompetitionFilter !== "NONE" && activeTab !== "upcoming" && (
+        {selectedCompetitionFilter !== "NONE" && activeTab !== "upcoming" && activeTab !== "pastVideos" && activeTab !== "ceremonyVideos" && (
           <div
             id="student-submissions-section"
             className="admin-sc-panel-card no-tab-radius"
@@ -2429,51 +2770,69 @@ export default function AdminCompetitionManager() {
                             )}
                           </td>
                           <td>
-                            {sub.status === "REJECTED" ? (
-                              <div>
-                                <span
-                                  className="admin-sc-badge rejected"
-                                  style={{
-                                    display: "inline-block",
-                                    marginBottom: 4,
-                                  }}
+                            <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
+                              {sub.status === "REJECTED" ? (
+                                <div>
+                                  <span
+                                    className="admin-sc-badge rejected"
+                                    style={{
+                                      display: "inline-block",
+                                      marginBottom: 4,
+                                    }}
+                                  >
+                                    🚫 REJECTED
+                                  </span>
+                                  {sub.rejectionReason && (
+                                    <div
+                                      style={{
+                                        fontSize: 11,
+                                        color: "var(--sc-red-text)",
+                                        fontWeight: 600,
+                                      }}
+                                    >
+                                      Reason: {sub.rejectionReason}
+                                    </div>
+                                  )}
+                                  {sub.rejectedBy && (
+                                    <div
+                                      style={{
+                                        fontSize: 10,
+                                        color: "var(--sc-slate)",
+                                      }}
+                                    >
+                                      By: {sub.rejectedBy}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <button
+                                  className="admin-sc-btn admin-sc-btn-danger"
+                                  onClick={() =>
+                                    handleOpenRejectModal(sub.submissionId)
+                                  }
+                                  title="Reject Student Submission"
+                                  style={{ fontSize: 12, padding: "5px 10px" }}
                                 >
-                                  🚫 REJECTED
-                                </span>
-                                {sub.rejectionReason && (
-                                  <div
-                                    style={{
-                                      fontSize: 11,
-                                      color: "var(--sc-red-text)",
-                                      fontWeight: 600,
-                                    }}
-                                  >
-                                    Reason: {sub.rejectionReason}
-                                  </div>
-                                )}
-                                {sub.rejectedBy && (
-                                  <div
-                                    style={{
-                                      fontSize: 10,
-                                      color: "var(--sc-slate)",
-                                    }}
-                                  >
-                                    By: {sub.rejectedBy}
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
+                                  🚫 Reject
+                                </button>
+                              )}
                               <button
-                                className="admin-sc-btn admin-sc-btn-danger"
-                                onClick={() =>
-                                  handleOpenRejectModal(sub.submissionId)
-                                }
-                                title="Reject Student Submission"
-                                style={{ fontSize: 12 }}
+                                className="admin-sc-btn"
+                                onClick={() => handleDeleteSubmission(sub.submissionId)}
+                                title="Delete Submission"
+                                style={{
+                                  fontSize: 12,
+                                  padding: "5px 8px",
+                                  backgroundColor: "#fef2f2",
+                                  color: "#dc2626",
+                                  border: "1px solid #fecaca",
+                                  borderRadius: "6px",
+                                  cursor: "pointer",
+                                }}
                               >
-                                🚫 Reject
+                                🗑️
                               </button>
-                            )}
+                            </div>
                           </td>
                           <td>
                             {sub.status === "REJECTED" ? (
@@ -3850,8 +4209,8 @@ export default function AdminCompetitionManager() {
             </div>
           </div>
         )}
-        {/* PRIZE DISTRIBUTION VIDEO MODAL — Add Video URL / Edit Information tabs */}
-        {showPrizeModal && (
+        {/* PRIZE CEREMONY VIDEO MODAL */}
+        {showPrizeCeremonyModal && (
           <div className="admin-sc-modal-overlay" style={{ zIndex: 1150 }}>
             <div
               className="admin-sc-modal accent-amber hide-scrollbar"
@@ -3860,7 +4219,7 @@ export default function AdminCompetitionManager() {
               <button
                 type="button"
                 className="rotate-close-btn"
-                onClick={handleClosePrizeModal}
+                onClick={handleClosePrizeCeremonyModal}
                 title="Close Modal"
                 style={{
                   position: "sticky",
@@ -3887,40 +4246,8 @@ export default function AdminCompetitionManager() {
               </button>
 
               <h3 className="admin-sc-modal-title">
-                {prizeModalTab === "PAST"
-                  ? (isEditingGroup || editingPrizeVideoId ? "✏️ Edit Past Competition Video" : "📜 Add Past Competition Video")
-                  : prizeModalTab === "EDIT"
-                    ? "✏️ Prize & Past Videos List"
-                    : "🎬 Prize Ceremony Video"}
+                {editingPrizeVideoId ? "✏️ Edit Prize Ceremony Video" : "🎬 Add Prize Ceremony Video"}
               </h3>
-
-              {/* Tab Selector */}
-              <div className="admin-sc-segmented" style={{ marginBottom: 20 }}>
-                <button
-                  type="button"
-                  className={`admin-sc-segmented-btn ${prizeModalTab === "ADD" ? "active" : ""}`}
-                  onClick={() => setPrizeModalTab("ADD")}
-                >
-                  + Add Video URL
-                </button>
-                <button
-                  type="button"
-                  className={`admin-sc-segmented-btn ${prizeModalTab === "PAST" ? "active" : ""}`}
-                  onClick={() => setPrizeModalTab("PAST")}
-                >
-                  📜 Add Past Competition Video
-                </button>
-                <button
-                  type="button"
-                  className={`admin-sc-segmented-btn ${prizeModalTab === "EDIT" ? "active" : ""}`}
-                  onClick={() => setPrizeModalTab("EDIT")}
-                >
-                  ✏️ Edit Information ({prizeVideos.length})
-                </button>
-              </div>
-
-              {/* TAB 1: ADD VIDEO URL */}
-              {prizeModalTab === "ADD" && (
                 <form
                   onSubmit={handleSubmitPrizeVideo}
                   style={{ display: "flex", flexDirection: "column", gap: 16 }}
@@ -3976,23 +4303,67 @@ export default function AdminCompetitionManager() {
                     }}
                   >
                     <div>
-                      <label className="admin-sc-field-label">Category</label>
-                      <input
-                        className="admin-sc-input"
-                        type="text"
-                        value={prizeVideoForm.category}
-                        onChange={(e) =>
-                          setPrizeVideoForm({
-                            ...prizeVideoForm,
-                            category: e.target.value,
-                          })
-                        }
-                        placeholder="e.g. Drawing, Speech, Science"
-                        style={{
-                          width: "100%",
-                          backgroundColor: "#fff",
+                      <label className="admin-sc-field-label">Competition Type / Category *</label>
+                      <select
+                        className="admin-sc-filter-select"
+                        value={isCreatingPrizeCustomCategory ? "ADD_NEW" : (prizeVideoForm.category || "")}
+                        onChange={(e) => {
+                          if (e.target.value === "ADD_NEW") {
+                            setIsCreatingPrizeCustomCategory(true);
+                          } else {
+                            setIsCreatingPrizeCustomCategory(false);
+                            setPrizeVideoForm({
+                              ...prizeVideoForm,
+                              category: e.target.value,
+                            });
+                          }
                         }}
-                      />
+                        style={{ width: "100%", backgroundColor: "#fff" }}
+                      >
+                        <option value="">-- Select Category --</option>
+                        {categories.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                        <option value="ADD_NEW">+ Add New Category</option>
+                      </select>
+
+                      {isCreatingPrizeCustomCategory && (
+                        <div style={{ marginTop: "10px", display: "flex", gap: "8px", alignItems: "flex-end" }}>
+                          <div style={{ flex: 1 }}>
+                            <label className="admin-sc-field-label">New Category Name *</label>
+                            <input
+                              type="text"
+                              className="admin-sc-input"
+                              value={prizeCustomCategoryName}
+                              onChange={(e) => setPrizeCustomCategoryName(e.target.value)}
+                              placeholder="e.g. Art, Quiz, Essay, etc."
+                              style={{ width: "100%" }}
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            className="admin-sc-btn admin-sc-btn-primary"
+                            onClick={() => {
+                              const val = prizeCustomCategoryName.trim();
+                              if (val) {
+                                if (!categories.includes(val)) {
+                                  setCategories([...categories, val]);
+                                }
+                                setPrizeVideoForm({
+                                  ...prizeVideoForm,
+                                  category: val,
+                                });
+                                setIsCreatingPrizeCustomCategory(false);
+                                setPrizeCustomCategoryName("");
+                              }
+                            }}
+                          >
+                            Add
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <div>
                       <label className="admin-sc-field-label">Start Date</label>
@@ -4060,7 +4431,7 @@ export default function AdminCompetitionManager() {
                     <button
                       type="button"
                       className="admin-sc-btn admin-sc-btn-ghost"
-                      onClick={handleClosePrizeModal}
+                      onClick={handleClosePrizeCeremonyModal}
                       style={{ flex: 1, padding: 13 }}
                     >
                       Cancel
@@ -4074,16 +4445,56 @@ export default function AdminCompetitionManager() {
                     </button>
                   </div>
                 </form>
-              )}
+            </div>
+          </div>
+        )}
 
-              {/* TAB 2: ADD PAST COMPETITION VIDEO */}
-              {prizeModalTab === "PAST" && (() => {
-                const isKojoCompetition = Boolean(
-                  (pastVideoForm.competitionType && pastVideoForm.competitionType.toLowerCase().includes("kojo")) ||
-                  (pastVideoForm.competitionName && pastVideoForm.competitionName.toLowerCase().includes("kojo"))
-                );
+        {/* PAST COMPETITION VIDEO MODAL */}
+        {showPastVideoModal && (() => {
+          const isKojoCompetition = Boolean(
+            (pastVideoForm.competitionType && pastVideoForm.competitionType.toLowerCase().includes("kojo")) ||
+            (pastVideoForm.competitionName && pastVideoForm.competitionName.toLowerCase().includes("kojo"))
+          );
 
-                return (
+          return (
+            <div className="admin-sc-modal-overlay" style={{ zIndex: 1150 }}>
+              <div
+                className="admin-sc-modal accent-amber hide-scrollbar"
+                style={{ maxWidth: 850 }}
+              >
+                <button
+                  type="button"
+                  className="rotate-close-btn"
+                  onClick={handleClosePastVideoModal}
+                  title="Close Modal"
+                  style={{
+                    position: "sticky",
+                    top: -18,
+                    float: "right",
+                    marginTop: -20,
+                    marginRight: -24,
+                    zIndex: 20,
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    color: "#ffffff",
+                    border: "2px solid #ffffff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 18,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    boxShadow: "0 4px 12px rgba(20,29,51,0.3)",
+                  }}
+                >
+                  ✕
+                </button>
+
+                <h3 className="admin-sc-modal-title">
+                  {isEditingGroup || editingPrizeVideoId ? "✏️ Edit Past Competition Video" : "📜 Add Past Competition Video"}
+                </h3>
+
                 <form
                   onSubmit={handleSubmitPastVideo}
                   style={{ display: "flex", flexDirection: "column", gap: 16 }}
@@ -4379,11 +4790,11 @@ export default function AdminCompetitionManager() {
 
                       <div style={{ background: "var(--sc-paper)", padding: "12px 16px", borderRadius: "8px", border: "1px solid var(--sc-border)" }}>
                         <h4 style={{ margin: "0 0 4px 0", color: "var(--sc-navy)", fontSize: "15px", fontWeight: "700" }}>
-                          🏆 Winner Videos Grid {isKojoCompetition ? "(Group C Only — Class 6-8)" : "(4 Groups × 3 Ranks = 12 Winner Videos)"}
+                          🏆 {isKojoCompetition ? "Winner Entries Grid (Group C Only — Class 6-8)" : "Winner Videos Grid (4 Groups × 3 Ranks = 12 Winner Videos)"}
                         </h4>
                         <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
                           {isKojoCompetition
-                            ? "Upload video files or paste video links for Group C (Class 6-8) rank winners."
+                            ? "Upload Word (.doc/.docx), PDF (.pdf), TXT (.txt), or Image files for Group C (Class 6-8) rank winners. (Videos are not allowed)"
                             : "Upload video files or paste video links for each group's 1st, 2nd, and 3rd rank winners."}
                         </p>
                       </div>
@@ -4517,11 +4928,17 @@ export default function AdminCompetitionManager() {
                                       <div style={{ flex: 1, minWidth: "200px", display: "flex", gap: "6px" }}>
                                         <input
                                           type="file"
-                                          accept="video/*"
+                                          accept={isKojoCompetition ? ".doc,.docx,.pdf,.txt,image/*" : "video/*"}
                                           disabled={uploadingVideo}
                                           onChange={(e) => {
                                             if (e.target.files && e.target.files[0]) {
-                                              handleBatchFileUpload(e.target.files[0], item.originalIndex);
+                                              const f = e.target.files[0];
+                                              if (isKojoCompetition && (f.type.startsWith("video/") || f.name.match(/\.(mp4|mov|avi|mkv|3gp|webm|wmv|flv)$/i))) {
+                                                setMsg("⚠️ Video files are NOT allowed for Kojo Competition! Please select a Word (.doc/.docx), PDF (.pdf), TXT (.txt), or Image file.");
+                                                e.target.value = "";
+                                                return;
+                                              }
+                                              handleBatchFileUpload(f, item.originalIndex);
                                             }
                                           }}
                                           style={{ flex: 1, padding: "4px 8px", fontSize: "12px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: "6px" }}
@@ -4532,11 +4949,16 @@ export default function AdminCompetitionManager() {
                                         <input
                                           type="text"
                                           className="admin-sc-input"
-                                          placeholder="Or paste video URL..."
+                                          placeholder={isKojoCompetition ? "Or paste Word, PDF, TXT or Image link / Drive URL..." : "Or paste video URL..."}
                                           value={item.videoUrl}
                                           onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (isKojoCompetition && (val.includes("youtube.com") || val.includes("youtu.be") || val.match(/\.(mp4|mov|avi|mkv|3gp|webm|wmv|flv)(\?|$)/i))) {
+                                              setMsg("⚠️ Video links are NOT allowed for Kojo Competition! Please enter a link to a Word document, PDF, TXT file, or Image.");
+                                              return;
+                                            }
                                             const updated = [...batchWinners];
-                                            updated[item.originalIndex].videoUrl = e.target.value;
+                                            updated[item.originalIndex].videoUrl = val;
                                             setBatchWinners(updated);
                                           }}
                                           style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
@@ -4665,11 +5087,81 @@ export default function AdminCompetitionManager() {
                                     marginTop: "14px",
                                     display: "flex",
                                     flexDirection: "column",
-                                    gap: "10px",
+                                    gap: "12px",
                                     borderTop: "1.5px dashed #fde68a",
                                     paddingTop: "14px",
                                   }}
                                 >
+                                  {/* WEBSITE VISIBILITY TOGGLE CARD */}
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "space-between",
+                                      background: consolationShowOnWeb[groupName] ? "#f0fdf4" : "#fef2f2",
+                                      border: consolationShowOnWeb[groupName] ? "1.5px solid #22c55e" : "1.5px solid #ef4444",
+                                      borderRadius: "10px",
+                                      padding: "12px 16px",
+                                      cursor: "pointer",
+                                      userSelect: "none",
+                                      boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                                      transition: "all 0.2s ease"
+                                    }}
+                                    onClick={() =>
+                                      setConsolationShowOnWeb({
+                                        ...consolationShowOnWeb,
+                                        [groupName]: !consolationShowOnWeb[groupName],
+                                      })
+                                    }
+                                  >
+                                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                      <span style={{ fontSize: "20px" }}>
+                                        {consolationShowOnWeb[groupName] ? "🌐" : "🔒"}
+                                      </span>
+                                      <div>
+                                        <div style={{ fontWeight: "800", fontSize: "13.5px", color: consolationShowOnWeb[groupName] ? "#15803d" : "#b91c1c" }}>
+                                          Show Consolation Winners on Public Website?
+                                        </div>
+                                        <div style={{ fontSize: "11.5px", color: consolationShowOnWeb[groupName] ? "#166534" : "#991b1b", marginTop: "2px" }}>
+                                          {consolationShowOnWeb[groupName]
+                                            ? "✓ Status: VISIBLE ON WEBSITE — Users will see these consolation winners on the public website."
+                                            : "✗ Status: HIDDEN FROM WEBSITE — Winners will be saved in Admin records only, NOT visible on the public website."}
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Toggle Pill */}
+                                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                      <span style={{ fontSize: "11px", fontWeight: "800", color: consolationShowOnWeb[groupName] ? "#16a34a" : "#dc2626" }}>
+                                        {consolationShowOnWeb[groupName] ? "VISIBLE" : "HIDDEN"}
+                                      </span>
+                                      <div
+                                        style={{
+                                          position: "relative",
+                                          width: "44px",
+                                          height: "24px",
+                                          borderRadius: "12px",
+                                          backgroundColor: consolationShowOnWeb[groupName] ? "#22c55e" : "#ef4444",
+                                          transition: "background-color 0.25s ease",
+                                        }}
+                                      >
+                                        <div
+                                          style={{
+                                            position: "absolute",
+                                            top: "3px",
+                                            left: consolationShowOnWeb[groupName] ? "23px" : "3px",
+                                            width: "18px",
+                                            height: "18px",
+                                            borderRadius: "50%",
+                                            backgroundColor: "#ffffff",
+                                            boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                                            transition: "left 0.25s ease",
+                                          }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+
                                   {batchWinners
                                     .map((w, idx) => ({ ...w, originalIndex: idx }))
                                     .filter((w) => w.groupCategory === groupName && w.isConsolation)
@@ -4789,11 +5281,17 @@ export default function AdminCompetitionManager() {
                                           <div style={{ flex: 1, minWidth: "200px", display: "flex", gap: "6px" }}>
                                             <input
                                               type="file"
-                                              accept="video/*"
+                                              accept={isKojoCompetition ? ".doc,.docx,.pdf,.txt,image/*" : "video/*"}
                                               disabled={uploadingVideo}
                                               onChange={(e) => {
                                                 if (e.target.files && e.target.files[0]) {
-                                                  handleBatchFileUpload(e.target.files[0], item.originalIndex);
+                                                  const f = e.target.files[0];
+                                                  if (isKojoCompetition && (f.type.startsWith("video/") || f.name.match(/\.(mp4|mov|avi|mkv|3gp|webm|wmv|flv)$/i))) {
+                                                    setMsg("⚠️ Video files are NOT allowed for Kojo Competition! Please select a Word (.doc/.docx), PDF (.pdf), TXT (.txt), or Image file.");
+                                                    e.target.value = "";
+                                                    return;
+                                                  }
+                                                  handleBatchFileUpload(f, item.originalIndex);
                                                 }
                                               }}
                                               style={{ flex: 1, padding: "4px 8px", fontSize: "12px", background: "#fff", border: "1px solid #cbd5e1", borderRadius: "6px" }}
@@ -4804,11 +5302,16 @@ export default function AdminCompetitionManager() {
                                             <input
                                               type="text"
                                               className="admin-sc-input"
-                                              placeholder="Or paste video URL..."
+                                              placeholder={isKojoCompetition ? "Or paste Word, PDF, TXT or Image link / Drive URL..." : "Or paste video URL..."}
                                               value={item.videoUrl}
                                               onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (isKojoCompetition && (val.includes("youtube.com") || val.includes("youtu.be") || val.match(/\.(mp4|mov|avi|mkv|3gp|webm|wmv|flv)(\?|$)/i))) {
+                                                  setMsg("⚠️ Video links are NOT allowed for Kojo Competition! Please enter a link to a Word document, PDF, TXT file, or Image.");
+                                                  return;
+                                                }
                                                 const updated = [...batchWinners];
-                                                updated[item.originalIndex].videoUrl = e.target.value;
+                                                updated[item.originalIndex].videoUrl = val;
                                                 setBatchWinners(updated);
                                               }}
                                               style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
@@ -4837,7 +5340,7 @@ export default function AdminCompetitionManager() {
                     <button
                       type="button"
                       className="admin-sc-btn admin-sc-btn-ghost"
-                      onClick={handleClosePrizeModal}
+                      onClick={handleClosePastVideoModal}
                       style={{ flex: 1, padding: 13 }}
                     >
                       Cancel
@@ -4851,117 +5354,10 @@ export default function AdminCompetitionManager() {
                     </button>
                   </div>
                 </form>
-                );
-              })()}
-
-              {/* TAB 3: EDIT INFORMATION */}
-              {prizeModalTab === "EDIT" && (
-                <div>
-                  {prizeVideosLoading ? (
-                    <p className="admin-sc-empty-note" style={{ padding: "20px 0" }}>
-                      Loading prize distribution videos...
-                    </p>
-                  ) : prizeVideos.length === 0 ? (
-                    <p
-                      className="admin-sc-empty-note"
-                      style={{ padding: "20px 0" }}
-                    >
-                      No prize ceremony videos uploaded yet. Switch to "Add
-                      Video URL" or "Add Past Competition Video" to add one.
-                    </p>
-                  ) : (
-                    <div
-                      className="admin-sc-scroll-thin"
-                      style={{
-                        maxHeight: 340,
-                        overflowY: "auto",
-                        border: "1px solid var(--sc-border)",
-                        borderRadius: 10,
-                      }}
-                    >
-                      <table className="admin-sc-table">
-                        <thead>
-                          <tr>
-                            <th>Type</th>
-                            <th>Competition Name</th>
-                            <th>Category / Group</th>
-                            <th>Rank</th>
-                            <th>Video</th>
-                            <th>Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {prizeVideos.map((v) => (
-                            <tr key={v.id}>
-                              <td className="id-cell nowrap-cell">
-                                {v.isPastCompetition ? (
-                                  <span style={{ background: "#fef3c7", color: "#92400e", padding: "3px 8px", borderRadius: 4, fontWeight: 700, fontSize: 11 }}>
-                                    PAST
-                                  </span>
-                                ) : (
-                                  <span style={{ background: "#e0f2fe", color: "#0369a1", padding: "3px 8px", borderRadius: 4, fontWeight: 700, fontSize: 11 }}>
-                                    ACTIVE
-                                  </span>
-                                )}
-                              </td>
-                              <td className="wrap-cell">{v.competitionName}</td>
-                              <td className="nowrap-cell">
-                                {v.category || v.competitionType}
-                                {v.groupCategory ? ` (${v.groupCategory})` : ""}
-                              </td>
-                              <td className="nowrap-cell" style={{ fontSize: 12 }}>
-                                Rank {v.winnerRank || "-"}
-                              </td>
-                              <td className="nowrap-cell" style={{ textAlign: "center" }}>
-                                {v.videoUrl ? (
-                                  <button
-                                    className="admin-sc-btn-play"
-                                    onClick={() => setPlayingVideoUrl(v.videoUrl)}
-                                  >
-                                    ▶ Play Video
-                                  </button>
-                                ) : "No Video"}
-                              </td>
-                              <td
-                                className="nowrap-cell"
-                                style={{ display: "flex", gap: 8 }}
-                              >
-                                <button
-                                  className="admin-sc-btn admin-sc-btn-warning"
-                                  onClick={() => handleEditPrizeVideo(v)}
-                                  style={{ fontSize: 12 }}
-                                >
-                                  ✏️ Edit
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      marginTop: 18,
-                    }}
-                  >
-                    <button
-                      type="button"
-                      className="admin-sc-btn admin-sc-btn-ghost"
-                      onClick={handleClosePrizeModal}
-                      style={{ padding: "10px 24px" }}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
         {/* REJECT SUBMISSION MODAL WITH REASON PROMPT */}
         {showRejectModal && (
           <div className="admin-sc-modal-overlay" style={{ zIndex: 1200 }}>
@@ -5169,6 +5565,74 @@ export default function AdminCompetitionManager() {
                   Close
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+        {/* QUICK ADD NEW CATEGORY MODAL */}
+        {showAddCategoryModal && (
+          <div className="admin-sc-modal-overlay" style={{ zIndex: 1200 }}>
+            <div className="admin-sc-modal" style={{ maxWidth: 450, padding: "28px 24px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--sc-navy)" }}>
+                  ➕ Add New Category
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddCategoryModal(false);
+                    setNewCategoryModalInput("");
+                  }}
+                  style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "#64748b" }}
+                >
+                  &times;
+                </button>
+              </div>
+              <p style={{ fontSize: "13px", color: "#64748b", marginBottom: 16 }}>
+                Add a new competition category. It will immediately appear in all competition dropdowns.
+              </p>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const val = newCategoryModalInput.trim();
+                  if (val) {
+                    if (!categories.includes(val)) {
+                      setCategories([...categories, val]);
+                    }
+                    setMsg(`✓ Category '${val}' added successfully!`);
+                    setShowAddCategoryModal(false);
+                    setNewCategoryModalInput("");
+                  }
+                }}
+              >
+                <div style={{ marginBottom: 18 }}>
+                  <label className="admin-sc-field-label">Category Name *</label>
+                  <input
+                    type="text"
+                    required
+                    autoFocus
+                    className="admin-sc-input"
+                    value={newCategoryModalInput}
+                    onChange={(e) => setNewCategoryModalInput(e.target.value)}
+                    placeholder="e.g. Art, Quiz, Essay Writing"
+                    style={{ width: "100%", marginTop: 4 }}
+                  />
+                </div>
+                <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+                  <button
+                    type="button"
+                    className="admin-sc-btn admin-sc-btn-ghost"
+                    onClick={() => {
+                      setShowAddCategoryModal(false);
+                      setNewCategoryModalInput("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="admin-sc-btn admin-sc-btn-primary">
+                    + Add Category
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
