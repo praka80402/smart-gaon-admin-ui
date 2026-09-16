@@ -740,6 +740,8 @@ export default function AdminCompetitionManager() {
   };
 
   const [activeTab, setActiveTab] = useState("active");
+  const [pastCurrentPage, setPastCurrentPage] = useState(1);
+  const pastItemsPerPage = 6;
   const [submissions, setSubmissions] = useState([]);
   const [selectedCompetitionFilter, setSelectedCompetitionFilter] =
     useState("NONE");
@@ -1871,6 +1873,7 @@ export default function AdminCompetitionManager() {
             className={`admin-sc-tab-btn ${activeTab === "active" ? "active" : ""}`}
             onClick={() => {
               setActiveTab("active");
+              setPastCurrentPage(1);
               setSelectedCompetitionFilter("NONE");
             }}
           >
@@ -1884,6 +1887,7 @@ export default function AdminCompetitionManager() {
             className={`admin-sc-tab-btn ${activeTab === "upcoming" ? "active" : ""}`}
             onClick={() => {
               setActiveTab("upcoming");
+              setPastCurrentPage(1);
               setSelectedCompetitionFilter("NONE");
             }}
           >
@@ -1897,6 +1901,7 @@ export default function AdminCompetitionManager() {
             className={`admin-sc-tab-btn ${activeTab === "past" ? "active" : ""}`}
             onClick={() => {
               setActiveTab("past");
+              setPastCurrentPage(1);
               setSelectedCompetitionFilter("NONE");
             }}
           >
@@ -1910,6 +1915,7 @@ export default function AdminCompetitionManager() {
             className={`admin-sc-tab-btn ${activeTab === "pastVideos" ? "active" : ""}`}
             onClick={() => {
               setActiveTab("pastVideos");
+              setPastCurrentPage(1);
               setSelectedCompetitionFilter("NONE");
               fetchPrizeVideos();
             }}
@@ -1924,6 +1930,7 @@ export default function AdminCompetitionManager() {
             className={`admin-sc-tab-btn ${activeTab === "ceremonyVideos" ? "active" : ""}`}
             onClick={() => {
               setActiveTab("ceremonyVideos");
+              setPastCurrentPage(1);
               setSelectedCompetitionFilter("NONE");
               fetchPrizeVideos();
             }}
@@ -2097,6 +2104,14 @@ export default function AdminCompetitionManager() {
               return true;
             });
 
+            // Sort latest first (by startDate / createdAt / endDate descending)
+            filteredComps.sort((a, b) => {
+              const dateA = new Date(a.startDate || a.createdAt || a.endDate || 0).getTime();
+              const dateB = new Date(b.startDate || b.createdAt || b.endDate || 0).getTime();
+              if (dateB !== dateA) return dateB - dateA;
+              return String(b.competitionId || '').localeCompare(String(a.competitionId || ''));
+            });
+
             if (filteredComps.length === 0) {
               return (
                 <p className="admin-sc-empty-note">
@@ -2107,231 +2122,309 @@ export default function AdminCompetitionManager() {
               );
             }
 
+            const totalItems = filteredComps.length;
+            const totalPages = Math.max(1, Math.ceil(totalItems / pastItemsPerPage));
+            const validPage = Math.min(pastCurrentPage, totalPages);
+            const startIndex = (validPage - 1) * pastItemsPerPage;
+            const endIndex = Math.min(startIndex + pastItemsPerPage, totalItems);
+            const displayComps = activeTab === "past" ? filteredComps.slice(startIndex, endIndex) : filteredComps;
+
             return (
-              <div className="admin-sc-card-grid">
-                {filteredComps.map((c) => {
-                  const isSelected =
-                    selectedCompetitionFilter === c.competitionId;
-                  const isCompleted = !c.isLive || c.status === "COMPLETED";
-                  const submissionCount = submissions.filter(
-                    (s) => s.competitionId === c.competitionId,
-                  ).length;
+              <>
+                <div className="admin-sc-card-grid">
+                  {displayComps.map((c) => {
+                    const isSelected =
+                      selectedCompetitionFilter === c.competitionId;
+                    const isCompleted = !c.isLive || c.status === "COMPLETED";
+                    const submissionCount = submissions.filter(
+                      (s) => s.competitionId === c.competitionId,
+                    ).length;
 
-                  return (
-                    <div
-                      key={c.competitionId}
-                      className={`admin-sc-comp-card ${statusClass(c)} ${isSelected ? "selected" : ""}`}
-                    >
-                      {/* CARD HEADER */}
-                      <div>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            marginBottom: 12,
-                          }}
-                        >
-                          <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-                            <span className="admin-sc-id-tag">
-                              {c.competitionId}
-                            </span>
-                            <span
-                              style={{
-                                backgroundColor: "rgba(108, 92, 231, 0.1)",
-                                color: "rgb(108, 92, 231)",
-                                padding: "3px 8px",
-                                borderRadius: "4px",
-                                fontSize: "11px",
-                                fontWeight: "bold",
-                                textTransform: "uppercase",
-                                border: "1px solid rgba(108, 92, 231, 0.2)"
-                              }}
-                            >
-                              🏷️ {c.category || "General"}
-                            </span>
-                          </div>
-                          <span
-                            className={`admin-sc-badge ${c.isLive ? "live" : "ended"}`}
-                          >
-                            {c.isLive ? "● LIVE" : "● ENDED"}
-                          </span>
-                        </div>
-
-                        <h4
-                          style={{
-                            fontFamily: "var(--sc-font-display)",
-                            fontSize: 18,
-                            fontWeight: 600,
-                            color: "var(--sc-ink)",
-                            margin: "0 0 12px 0",
-                            lineHeight: 1.3,
-                          }}
-                        >
-                          {c.title}
-                        </h4>
-
-                        {/* COMPETITION METADATA METRICS */}
-                        <div
-                          style={{
-                            display: "flex",
-                            flexWrap: "wrap",
-                            gap: 8,
-                            marginBottom: 16,
-                          }}
-                        >
-                          <div className="admin-sc-meta-chip">
-                            🏫{" "}
-                            <strong style={{ color: "var(--sc-ink)" }}>
-                              {c.participatingSchools &&
-                              c.participatingSchools.length > 0
-                                ? c.participatingSchools.length
-                                : Array.from(
-                                    new Set(
-                                      submissions
-                                        .filter(
-                                          (s) =>
-                                            s.competitionId ===
-                                              c.competitionId && s.schoolName,
-                                        )
-                                        .map((s) =>
-                                          s.schoolName.trim().toLowerCase(),
-                                        ),
-                                    ),
-                                  ).length}
-                            </strong>{" "}
-                            Schools
-                          </div>
-                          <div className="admin-sc-meta-chip">
-                            🔑{" "}
-                            <span
-                              className="admin-sc-stamp"
-                              style={{ color: "var(--sc-navy)" }}
-                            >
-                              {c.verificationCode}
-                            </span>
-                          </div>
-                          <div
-                            className={`admin-sc-meta-chip ${c.winnerAnnouncementMode === "AUTOMATIC" ? "mode-auto" : "mode-manual"}`}
-                          >
-                            ⚡ {c.winnerAnnouncementMode}
-                          </div>
-                          <div className="admin-sc-meta-chip">
-                            📅 {toDateInputValue(c.startDate) || "—"} →{" "}
-                            {toDateInputValue(c.endDate) || "—"}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* CARD ACTION BUTTONS */}
+                    return (
                       <div
-                        style={{
-                          paddingTop: 14,
-                          borderTop: "1px solid var(--sc-border)",
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 10,
-                          marginTop: "auto",
-                        }}
+                        key={c.competitionId}
+                        className={`admin-sc-comp-card ${statusClass(c)} ${isSelected ? "selected" : ""}`}
                       >
-                        {/* SELECT & VIEW SUBMISSIONS PRIMARY BUTTON */}
-                        <button
-                          className="admin-sc-btn"
-                          onClick={() => {
-                            setSelectedCompetitionFilter(c.competitionId);
-                            setSelectedGroupFilter("ALL");
-                            setTimeout(() => {
-                              const subSection = document.getElementById(
-                                "student-submissions-section",
-                              );
-                              if (subSection)
-                                subSection.scrollIntoView({
-                                  behavior: "smooth",
-                                });
-                            }, 50);
-                          }}
-                          style={{
-                            width: "100%",
-                            padding: "10px",
-                            backgroundColor: isSelected
-                              ? "var(--sc-green)"
-                              : "var(--sc-navy)",
-                            color: "#fff",
-                            fontSize: 13,
-                            borderRadius: 8,
-                            boxShadow: isSelected
-                              ? "0 6px 16px -6px rgba(47,143,91,0.5)"
-                              : "none",
-                          }}
-                        >
-                          📥 View Submissions ({submissionCount})
-                        </button>
-
-                        {/* EDIT, DELETE, TOGGLE LIVE BUTTONS GROUP */}
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: 8,
-                            justifyContent: "space-between",
-                          }}
-                        >
+                        {/* CARD HEADER */}
+                        <div>
                           <div
                             style={{
-                              display: "inline-flex",
-                              borderRadius: 8,
-                              overflow: "hidden",
-                              border: "1px solid var(--sc-border)",
-                              flex: 1,
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              marginBottom: 12,
                             }}
                           >
-                            <button
-                              className="admin-sc-btn admin-sc-btn-warning"
-                              onClick={() => handleOpenEdit(c)}
-                              title="Edit Competition"
-                              style={{ flex: 1, fontSize: 12 }}
+                            <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+                              <span className="admin-sc-id-tag">
+                                {c.competitionId}
+                              </span>
+                              <span
+                                style={{
+                                  backgroundColor: "rgba(108, 92, 231, 0.1)",
+                                  color: "rgb(108, 92, 231)",
+                                  padding: "3px 8px",
+                                  borderRadius: "4px",
+                                  fontSize: "11px",
+                                  fontWeight: "bold",
+                                  textTransform: "uppercase",
+                                  border: "1px solid rgba(108, 92, 231, 0.2)"
+                                }}
+                              >
+                                🏷️ {c.category || "General"}
+                              </span>
+                            </div>
+                            <span
+                              className={`admin-sc-badge ${c.isLive ? "live" : "ended"}`}
                             >
-                              ✏️ Edit
-                            </button>
-                            <button
-                              className="admin-sc-btn admin-sc-btn-danger"
-                              onClick={() => handleDeleteCompetition(c)}
-                              disabled={isCompleted}
-                              title={
-                                isCompleted
-                                  ? "Over/Completed competitions cannot be deleted"
-                                  : "Delete competition"
-                              }
-                              style={{
-                                flex: 1,
-                                fontSize: 12,
-                                borderLeft: "1px solid var(--sc-border)",
-                              }}
-                            >
-                              🗑️ Delete
-                            </button>
+                              {c.isLive ? "● LIVE" : "● ENDED"}
+                            </span>
                           </div>
 
+                          <h4
+                            style={{
+                              fontFamily: "var(--sc-font-display)",
+                              fontSize: 18,
+                              fontWeight: 600,
+                              color: "var(--sc-ink)",
+                              margin: "0 0 12px 0",
+                              lineHeight: 1.3,
+                            }}
+                          >
+                            {c.title}
+                          </h4>
+
+                          {/* COMPETITION METADATA METRICS */}
+                          <div
+                            style={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: 8,
+                              marginBottom: 16,
+                            }}
+                          >
+                            <div className="admin-sc-meta-chip">
+                              🏫{" "}
+                              <strong style={{ color: "var(--sc-ink)" }}>
+                                {c.participatingSchools &&
+                                c.participatingSchools.length > 0
+                                  ? c.participatingSchools.length
+                                  : Array.from(
+                                      new Set(
+                                        submissions
+                                          .filter(
+                                            (s) =>
+                                              s.competitionId ===
+                                                c.competitionId && s.schoolName,
+                                          )
+                                          .map((s) =>
+                                            s.schoolName.trim().toLowerCase(),
+                                          ),
+                                      ),
+                                    ).length}
+                              </strong>{" "}
+                              Schools
+                            </div>
+                            <div className="admin-sc-meta-chip">
+                              🔑{" "}
+                              <span
+                                className="admin-sc-stamp"
+                                style={{ color: "var(--sc-navy)" }}
+                              >
+                                {c.verificationCode}
+                              </span>
+                            </div>
+                            <div
+                              className={`admin-sc-meta-chip ${c.winnerAnnouncementMode === "AUTOMATIC" ? "mode-auto" : "mode-manual"}`}
+                            >
+                              ⚡ {c.winnerAnnouncementMode}
+                            </div>
+                            <div className="admin-sc-meta-chip">
+                              📅 {toDateInputValue(c.startDate) || "—"} →{" "}
+                              {toDateInputValue(c.endDate) || "—"}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* CARD ACTION BUTTONS */}
+                        <div
+                          style={{
+                            paddingTop: 14,
+                            borderTop: "1px solid var(--sc-border)",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 10,
+                            marginTop: "auto",
+                          }}
+                        >
+                          {/* SELECT & VIEW SUBMISSIONS PRIMARY BUTTON */}
                           <button
                             className="admin-sc-btn"
-                            onClick={() => toggleLiveStatus(c)}
+                            onClick={() => {
+                              setSelectedCompetitionFilter(c.competitionId);
+                              setSelectedGroupFilter("ALL");
+                              setTimeout(() => {
+                                const subSection = document.getElementById(
+                                  "student-submissions-section",
+                                );
+                                if (subSection)
+                                  subSection.scrollIntoView({
+                                    behavior: "smooth",
+                                  });
+                              }, 50);
+                            }}
                             style={{
-                              padding: "8px 14px",
-                              backgroundColor: c.isLive
-                                ? "var(--sc-ink-soft)"
-                                : "var(--sc-green)",
+                              width: "100%",
+                              padding: "10px",
+                              backgroundColor: isSelected
+                                ? "var(--sc-green)"
+                                : "var(--sc-navy)",
                               color: "#fff",
+                              fontSize: 13,
                               borderRadius: 8,
-                              fontSize: 12,
+                              boxShadow: isSelected
+                                ? "0 6px 16px -6px rgba(47,143,91,0.5)"
+                                : "none",
                             }}
                           >
-                            {c.isLive ? "End" : "Make Live"}
+                            📥 View Submissions ({submissionCount})
                           </button>
+
+                          {/* EDIT, DELETE, TOGGLE LIVE BUTTONS GROUP */}
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: 8,
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: "inline-flex",
+                                borderRadius: 8,
+                                overflow: "hidden",
+                                border: "1px solid var(--sc-border)",
+                                flex: 1,
+                              }}
+                            >
+                              <button
+                                className="admin-sc-btn admin-sc-btn-warning"
+                                onClick={() => handleOpenEdit(c)}
+                                title="Edit Competition"
+                                style={{ flex: 1, fontSize: 12 }}
+                              >
+                                ✏️ Edit
+                              </button>
+                              <button
+                                className="admin-sc-btn admin-sc-btn-danger"
+                                onClick={() => handleDeleteCompetition(c)}
+                                disabled={isCompleted}
+                                title={
+                                  isCompleted
+                                    ? "Over/Completed competitions cannot be deleted"
+                                    : "Delete competition"
+                                }
+                                style={{
+                                  flex: 1,
+                                  fontSize: 12,
+                                  borderLeft: "1px solid var(--sc-border)",
+                                }}
+                              >
+                                🗑️ Delete
+                              </button>
+                            </div>
+
+                            <button
+                              className="admin-sc-btn"
+                              onClick={() => toggleLiveStatus(c)}
+                              style={{
+                                padding: "8px 14px",
+                                backgroundColor: c.isLive
+                                  ? "var(--sc-ink-soft)"
+                                  : "var(--sc-green)",
+                                color: "#fff",
+                                borderRadius: 8,
+                                fontSize: 12,
+                              }}
+                            >
+                              {c.isLive ? "End" : "Make Live"}
+                            </button>
+                          </div>
                         </div>
                       </div>
+                    );
+                  })}
+                </div>
+
+                {/* PAGINATION BAR FOR PAST TAB */}
+                {activeTab === "past" && totalItems > 0 && (
+                  <div className="prize-ceremony-pagination-bar" style={{ marginTop: 24 }}>
+                    <div style={{ fontSize: "13px", fontWeight: "600", color: "#64748b" }}>
+                      Showing <strong>{startIndex + 1}</strong>–<strong>{endIndex}</strong> of <strong>{totalItems}</strong> past competitions
+                      {totalPages > 1 && (
+                        <span style={{ marginLeft: "8px", color: "#94a3b8", fontWeight: "500" }}>
+                          (Page {validPage} of {totalPages})
+                        </span>
+                      )}
                     </div>
-                  );
-                })}
-              </div>
+                    {totalPages > 1 && (
+                      <div className="prize-ceremony-pagination-controls">
+                        <button
+                          type="button"
+                          className="prize-ceremony-page-btn"
+                          disabled={validPage <= 1}
+                          onClick={() => setPastCurrentPage(1)}
+                        >
+                          «
+                        </button>
+                        <button
+                          type="button"
+                          className="prize-ceremony-page-btn"
+                          disabled={validPage <= 1}
+                          onClick={() => setPastCurrentPage((p) => Math.max(1, p - 1))}
+                        >
+                          ‹ Prev
+                        </button>
+
+                        {Array.from({ length: totalPages }, (_, i) => i + 1)
+                          .filter((p) => p === 1 || p === totalPages || Math.abs(p - validPage) <= 2)
+                          .map((p, idx, arr) => {
+                            const prev = arr[idx - 1];
+                            return (
+                              <React.Fragment key={p}>
+                                {prev && p - prev > 1 && <span style={{ padding: "0 4px", color: "#94a3b8" }}>...</span>}
+                                <button
+                                  type="button"
+                                  className={`prize-ceremony-page-btn ${validPage === p ? "active" : ""}`}
+                                  onClick={() => setPastCurrentPage(p)}
+                                >
+                                  {p}
+                                </button>
+                              </React.Fragment>
+                            );
+                          })}
+
+                        <button
+                          type="button"
+                          className="prize-ceremony-page-btn"
+                          disabled={validPage >= totalPages}
+                          onClick={() => setPastCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        >
+                          Next ›
+                        </button>
+                        <button
+                          type="button"
+                          className="prize-ceremony-page-btn"
+                          disabled={validPage >= totalPages}
+                          onClick={() => setPastCurrentPage(totalPages)}
+                        >
+                          »
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
             );
           })()}
         </div>
