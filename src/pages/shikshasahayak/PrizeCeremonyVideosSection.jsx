@@ -97,11 +97,9 @@ const PrizeCeremonyVideosSection = ({
     (selectedCategory !== "" && selectedCategory !== "ALL") ||
     (searchQuery.trim() !== "");
 
-  // Filtered ceremony videos
+  // Filtered ceremony videos sorted latest first
   const filteredVideos = useMemo(() => {
-    if (!isFilterActive) return [];
-
-    return ceremonyVideos.filter((v) => {
+    const list = ceremonyVideos.filter((v) => {
       // 1. Year Filter
       if (selectedYear !== "" && selectedYear !== "ALL") {
         const vYear = getVideoYear(v);
@@ -145,7 +143,20 @@ const PrizeCeremonyVideosSection = ({
 
       return true;
     });
-  }, [ceremonyVideos, isFilterActive, selectedYear, selectedMonth, selectedCategory, searchQuery, competitions]);
+
+    // Sort latest first (by year, month, date descending)
+    return list.sort((a, b) => {
+      const yearA = Number(getVideoYear(a)) || 0;
+      const yearB = Number(getVideoYear(b)) || 0;
+      if (yearB !== yearA) return yearB - yearA;
+
+      const dateA = new Date(a.createdAt || a.startDate || 0).getTime();
+      const dateB = new Date(b.createdAt || b.startDate || 0).getTime();
+      if (dateB !== dateA) return dateB - dateA;
+
+      return String(b.id || "").localeCompare(String(a.id || ""));
+    });
+  }, [ceremonyVideos, selectedYear, selectedMonth, selectedCategory, searchQuery, competitions]);
 
   const handleYearChange = (val) => {
     setSelectedYear(val);
@@ -315,26 +326,6 @@ const PrizeCeremonyVideosSection = ({
         <div className="prize-ceremony-loader-card" style={{ padding: "36px 20px" }}>
           <h4 className="prize-ceremony-spinner-title" style={{ color: "#2563eb" }}>⏳ Loading Prize Ceremony Videos...</h4>
           <p className="prize-ceremony-spinner-text">Fetching official ceremony videos from database.</p>
-        </div>
-      ) : !isFilterActive ? (
-        /* INITIAL STATE: DO NOT SHOW ANY VIDEO AT START */
-        <div className="prize-ceremony-prompt-card">
-          <div className="prize-ceremony-prompt-icon">🎬</div>
-          <h4 className="prize-ceremony-prompt-title">
-            Select a Filter to View Prize Ceremony Videos
-          </h4>
-          <p className="prize-ceremony-prompt-text">
-            Start by selecting a <strong>Year</strong> or <strong>Month</strong> from the filters above to watch prize ceremony videos.
-          </p>
-          <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
-            <button
-              type="button"
-              className="admin-sc-btn admin-sc-btn-outline"
-              onClick={() => handleYearChange(new Date().getFullYear().toString())}
-            >
-              🗓️ Current Year ({new Date().getFullYear()})
-            </button>
-          </div>
         </div>
       ) : filteredVideos.length === 0 ? (
         /* NO RESULTS MATCHING FILTER */

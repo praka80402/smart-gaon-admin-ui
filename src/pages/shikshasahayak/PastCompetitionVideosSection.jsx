@@ -24,7 +24,7 @@ const PastCompetitionVideosSection = ({
   const [appliedMonthFilter, setAppliedMonthFilter] = useState("ALL");
   const [appliedCategoryFilter, setAppliedCategoryFilter] = useState("ALL");
   const [appliedGroupFilter, setAppliedGroupFilter] = useState("ALL");
-  const [hasAppliedFilter, setHasAppliedFilter] = useState(false);
+  const [hasAppliedFilter, setHasAppliedFilter] = useState(true);
 
   // Pagination state for competitions grid
   const [currentPage, setCurrentPage] = useState(1);
@@ -431,7 +431,17 @@ const PastCompetitionVideosSection = ({
     }
     compMap[compKey].videos.push(v);
   });
-  const groupedComps = Object.values(compMap);
+  const groupedComps = Object.values(compMap).sort((a, b) => {
+    const yearA = Number(a.year) || (a.videos[0]?.startDate ? new Date(a.videos[0].startDate).getFullYear() : 0);
+    const yearB = Number(b.year) || (b.videos[0]?.startDate ? new Date(b.videos[0].startDate).getFullYear() : 0);
+    if (yearB !== yearA) return yearB - yearA;
+
+    const dateA = new Date(a.videos[0]?.startDate || a.videos[0]?.createdAt || 0).getTime();
+    const dateB = new Date(b.videos[0]?.startDate || b.videos[0]?.createdAt || 0).getTime();
+    if (dateB !== dateA) return dateB - dateA;
+
+    return String(b.competitionId || b.competitionName || '').localeCompare(String(a.competitionId || a.competitionName || ''));
+  });
   const totalItems = groupedComps.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
   const validCurrentPage = Math.min(currentPage, totalPages);
@@ -594,30 +604,6 @@ const PastCompetitionVideosSection = ({
       {/* VIDEOS LIST / TABLE */}
       {prizeVideosLoading ? (
         <p className="admin-sc-empty-note">Loading past competition videos...</p>
-      ) : !hasAppliedFilter ? (
-        <div style={{ textAlign: "center", padding: "60px 24px", background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)", borderRadius: "16px", border: "2px dashed #cbd5e1", margin: "10px 0 30px 0" }}>
-          <div style={{ fontSize: "48px", marginBottom: "14px" }}>🔍</div>
-          <h4 style={{ fontSize: "19px", fontWeight: "700", color: "#1e293b", margin: "0 0 8px 0" }}>
-            Select a Filter to View Past Videos
-          </h4>
-          <p style={{ fontSize: "14px", color: "#64748b", margin: "0 auto 18px auto", maxWidth: "480px", lineHeight: "1.5" }}>
-            Please choose a <strong>Year</strong> or <strong>Month</strong> from the filters above and click <strong>Search</strong> to display uploaded competition videos.
-          </p>
-          <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
-            <button
-              type="button"
-              className="admin-sc-btn admin-sc-btn-outline"
-              onClick={() => {
-                const curYr = new Date().getFullYear().toString();
-                setAdminVideoYearFilter(curYr);
-                setAppliedYearFilter(curYr);
-                setHasAppliedFilter(true);
-              }}
-            >
-              🗓️ Current Year ({new Date().getFullYear()})
-            </button>
-          </div>
-        </div>
       ) : filteredList.length === 0 ? (
         <p className="admin-sc-empty-note" style={{ padding: "30px 0" }}>
           No past videos match the selected filters.
