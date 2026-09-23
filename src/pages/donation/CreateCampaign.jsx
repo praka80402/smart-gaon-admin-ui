@@ -65,7 +65,11 @@ const CreateCampaign = () => {
       formData.append("title", form.title.trim());
       formData.append("description", form.description.trim());
       formData.append("type", form.type);
-      formData.append("targetAmount", form.targetAmount);
+      
+      // Backend requires targetAmount > 0 (0 causes validation/division-by-zero error). Send 1 if 0 is entered.
+      const targetVal = Number(form.targetAmount);
+      const targetAmountToSend = (!targetVal || targetVal <= 0) ? 1 : targetVal;
+      formData.append("targetAmount", targetAmountToSend);
 
       if (scope === "ALL") {
         formData.append("state", "ALL");
@@ -81,11 +85,7 @@ const CreateCampaign = () => {
 
       if (image) formData.append("image", image);
 
-      await api.post("/admin/donation/campaign", formData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`
-        }
-      });
+      await api.post("/admin/donation/campaign", formData);
 
       alert("Campaign Created Successfully ✅");
 
@@ -247,6 +247,7 @@ const CreateCampaign = () => {
               placeholder="Enter Target Amount"
               value={form.targetAmount}
               onChange={handleChange}
+              min="0"
               required
             />
           </div>
