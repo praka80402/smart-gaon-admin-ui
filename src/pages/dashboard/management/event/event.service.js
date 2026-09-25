@@ -2,15 +2,17 @@ import axios from "axios";
 
 const BASE_URL =
   "https://smartgaonadmin.duckdns.org/api/admin/sg-events";
+  //"http://localhost:9090/api/admin/sg-events";
+
+const getToken = () =>
+  localStorage.getItem("adminToken") || sessionStorage.getItem("adminToken");
 
 // ======================
 // GET ALL EVENTS
 // ======================
 export const getEvents = async () => {
   try {
-
-    const token =
-      localStorage.getItem("adminToken");
+    const token = getToken();
 
     const res = await axios.get(
       BASE_URL,
@@ -28,14 +30,12 @@ export const getEvents = async () => {
     );
 
   } catch (error) {
-
     console.error(
       "Get Events Error:",
       error
     );
 
     return [];
-
   }
 };
 
@@ -44,13 +44,8 @@ export const getEvents = async () => {
 // ======================
 export const getEventsBySection =
   async (sectionType) => {
-
     try {
-
-      const token =
-        localStorage.getItem(
-          "adminToken"
-        );
+      const token = getToken();
 
       const res =
         await axios.get(
@@ -69,16 +64,13 @@ export const getEventsBySection =
       );
 
     } catch (error) {
-
       console.error(
         "Section Filter Error:",
         error
       );
 
       return [];
-
     }
-
   };
 
 // ======================
@@ -86,13 +78,8 @@ export const getEventsBySection =
 // ======================
 export const createEvent =
   async (formData) => {
-
     try {
-
-      const token =
-        localStorage.getItem(
-          "adminToken"
-        );
+      const token = getToken();
 
       const res =
         await axios.post(
@@ -110,16 +97,13 @@ export const createEvent =
       return res.data;
 
     } catch (error) {
-
       console.error(
         "Create Event Error:",
         error
       );
 
       throw error;
-
     }
-
   };
 
 // ======================
@@ -127,13 +111,8 @@ export const createEvent =
 // ======================
 export const updateEvent =
   async (id, formData) => {
-
     try {
-
-      const token =
-        localStorage.getItem(
-          "adminToken"
-        );
+      const token = getToken();
 
       const res =
         await axios.put(
@@ -151,16 +130,13 @@ export const updateEvent =
       return res.data;
 
     } catch (error) {
-
       console.error(
         "Update Event Error:",
         error
       );
 
       throw error;
-
     }
-
   };
 
 // ======================
@@ -168,13 +144,8 @@ export const updateEvent =
 // ======================
 export const deleteEvent =
   async (id) => {
-
     try {
-
-      const token =
-        localStorage.getItem(
-          "adminToken"
-        );
+      const token = getToken();
 
       const res =
         await axios.delete(
@@ -189,16 +160,13 @@ export const deleteEvent =
       return res.data;
 
     } catch (error) {
-
       console.error(
         "Delete Event Error:",
         error
       );
 
       throw error;
-
     }
-
   };
 
 // ======================
@@ -206,13 +174,8 @@ export const deleteEvent =
 // ======================
 export const getEventById =
   async (id) => {
-
     try {
-
-      const token =
-        localStorage.getItem(
-          "adminToken"
-        );
+      const token = getToken();
 
       const res =
         await axios.get(
@@ -230,14 +193,11 @@ export const getEventById =
       );
 
     } catch (error) {
-
       console.error(
         "Get Event By Id Error:",
         error
       );
 
       return null;
-
     }
-
   };

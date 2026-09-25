@@ -1,6 +1,6 @@
 import { api } from "../pages/gaonconnect/services/apiConfig"
           const BASE = "https://smartgaonadmin.duckdns.org/admin";
- //const BASE = "http://localhost:9090/admin";
+// const BASE = "http://localhost:9090/admin";
 
 const LOGIN_URL = `${BASE}/login`;
 const USERS_URL = `${BASE}/users`;

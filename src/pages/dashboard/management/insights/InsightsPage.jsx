@@ -84,6 +84,20 @@ const InsightsPage = () => {
         <button onClick={handleSubmit}>
           {editId ? "Update" : "Add"}
         </button>
+
+        {editId && (
+          <button
+            type="button"
+            className="cancel-btn"
+            onClick={() => {
+              setEditId(null);
+              setName("");
+              setCount("");
+            }}
+          >
+            Cancel
+          </button>
+        )}
       </div>
 
       {/* 🔹 CARDS */}
