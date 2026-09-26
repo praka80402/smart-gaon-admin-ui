@@ -864,90 +864,114 @@ const PastCompetitionVideosSection = ({
                   </div>
                 </div>
 
-                {/* GROUP FILTER CHIPS INSIDE MODAL */}
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center", marginBottom: "20px", background: "#f8fafc", padding: "12px 16px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
-                  <span style={{ fontSize: "13px", fontWeight: "700", color: "#475569", marginRight: "4px" }}>
-                    📁 Filter by Group:
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setModalGroupFilter("ALL")}
-                    style={{
-                      padding: "6px 12px",
-                      borderRadius: "8px",
-                      fontSize: "12px",
-                      fontWeight: "700",
-                      cursor: "pointer",
-                      border: modalGroupFilter === "ALL" ? "2px solid #2563eb" : "1px solid #cbd5e1",
-                      background: modalGroupFilter === "ALL" ? "#2563eb" : "#ffffff",
-                      color: modalGroupFilter === "ALL" ? "#ffffff" : "#334155",
-                    }}
-                  >
-                    All Groups ({selectedCompetitionModal.videos.length})
-                  </button>
-                  {[
-                    { id: "Group A", name: "Group A (Class 1-2)" },
-                    { id: "Group B", name: "Group B (Class 3-5)" },
-                    { id: "Group C", name: "Group C (Class 6-8)" },
-                    { id: "Group D", name: "Group D (Class 9-12)" },
-                    { id: "Consolation", name: "🎁 Consolation" },
-                  ].map((grp) => {
-                    const count = selectedCompetitionModal.videos.filter((v) => {
-                      const cat = v.groupCategory || "";
-                      return cat.toLowerCase().includes(grp.id.toLowerCase());
-                    }).length;
-                    if (count === 0) return null;
-                    const isSel = modalGroupFilter === grp.id;
-                    return (
-                      <button
-                        key={grp.id}
-                        type="button"
-                        onClick={() => setModalGroupFilter(isSel ? "ALL" : grp.id)}
-                        style={{
-                          padding: "6px 12px",
-                          borderRadius: "8px",
-                          fontSize: "12px",
-                          fontWeight: "700",
-                          cursor: "pointer",
-                          border: isSel ? "2px solid #2563eb" : "1px solid #cbd5e1",
-                          background: isSel ? "#2563eb" : "#ffffff",
-                          color: isSel ? "#ffffff" : "#334155",
-                        }}
-                      >
-                        {grp.name} ({count})
-                      </button>
-                    );
-                  })}
-                </div>
+                {/* GROUP / CLASS FILTER CHIPS INSIDE MODAL */}
+                {(() => {
+                  const isKojoModal = Boolean(
+                    (selectedCompetitionModal.category && selectedCompetitionModal.category.toLowerCase().includes("kojo")) ||
+                    (selectedCompetitionModal.competitionName && selectedCompetitionModal.competitionName.toLowerCase().includes("kojo")) ||
+                    (selectedCompetitionModal.competitionType && selectedCompetitionModal.competitionType.toLowerCase().includes("kojo"))
+                  );
 
-                {/* Group-Wise Winner Sections */}
-                {[
-                  { id: "Group A", name: "Group A (Class 1-2)", color: "#2563eb", bg: "#eff6ff" },
-                  { id: "Group B", name: "Group B (Class 3-5)", color: "#0d9488", bg: "#ccfbf1" },
-                  { id: "Group C", name: "Group C (Class 6-8)", color: "#4f46e5", bg: "#e0e7ff" },
-                  { id: "Group D", name: "Group D (Class 9-12)", color: "#7c3aed", bg: "#f3e8ff" },
-                  { id: "Consolation", name: "🎁 Consolation Prize Winners", color: "#d97706", bg: "#fef3c7" },
-                ].filter((grp) => modalGroupFilter === "ALL" || modalGroupFilter === grp.id).map((grp) => {
-                  const groupVideos = selectedCompetitionModal.videos.filter((v) => {
-                    const cat = v.groupCategory || "";
-                    return cat.toLowerCase().includes(grp.id.toLowerCase());
-                  });
+                  const modalGroupsList = isKojoModal ? [
+                    { id: "Class 6", name: "Class 6th", titleName: "📘 Class 6th Winners", color: "#0284c7", bg: "#e0f2fe" },
+                    { id: "Class 7", name: "Class 7th", titleName: "📘 Class 7th Winners", color: "#0d9488", bg: "#ccfbf1" },
+                    { id: "Class 8", name: "Class 8th", titleName: "📘 Class 8th Winners", color: "#4f46e5", bg: "#e0e7ff" },
+                    { id: "Consolation", name: "🎁 Consolation", titleName: "🎁 Consolation Prize Winners", color: "#d97706", bg: "#fef3c7" },
+                  ] : [
+                    { id: "Group A", name: "Group A (Class 1-2)", titleName: "🌱 Group A (Class 1-2)", color: "#2563eb", bg: "#eff6ff" },
+                    { id: "Group B", name: "Group B (Class 3-5)", titleName: "🌿 Group B (Class 3-5)", color: "#0d9488", bg: "#ccfbf1" },
+                    { id: "Group C", name: "Group C (Class 6-8)", titleName: "📘 Group C (Class 6-8)", color: "#4f46e5", bg: "#e0e7ff" },
+                    { id: "Group D", name: "Group D (Class 9-12)", titleName: "🎓 Group D (Class 9-12)", color: "#7c3aed", bg: "#f3e8ff" },
+                    { id: "Consolation", name: "🎁 Consolation", titleName: "🎁 Consolation Prize Winners", color: "#d97706", bg: "#fef3c7" },
+                  ];
 
-                  if (groupVideos.length === 0) return null;
+                  const getVideosForGroup = (grpId) => {
+                    return selectedCompetitionModal.videos.filter((v) => {
+                      const gCat = (v.groupCategory || "").toLowerCase();
+                      const sClass = (v.studentClass || "").toLowerCase();
+                      const isConsol = Boolean(v.isConsolation) || (v.winnerRank && Number(v.winnerRank) > 3) || gCat.includes("consolation");
+
+                      if (grpId === "Consolation") {
+                        return isConsol;
+                      }
+                      if (isConsol) return false;
+
+                      if (isKojoModal) {
+                        if (grpId === "Class 6") return gCat.includes("class 6") || gCat.includes("(class 6)") || gCat.includes("6th") || sClass.includes("6");
+                        if (grpId === "Class 7") return gCat.includes("class 7") || gCat.includes("(class 7)") || gCat.includes("7th") || sClass.includes("7");
+                        if (grpId === "Class 8") return gCat.includes("class 8") || gCat.includes("(class 8)") || gCat.includes("8th") || sClass.includes("8");
+                      }
+
+                      return gCat.includes(grpId.toLowerCase());
+                    });
+                  };
 
                   return (
-                    <div key={grp.id} style={{ marginBottom: "24px", background: "#f8fafc", padding: "18px", borderRadius: "16px", border: "1px solid #e2e8f0" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-                        <h3 style={{ fontSize: "16px", fontWeight: "700", margin: 0, color: grp.color, display: "flex", alignItems: "center", gap: "8px" }}>
-                          🏷️ {grp.name}
-                        </h3>
-                        <span style={{ fontSize: "12px", background: grp.bg, color: grp.color, padding: "3px 10px", borderRadius: "12px", fontWeight: "700" }}>
-                          {groupVideos.length} Winners
+                    <>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center", marginBottom: "20px", background: "#f8fafc", padding: "12px 16px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                        <span style={{ fontSize: "13px", fontWeight: "700", color: "#475569", marginRight: "4px" }}>
+                          📁 Filter by {isKojoModal ? "Class" : "Group"}:
                         </span>
+                        <button
+                          type="button"
+                          onClick={() => setModalGroupFilter("ALL")}
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: "8px",
+                            fontSize: "12px",
+                            fontWeight: "700",
+                            cursor: "pointer",
+                            border: modalGroupFilter === "ALL" ? "2px solid #2563eb" : "1px solid #cbd5e1",
+                            background: modalGroupFilter === "ALL" ? "#2563eb" : "#ffffff",
+                            color: modalGroupFilter === "ALL" ? "#ffffff" : "#334155",
+                          }}
+                        >
+                          All {isKojoModal ? "Classes" : "Groups"} ({selectedCompetitionModal.videos.length})
+                        </button>
+                        {modalGroupsList.map((grp) => {
+                          const count = getVideosForGroup(grp.id).length;
+                          if (count === 0) return null;
+                          const isSel = modalGroupFilter === grp.id;
+                          return (
+                            <button
+                              key={grp.id}
+                              type="button"
+                              onClick={() => setModalGroupFilter(isSel ? "ALL" : grp.id)}
+                              style={{
+                                padding: "6px 12px",
+                                borderRadius: "8px",
+                                fontSize: "12px",
+                                fontWeight: "700",
+                                cursor: "pointer",
+                                border: isSel ? "2px solid #2563eb" : "1px solid #cbd5e1",
+                                background: isSel ? "#2563eb" : "#ffffff",
+                                color: isSel ? "#ffffff" : "#334155",
+                              }}
+                            >
+                              {grp.name} ({count})
+                            </button>
+                          );
+                        })}
                       </div>
 
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
-                        {groupVideos.sort((a, b) => a.winnerRank - b.winnerRank).map((v) => {
+                      {/* Group / Class-Wise Winner Sections */}
+                      {modalGroupsList.filter((grp) => modalGroupFilter === "ALL" || modalGroupFilter === grp.id).map((grp) => {
+                        const groupVideos = getVideosForGroup(grp.id);
+                        if (groupVideos.length === 0) return null;
+
+                        return (
+                          <div key={grp.id} style={{ marginBottom: "24px", background: "#f8fafc", padding: "18px", borderRadius: "16px", border: "1px solid #e2e8f0" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+                              <h3 style={{ fontSize: "16px", fontWeight: "700", margin: 0, color: grp.color, display: "flex", alignItems: "center", gap: "8px" }}>
+                                🏷️ {grp.titleName}
+                              </h3>
+                              <span style={{ fontSize: "12px", background: grp.bg, color: grp.color, padding: "3px 10px", borderRadius: "12px", fontWeight: "700" }}>
+                                {groupVideos.length} Winners
+                              </span>
+                            </div>
+
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
+                              {groupVideos.sort((a, b) => a.winnerRank - b.winnerRank).map((v) => {
                           const isConsol = Boolean(v.isConsolation) || (v.winnerRank && Number(v.winnerRank) > 3) || (v.groupCategory && v.groupCategory.toLowerCase().includes("consolation"));
                           const isWebVisible = v.showOnWeb === true || v.showOnWeb === 1 || String(v.showOnWeb) === "true";
 
@@ -1044,6 +1068,9 @@ const PastCompetitionVideosSection = ({
                     </div>
                   );
                 })}
+              </>
+            );
+          })()}
               </div>
             </div>
           )}
@@ -1104,12 +1131,17 @@ const PastCompetitionVideosSection = ({
                           <>
                             <select
                               className="admin-sc-filter-select"
-                              value={isKojoWinner ? "Group C (Class 6-8)" : (editingWinnerItem.groupCategory || "Group A (Class 1-2)")}
+                              value={isKojoWinner ? (editingWinnerItem.groupCategory && editingWinnerItem.groupCategory.includes("Group C") ? editingWinnerItem.groupCategory : "Group C (Class 6)") : (editingWinnerItem.groupCategory || "Group A (Class 1-2)")}
                               onChange={(e) => setEditingWinnerItem({ ...editingWinnerItem, groupCategory: e.target.value })}
                               style={{ width: "100%", backgroundColor: "#fff" }}
                             >
                               {isKojoWinner ? (
-                                <option value="Group C (Class 6-8)">Group C (Class 6-8)</option>
+                                <>
+                                  <option value="Group C (Class 6)">Group C — Class 6th</option>
+                                  <option value="Group C (Class 7)">Group C — Class 7th</option>
+                                  <option value="Group C (Class 8)">Group C — Class 8th</option>
+                                  <option value="Group C (Class 6-8)">Group C (Class 6-8 Combined)</option>
+                                </>
                               ) : (
                                 <>
                                   <option value="Group A (Class 1-2)">Group A (Class 1-2)</option>
@@ -1122,7 +1154,7 @@ const PastCompetitionVideosSection = ({
                             </select>
                             {isKojoWinner && (
                               <span style={{ fontSize: "11px", color: "#2563eb", marginTop: "4px", display: "block", fontWeight: "600" }}>
-                                ℹ️ Kojo Competition: Only Group C participates (Group A, B, D restricted).
+                                ℹ️ Kojo Competition: Individual class entries for Class 6th, 7th, &amp; 8th.
                               </span>
                             )}
                           </>
@@ -1172,14 +1204,92 @@ const PastCompetitionVideosSection = ({
 
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                     <div className="admin-sc-field-group">
-                      <label className="admin-sc-field-label">Student Name</label>
-                      <input
-                        type="text"
-                        className="admin-sc-input"
-                        value={editingWinnerItem.studentName || ""}
-                        onChange={(e) => setEditingWinnerItem({ ...editingWinnerItem, studentName: e.target.value })}
-                        placeholder="e.g. Rahul Sharma"
-                      />
+                      {(() => {
+                        const namesArray = (editingWinnerItem.studentName || "")
+                          .split(",")
+                          .map(s => s.trimStart());
+                        const currentStudents = namesArray.length > 0 ? namesArray : [""];
+
+                        return (
+                          <>
+                            <label className="admin-sc-field-label">
+                              Student / Group Member Names (1 to 5 Students) *
+                            </label>
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                              {currentStudents.map((name, idx) => (
+                                <div key={idx} style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                                  <span style={{ fontSize: "11px", fontWeight: "700", color: "#64748b", minWidth: "22px" }}>
+                                    #{idx + 1}
+                                  </span>
+                                  <input
+                                    type="text"
+                                    className="admin-sc-input"
+                                    value={name}
+                                    onChange={(e) => {
+                                      const updated = [...currentStudents];
+                                      updated[idx] = e.target.value;
+                                      setEditingWinnerItem({ ...editingWinnerItem, studentName: updated.join(", ") });
+                                    }}
+                                    placeholder={`Student ${idx + 1} Name`}
+                                    style={{ flex: 1 }}
+                                  />
+                                  {currentStudents.length > 1 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const updated = currentStudents.filter((_, i) => i !== idx);
+                                        setEditingWinnerItem({ ...editingWinnerItem, studentName: updated.join(", ") });
+                                      }}
+                                      style={{
+                                        background: "#fee2e2",
+                                        color: "#dc2626",
+                                        border: "none",
+                                        borderRadius: "6px",
+                                        width: "28px",
+                                        height: "28px",
+                                        cursor: "pointer",
+                                        fontSize: "14px",
+                                        fontWeight: "700"
+                                      }}
+                                      title="Remove Student"
+                                    >
+                                      ✕
+                                    </button>
+                                  )}
+                                </div>
+                              ))}
+
+                              {currentStudents.length < 5 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...currentStudents, ""];
+                                    setEditingWinnerItem({ ...editingWinnerItem, studentName: updated.join(", ") });
+                                  }}
+                                  style={{
+                                    marginTop: "4px",
+                                    padding: "6px 12px",
+                                    background: "#eff6ff",
+                                    color: "#2563eb",
+                                    border: "1px dashed #93c5fd",
+                                    borderRadius: "6px",
+                                    cursor: "pointer",
+                                    fontSize: "12px",
+                                    fontWeight: "700",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "4px",
+                                    alignSelf: "flex-start"
+                                  }}
+                                >
+                                  ➕ Add Student ({currentStudents.length}/5)
+                                </button>
+                              )}
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
 
                     <div className="admin-sc-field-group">
@@ -1207,13 +1317,35 @@ const PastCompetitionVideosSection = ({
                     </div>
 
                     <div className="admin-sc-field-group">
-                      <label className="admin-sc-field-label">Roll Number</label>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                        <label className="admin-sc-field-label" style={{ margin: 0 }}>Roll Number</label>
+                        <label style={{ fontSize: "11px", color: "#64748b", cursor: "pointer", display: "flex", alignItems: "center", gap: "3px" }}>
+                          <input
+                            type="checkbox"
+                            checked={Boolean(editingWinnerItem.disableRollNumber) || editingWinnerItem.rollNumber === "N/A" || editingWinnerItem.rollNumber === "Disabled"}
+                            onChange={(e) => {
+                              const isDisabled = e.target.checked;
+                              setEditingWinnerItem({
+                                ...editingWinnerItem,
+                                disableRollNumber: isDisabled,
+                                rollNumber: isDisabled ? "N/A" : "",
+                              });
+                            }}
+                          />
+                          <span>Disable</span>
+                        </label>
+                      </div>
                       <input
                         type="text"
                         className="admin-sc-input"
-                        value={editingWinnerItem.rollNumber || ""}
+                        disabled={Boolean(editingWinnerItem.disableRollNumber) || editingWinnerItem.rollNumber === "N/A" || editingWinnerItem.rollNumber === "Disabled"}
+                        value={(Boolean(editingWinnerItem.disableRollNumber) || editingWinnerItem.rollNumber === "N/A" || editingWinnerItem.rollNumber === "Disabled") ? "N/A" : (editingWinnerItem.rollNumber || "")}
                         onChange={(e) => setEditingWinnerItem({ ...editingWinnerItem, rollNumber: e.target.value })}
-                        placeholder="e.g. 04"
+                        placeholder="e.g. 04 or N/A"
+                        style={{
+                          backgroundColor: (Boolean(editingWinnerItem.disableRollNumber) || editingWinnerItem.rollNumber === "N/A" || editingWinnerItem.rollNumber === "Disabled") ? "#f1f5f9" : "#fff",
+                          color: (Boolean(editingWinnerItem.disableRollNumber) || editingWinnerItem.rollNumber === "N/A" || editingWinnerItem.rollNumber === "Disabled") ? "#94a3b8" : "#0f172a"
+                        }}
                       />
                     </div>
 
@@ -1403,7 +1535,7 @@ const PastCompetitionVideosSection = ({
                           <>
                             <select
                               className="admin-sc-filter-select"
-                              value={isKojo ? "Group C (Class 6-8)" : (newWinnerForm.groupCategory || "Group A (Class 1-2)")}
+                              value={isKojo ? (newWinnerForm.groupCategory && newWinnerForm.groupCategory.includes("Group C") ? newWinnerForm.groupCategory : "Group C (Class 6)") : (newWinnerForm.groupCategory || "Group A (Class 1-2)")}
                               onChange={(e) => {
                                 const cat = e.target.value;
                                 const isC = cat.toLowerCase().includes("consolation") || Number(newWinnerForm.winnerRank) > 3;
@@ -1412,7 +1544,12 @@ const PastCompetitionVideosSection = ({
                               style={{ width: "100%", backgroundColor: "#fff" }}
                             >
                               {isKojo ? (
-                                <option value="Group C (Class 6-8)">Group C (Class 6-8)</option>
+                                <>
+                                  <option value="Group C (Class 6)">Group C — Class 6th</option>
+                                  <option value="Group C (Class 7)">Group C — Class 7th</option>
+                                  <option value="Group C (Class 8)">Group C — Class 8th</option>
+                                  <option value="Group C (Class 6-8)">Group C (Class 6-8 Combined)</option>
+                                </>
                               ) : (
                                 <>
                                   <option value="Group A (Class 1-2)">Group A (Class 1-2)</option>
@@ -1425,7 +1562,7 @@ const PastCompetitionVideosSection = ({
                             </select>
                             {isKojo && (
                               <span style={{ fontSize: "11px", color: "#2563eb", marginTop: "4px", display: "block", fontWeight: "600" }}>
-                                ℹ️ Kojo: Only Group C participates.
+                                ℹ️ Kojo Competition: Individual class entries for Class 6th, 7th, &amp; 8th.
                               </span>
                             )}
                           </>
@@ -1475,15 +1612,93 @@ const PastCompetitionVideosSection = ({
 
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                     <div className="admin-sc-field-group">
-                      <label className="admin-sc-field-label">Student Name *</label>
-                      <input
-                        type="text"
-                        className="admin-sc-input"
-                        value={newWinnerForm.studentName}
-                        onChange={(e) => setNewWinnerForm({ ...newWinnerForm, studentName: e.target.value })}
-                        placeholder="e.g. Ramesh Kumar"
-                        required
-                      />
+                      {(() => {
+                        const namesArray = (newWinnerForm.studentName || "")
+                          .split(",")
+                          .map(s => s.trimStart());
+                        const currentStudents = namesArray.length > 0 ? namesArray : [""];
+
+                        return (
+                          <>
+                            <label className="admin-sc-field-label">
+                              Student / Group Member Names (1 to 5 Students) *
+                            </label>
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                              {currentStudents.map((name, idx) => (
+                                <div key={idx} style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                                  <span style={{ fontSize: "11px", fontWeight: "700", color: "#64748b", minWidth: "22px" }}>
+                                    #{idx + 1}
+                                  </span>
+                                  <input
+                                    type="text"
+                                    className="admin-sc-input"
+                                    value={name}
+                                    onChange={(e) => {
+                                      const updated = [...currentStudents];
+                                      updated[idx] = e.target.value;
+                                      setNewWinnerForm({ ...newWinnerForm, studentName: updated.join(", ") });
+                                    }}
+                                    placeholder={`Student ${idx + 1} Name`}
+                                    required={idx === 0}
+                                    style={{ flex: 1 }}
+                                  />
+                                  {currentStudents.length > 1 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const updated = currentStudents.filter((_, i) => i !== idx);
+                                        setNewWinnerForm({ ...newWinnerForm, studentName: updated.join(", ") });
+                                      }}
+                                      style={{
+                                        background: "#fee2e2",
+                                        color: "#dc2626",
+                                        border: "none",
+                                        borderRadius: "6px",
+                                        width: "28px",
+                                        height: "28px",
+                                        cursor: "pointer",
+                                        fontSize: "14px",
+                                        fontWeight: "700"
+                                      }}
+                                      title="Remove Student"
+                                    >
+                                      ✕
+                                    </button>
+                                  )}
+                                </div>
+                              ))}
+
+                              {currentStudents.length < 5 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...currentStudents, ""];
+                                    setNewWinnerForm({ ...newWinnerForm, studentName: updated.join(", ") });
+                                  }}
+                                  style={{
+                                    marginTop: "4px",
+                                    padding: "6px 12px",
+                                    background: "#eff6ff",
+                                    color: "#2563eb",
+                                    border: "1px dashed #93c5fd",
+                                    borderRadius: "6px",
+                                    cursor: "pointer",
+                                    fontSize: "12px",
+                                    fontWeight: "700",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "4px",
+                                    alignSelf: "flex-start"
+                                  }}
+                                >
+                                  ➕ Add Student ({currentStudents.length}/5)
+                                </button>
+                              )}
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
 
                     <div className="admin-sc-field-group">
@@ -1506,18 +1721,40 @@ const PastCompetitionVideosSection = ({
                         className="admin-sc-input"
                         value={newWinnerForm.studentClass}
                         onChange={(e) => setNewWinnerForm({ ...newWinnerForm, studentClass: e.target.value })}
-                        placeholder="e.g. Class 5"
+                        placeholder="e.g. Class 6th"
                       />
                     </div>
 
                     <div className="admin-sc-field-group">
-                      <label className="admin-sc-field-label">Roll Number</label>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                        <label className="admin-sc-field-label" style={{ margin: 0 }}>Roll Number</label>
+                        <label style={{ fontSize: "11px", color: "#64748b", cursor: "pointer", display: "flex", alignItems: "center", gap: "3px" }}>
+                          <input
+                            type="checkbox"
+                            checked={Boolean(newWinnerForm.disableRollNumber) || newWinnerForm.rollNumber === "N/A" || newWinnerForm.rollNumber === "Disabled"}
+                            onChange={(e) => {
+                              const isDisabled = e.target.checked;
+                              setNewWinnerForm({
+                                ...newWinnerForm,
+                                disableRollNumber: isDisabled,
+                                rollNumber: isDisabled ? "N/A" : "",
+                              });
+                            }}
+                          />
+                          <span>Disable</span>
+                        </label>
+                      </div>
                       <input
                         type="text"
                         className="admin-sc-input"
-                        value={newWinnerForm.rollNumber}
+                        disabled={Boolean(newWinnerForm.disableRollNumber) || newWinnerForm.rollNumber === "N/A" || newWinnerForm.rollNumber === "Disabled"}
+                        value={(Boolean(newWinnerForm.disableRollNumber) || newWinnerForm.rollNumber === "N/A" || newWinnerForm.rollNumber === "Disabled") ? "N/A" : newWinnerForm.rollNumber}
                         onChange={(e) => setNewWinnerForm({ ...newWinnerForm, rollNumber: e.target.value })}
-                        placeholder="e.g. 12"
+                        placeholder="e.g. 12 or N/A"
+                        style={{
+                          backgroundColor: (Boolean(newWinnerForm.disableRollNumber) || newWinnerForm.rollNumber === "N/A" || newWinnerForm.rollNumber === "Disabled") ? "#f1f5f9" : "#fff",
+                          color: (Boolean(newWinnerForm.disableRollNumber) || newWinnerForm.rollNumber === "N/A" || newWinnerForm.rollNumber === "Disabled") ? "#94a3b8" : "#0f172a"
+                        }}
                       />
                     </div>
                   </div>
