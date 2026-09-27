@@ -1136,15 +1136,21 @@ export default function AdminCompetitionManager() {
     const comp = (competitions || []).find((c) => String(c.competitionId) === String(sub.competitionId));
     if (!comp || (comp.winnerAnnouncementMode !== "AUTOMATIC" && comp.winnerAnnouncementMode !== "AUTO")) return null;
 
-    // Filter submissions of the same competition and groupCategory
+    // Ensure submission has been evaluated (must have a valid score > 0)
+    const scoreVal = sub.totalScore !== undefined && sub.totalScore !== null ? sub.totalScore : (sub.score || 0);
+    if (!scoreVal || scoreVal <= 0) return null;
+
+    // Filter submissions of the same competition, groupCategory, AND classGrade with valid scores
     const groupSubs = (submissions || []).filter(
       (s) =>
         String(s.competitionId) === String(sub.competitionId) &&
         (s.groupCategory === sub.groupCategory || !sub.groupCategory) &&
+        (s.classGrade === sub.classGrade || !sub.classGrade) &&
         s.status !== "REJECTED" &&
         s.status !== "DELETED" &&
         s.winnerRank !== 0 &&
-        s.winnerRank !== "0"
+        s.winnerRank !== "0" &&
+        ((s.totalScore !== undefined && s.totalScore !== null && s.totalScore > 0) || (s.score && s.score > 0))
     );
 
     if (groupSubs.length === 0) return null;
@@ -2576,19 +2582,39 @@ export default function AdminCompetitionManager() {
                   })}
                 </select>
 
-                {/* GROUP CATEGORY FILTER DROPDOWN */}
-                <select
-                  className="admin-sc-filter-select"
-                  value={selectedGroupFilter}
-                  onChange={(e) => { setSelectedGroupFilter(e.target.value); setSubPage(1); }}
-                  style={{ minWidth: 155 }}
-                >
-                  <option value="ALL">All Groups</option>
-                  <option value="Group A (Class 1-2)">Group A (Class 1-2)</option>
-                  <option value="Group B (Class 3-5)">Group B (Class 3-5)</option>
-                  <option value="Group C (Class 6-8)">Group C (Class 6-8)</option>
-                  <option value="Group D (Class 9-12)">Group D (Class 9-12)</option>
-                </select>
+                {/* GROUP / CLASS FILTER DROPDOWN */}
+                {(() => {
+                  const selCompObj = competitions.find((c) => c.competitionId === selectedCompetitionFilter);
+                  const isKojoSelected = selCompObj && (
+                    (selCompObj.category && selCompObj.category.toLowerCase().includes("kojo")) ||
+                    (selCompObj.title && selCompObj.title.toLowerCase().includes("kojo"))
+                  );
+
+                  return (
+                    <select
+                      className="admin-sc-filter-select"
+                      value={selectedGroupFilter}
+                      onChange={(e) => { setSelectedGroupFilter(e.target.value); setSubPage(1); }}
+                      style={{ minWidth: 155 }}
+                    >
+                      <option value="ALL">{isKojoSelected ? "All Classes" : "All Groups"}</option>
+                      {isKojoSelected ? (
+                        <>
+                          <option value="Class 6">Class 6</option>
+                          <option value="Class 7">Class 7</option>
+                          <option value="Class 8">Class 8</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="Group A (Class 1-2)">Group A (Class 1-2)</option>
+                          <option value="Group B (Class 3-5)">Group B (Class 3-5)</option>
+                          <option value="Group C (Class 6-8)">Group C (Class 6-8)</option>
+                          <option value="Group D (Class 9-12)">Group D (Class 9-12)</option>
+                        </>
+                      )}
+                    </select>
+                  );
+                })()}
 
                 {/* EXPORT SUBMISSIONS DATA BUTTON */}
                 <button
@@ -2648,7 +2674,7 @@ export default function AdminCompetitionManager() {
 
               if (selectedGroupFilter !== "ALL") {
                 filteredSubmissions = filteredSubmissions.filter(
-                  (s) => s.groupCategory === selectedGroupFilter,
+                  (s) => s.groupCategory === selectedGroupFilter || s.classGrade === selectedGroupFilter,
                 );
               }
 
@@ -3006,14 +3032,14 @@ export default function AdminCompetitionManager() {
                                 }
 
                                 const takenRanks = submissions
-                                  .filter(s => 
-                                    s.competitionId === sub.competitionId && 
-                                    s.groupCategory === sub.groupCategory && 
-                                    s.submissionId !== sub.submissionId && 
-                                    s.winnerRank !== null && 
+                                  .filter((s) =>
+                                    s.competitionId === sub.competitionId &&
+                                    (s.classGrade ? s.classGrade === sub.classGrade : s.groupCategory === sub.groupCategory) &&
+                                    s.submissionId !== sub.submissionId &&
+                                    s.winnerRank !== null &&
                                     s.winnerRank !== undefined
                                   )
-                                  .map(s => String(s.winnerRank));
+                                  .map((s) => String(s.winnerRank));
 
                                 return (
                                   <div
