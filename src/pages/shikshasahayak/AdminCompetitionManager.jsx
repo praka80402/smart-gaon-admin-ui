@@ -832,6 +832,27 @@ export default function AdminCompetitionManager() {
     { groupCategory: "Group C (Class 6-8)", winnerRank: 4, label: "🎁 Group C (Class 6-8) — Consolation #1", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
     { groupCategory: "Group C (Class 6-8)", winnerRank: 5, label: "🎁 Group C (Class 6-8) — Consolation #2", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
     { groupCategory: "Group C (Class 6-8)", winnerRank: 6, label: "🎁 Group C (Class 6-8) — Consolation #3", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "", isConsolation: true },
+
+    { groupCategory: "Group C (Class 6)", winnerRank: 1, label: "🥇 Class 6th — Rank 1 Winner", prizeAmount: "₹ 5,000", videoUrl: "", studentName: "", studentClass: "6", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group C (Class 6)", winnerRank: 2, label: "🥈 Class 6th — Rank 2 Runner-up", prizeAmount: "₹ 3,000", videoUrl: "", studentName: "", studentClass: "6", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group C (Class 6)", winnerRank: 3, label: "🥉 Class 6th — Rank 3 Runner-up", prizeAmount: "₹ 1,000", videoUrl: "", studentName: "", studentClass: "6", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group C (Class 6)", winnerRank: 4, label: "🎁 Class 6th — Consolation #1", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "6", rollNumber: "", schoolName: "", isConsolation: true },
+    { groupCategory: "Group C (Class 6)", winnerRank: 5, label: "🎁 Class 6th — Consolation #2", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "6", rollNumber: "", schoolName: "", isConsolation: true },
+    { groupCategory: "Group C (Class 6)", winnerRank: 6, label: "🎁 Class 6th — Consolation #3", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "6", rollNumber: "", schoolName: "", isConsolation: true },
+
+    { groupCategory: "Group C (Class 7)", winnerRank: 1, label: "🥇 Class 7th — Rank 1 Winner", prizeAmount: "₹ 5,000", videoUrl: "", studentName: "", studentClass: "7", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group C (Class 7)", winnerRank: 2, label: "🥈 Class 7th — Rank 2 Runner-up", prizeAmount: "₹ 3,000", videoUrl: "", studentName: "", studentClass: "7", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group C (Class 7)", winnerRank: 3, label: "🥉 Class 7th — Rank 3 Runner-up", prizeAmount: "₹ 1,000", videoUrl: "", studentName: "", studentClass: "7", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group C (Class 7)", winnerRank: 4, label: "🎁 Class 7th — Consolation #1", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "7", rollNumber: "", schoolName: "", isConsolation: true },
+    { groupCategory: "Group C (Class 7)", winnerRank: 5, label: "🎁 Class 7th — Consolation #2", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "7", rollNumber: "", schoolName: "", isConsolation: true },
+    { groupCategory: "Group C (Class 7)", winnerRank: 6, label: "🎁 Class 7th — Consolation #3", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "7", rollNumber: "", schoolName: "", isConsolation: true },
+
+    { groupCategory: "Group C (Class 8)", winnerRank: 1, label: "🥇 Class 8th — Rank 1 Winner", prizeAmount: "₹ 5,000", videoUrl: "", studentName: "", studentClass: "8", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group C (Class 8)", winnerRank: 2, label: "🥈 Class 8th — Rank 2 Runner-up", prizeAmount: "₹ 3,000", videoUrl: "", studentName: "", studentClass: "8", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group C (Class 8)", winnerRank: 3, label: "🥉 Class 8th — Rank 3 Runner-up", prizeAmount: "₹ 1,000", videoUrl: "", studentName: "", studentClass: "8", rollNumber: "", schoolName: "" },
+    { groupCategory: "Group C (Class 8)", winnerRank: 4, label: "🎁 Class 8th — Consolation #1", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "8", rollNumber: "", schoolName: "", isConsolation: true },
+    { groupCategory: "Group C (Class 8)", winnerRank: 5, label: "🎁 Class 8th — Consolation #2", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "8", rollNumber: "", schoolName: "", isConsolation: true },
+    { groupCategory: "Group C (Class 8)", winnerRank: 6, label: "🎁 Class 8th — Consolation #3", prizeAmount: "₹ 500", videoUrl: "", studentName: "", studentClass: "8", rollNumber: "", schoolName: "", isConsolation: true },
     
     { groupCategory: "Group D (Class 9-12)", winnerRank: 1, label: "🥇 Group D (Class 9-12) — Rank 1 Winner", prizeAmount: "₹ 5,000", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "" },
     { groupCategory: "Group D (Class 9-12)", winnerRank: 2, label: "🥈 Group D (Class 9-12) — Rank 2 Runner-up", prizeAmount: "₹ 3,000", videoUrl: "", studentName: "", studentClass: "", rollNumber: "", schoolName: "" },
@@ -1115,15 +1136,21 @@ export default function AdminCompetitionManager() {
     const comp = (competitions || []).find((c) => String(c.competitionId) === String(sub.competitionId));
     if (!comp || (comp.winnerAnnouncementMode !== "AUTOMATIC" && comp.winnerAnnouncementMode !== "AUTO")) return null;
 
-    // Filter submissions of the same competition and groupCategory
+    // Ensure submission has been evaluated (must have a valid score > 0)
+    const scoreVal = sub.totalScore !== undefined && sub.totalScore !== null ? sub.totalScore : (sub.score || 0);
+    if (!scoreVal || scoreVal <= 0) return null;
+
+    // Filter submissions of the same competition, groupCategory, AND classGrade with valid scores
     const groupSubs = (submissions || []).filter(
       (s) =>
         String(s.competitionId) === String(sub.competitionId) &&
         (s.groupCategory === sub.groupCategory || !sub.groupCategory) &&
+        (s.classGrade === sub.classGrade || !sub.classGrade) &&
         s.status !== "REJECTED" &&
         s.status !== "DELETED" &&
         s.winnerRank !== 0 &&
-        s.winnerRank !== "0"
+        s.winnerRank !== "0" &&
+        ((s.totalScore !== undefined && s.totalScore !== null && s.totalScore > 0) || (s.score && s.score > 0))
     );
 
     if (groupSubs.length === 0) return null;
@@ -2555,19 +2582,39 @@ export default function AdminCompetitionManager() {
                   })}
                 </select>
 
-                {/* GROUP CATEGORY FILTER DROPDOWN */}
-                <select
-                  className="admin-sc-filter-select"
-                  value={selectedGroupFilter}
-                  onChange={(e) => { setSelectedGroupFilter(e.target.value); setSubPage(1); }}
-                  style={{ minWidth: 155 }}
-                >
-                  <option value="ALL">All Groups</option>
-                  <option value="Group A (Class 1-2)">Group A (Class 1-2)</option>
-                  <option value="Group B (Class 3-5)">Group B (Class 3-5)</option>
-                  <option value="Group C (Class 6-8)">Group C (Class 6-8)</option>
-                  <option value="Group D (Class 9-12)">Group D (Class 9-12)</option>
-                </select>
+                {/* GROUP / CLASS FILTER DROPDOWN */}
+                {(() => {
+                  const selCompObj = competitions.find((c) => c.competitionId === selectedCompetitionFilter);
+                  const isKojoSelected = selCompObj && (
+                    (selCompObj.category && selCompObj.category.toLowerCase().includes("kojo")) ||
+                    (selCompObj.title && selCompObj.title.toLowerCase().includes("kojo"))
+                  );
+
+                  return (
+                    <select
+                      className="admin-sc-filter-select"
+                      value={selectedGroupFilter}
+                      onChange={(e) => { setSelectedGroupFilter(e.target.value); setSubPage(1); }}
+                      style={{ minWidth: 155 }}
+                    >
+                      <option value="ALL">{isKojoSelected ? "All Classes" : "All Groups"}</option>
+                      {isKojoSelected ? (
+                        <>
+                          <option value="Class 6">Class 6</option>
+                          <option value="Class 7">Class 7</option>
+                          <option value="Class 8">Class 8</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="Group A (Class 1-2)">Group A (Class 1-2)</option>
+                          <option value="Group B (Class 3-5)">Group B (Class 3-5)</option>
+                          <option value="Group C (Class 6-8)">Group C (Class 6-8)</option>
+                          <option value="Group D (Class 9-12)">Group D (Class 9-12)</option>
+                        </>
+                      )}
+                    </select>
+                  );
+                })()}
 
                 {/* EXPORT SUBMISSIONS DATA BUTTON */}
                 <button
@@ -2627,7 +2674,7 @@ export default function AdminCompetitionManager() {
 
               if (selectedGroupFilter !== "ALL") {
                 filteredSubmissions = filteredSubmissions.filter(
-                  (s) => s.groupCategory === selectedGroupFilter,
+                  (s) => s.groupCategory === selectedGroupFilter || s.classGrade === selectedGroupFilter,
                 );
               }
 
@@ -2985,14 +3032,14 @@ export default function AdminCompetitionManager() {
                                 }
 
                                 const takenRanks = submissions
-                                  .filter(s => 
-                                    s.competitionId === sub.competitionId && 
-                                    s.groupCategory === sub.groupCategory && 
-                                    s.submissionId !== sub.submissionId && 
-                                    s.winnerRank !== null && 
+                                  .filter((s) =>
+                                    s.competitionId === sub.competitionId &&
+                                    (s.classGrade ? s.classGrade === sub.classGrade : s.groupCategory === sub.groupCategory) &&
+                                    s.submissionId !== sub.submissionId &&
+                                    s.winnerRank !== null &&
                                     s.winnerRank !== undefined
                                   )
-                                  .map(s => String(s.winnerRank));
+                                  .map((s) => String(s.winnerRank));
 
                                 return (
                                   <div
@@ -4755,7 +4802,7 @@ export default function AdminCompetitionManager() {
                           <label className="admin-sc-field-label">Group Category *</label>
                           <select
                             className="admin-sc-filter-select"
-                            value={isKojoCompetition ? "Group C" : pastVideoForm.groupCategory}
+                            value={isKojoCompetition ? (pastVideoForm.groupCategory.includes("Group C") ? pastVideoForm.groupCategory : "Group C (Class 6)") : pastVideoForm.groupCategory}
                             onChange={(e) =>
                               setPastVideoForm({
                                 ...pastVideoForm,
@@ -4765,7 +4812,12 @@ export default function AdminCompetitionManager() {
                             style={{ width: "100%", backgroundColor: "#fff" }}
                           >
                             {isKojoCompetition ? (
-                              <option value="Group C">Group C (Class 6-8)</option>
+                              <>
+                                <option value="Group C (Class 6)">Group C — Class 6th</option>
+                                <option value="Group C (Class 7)">Group C — Class 7th</option>
+                                <option value="Group C (Class 8)">Group C — Class 8th</option>
+                                <option value="Group C (Class 6-8)">Group C (Class 6-8 Combined)</option>
+                              </>
                             ) : (
                               <>
                                 <option value="Group A">Group A (Class 1-2)</option>
@@ -4777,7 +4829,7 @@ export default function AdminCompetitionManager() {
                           </select>
                           {isKojoCompetition && (
                             <span style={{ fontSize: "11px", color: "#2563eb", marginTop: "4px", display: "block", fontWeight: "600" }}>
-                              ℹ️ Kojo Competition: Only Group C participates (Group A, B, D restricted).
+                              ℹ️ Kojo Competition: Individual class entries for Class 6th, 7th, &amp; 8th.
                             </span>
                           )}
                         </div>
@@ -4864,7 +4916,7 @@ export default function AdminCompetitionManager() {
                       </div>
                     </>
                   ) : (
-                    /* NEW PAST COMPETITION: 12 WINNERS BATCH GRID */
+                    /* NEW PAST COMPETITION: WINNERS BATCH GRID */
                     <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 16 }}>
                       {/* Notice when Kojo Competition */}
                       {isKojoCompetition && (
@@ -4872,10 +4924,10 @@ export default function AdminCompetitionManager() {
                           <span style={{ fontSize: "24px" }}>📘</span>
                           <div>
                             <div style={{ color: "#1e40af", fontWeight: "800", fontSize: "14px" }}>
-                              Kojo Competition &mdash; Participation Restricted to Group C:
+                              Kojo Competition &mdash; Individual Class Entry for Group C (Class 6th, 7th, &amp; 8th):
                             </div>
                             <div style={{ color: "#2563eb", fontSize: "12.5px", marginTop: "2px" }}>
-                              Only <strong>Group C (Class 6-8)</strong> is participating. Classes for <strong>Group A (Class 1-2), Group B (Class 3-5), and Group D (Class 9-12)</strong> are restricted and will not participate.
+                              Each class (<strong>Class 6th, Class 7th, and Class 8th</strong>) has separate winner entries for <strong>Rank 1, 2, 3, and optional Consolation prizes</strong>.
                             </div>
                           </div>
                         </div>
@@ -4883,17 +4935,17 @@ export default function AdminCompetitionManager() {
 
                       <div style={{ background: "var(--sc-paper)", padding: "12px 16px", borderRadius: "8px", border: "1px solid var(--sc-border)" }}>
                         <h4 style={{ margin: "0 0 4px 0", color: "var(--sc-navy)", fontSize: "15px", fontWeight: "700" }}>
-                          🏆 {isKojoCompetition ? "Winner Entries Grid (Group C Only — Class 6-8)" : "Winner Videos Grid (4 Groups × 3 Ranks = 12 Winner Videos)"}
+                          🏆 {isKojoCompetition ? "Winner Entries Grid (Group C — Class 6th, 7th, & 8th Individual Entries)" : "Winner Videos Grid (4 Groups × 3 Ranks = 12 Winner Videos)"}
                         </h4>
                         <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
                           {isKojoCompetition
-                            ? "Upload Word (.doc/.docx), PDF (.pdf), TXT (.txt), or Image files for Group C (Class 6-8) rank winners. (Videos are not allowed)"
+                            ? "Upload Word (.doc/.docx), PDF (.pdf), TXT (.txt), or Image files for Class 6th, 7th, & 8th rank & consolation winners. (Videos are not allowed)"
                             : "Upload video files or paste video links for each group's 1st, 2nd, and 3rd rank winners."}
                         </p>
                       </div>
 
                       {(isKojoCompetition
-                        ? ["Group C (Class 6-8)"]
+                        ? ["Group C (Class 6)", "Group C (Class 7)", "Group C (Class 8)"]
                         : ["Group A (Class 1-2)", "Group B (Class 3-5)", "Group C (Class 6-8)", "Group D (Class 9-12)"]
                       ).map((groupName) => {
                         const isGroupA = groupName.includes("Group A");
@@ -4939,23 +4991,90 @@ export default function AdminCompetitionManager() {
                                     }}
                                   >
                                     {/* ROW 1: Identifying info */}
-                                    <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
-                                      <div style={{ minWidth: "180px", fontWeight: "700", fontSize: "13px", color: "var(--sc-navy)" }}>
+                                    <div style={{ display: "flex", gap: "12px", alignItems: "flex-start", flexWrap: "wrap" }}>
+                                      <div style={{ minWidth: "180px", fontWeight: "700", fontSize: "13px", color: "var(--sc-navy)", paddingTop: "6px" }}>
                                         {item.label}
                                       </div>
-                                      <div style={{ flex: 1, minWidth: "150px" }}>
-                                        <input
-                                          type="text"
-                                          className="admin-sc-input"
-                                          placeholder="Student Name"
-                                          value={item.studentName || ""}
-                                          onChange={(e) => {
-                                            const updated = [...batchWinners];
-                                            updated[item.originalIndex].studentName = e.target.value;
-                                            setBatchWinners(updated);
-                                          }}
-                                          style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
-                                        />
+                                      <div style={{ flex: 1, minWidth: "200px" }}>
+                                        {(() => {
+                                          const namesArray = (item.studentName || "").split(",").map(s => s.trimStart());
+                                          const currentStudents = namesArray.length > 0 ? namesArray : [""];
+
+                                          return (
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                              {currentStudents.map((sName, sIdx) => (
+                                                <div key={sIdx} style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                                                  {currentStudents.length > 1 && (
+                                                    <span style={{ fontSize: "10px", color: "#64748b", fontWeight: "700" }}>#{sIdx + 1}</span>
+                                                  )}
+                                                  <input
+                                                    type="text"
+                                                    className="admin-sc-input"
+                                                    placeholder={isKojoCompetition ? `Student ${sIdx + 1} Name` : "Student Name"}
+                                                    value={sName}
+                                                    onChange={(e) => {
+                                                      const updated = [...batchWinners];
+                                                      const sUpdated = [...currentStudents];
+                                                      sUpdated[sIdx] = e.target.value;
+                                                      updated[item.originalIndex].studentName = sUpdated.join(", ");
+                                                      setBatchWinners(updated);
+                                                    }}
+                                                    style={{ flex: 1, padding: "6px 10px", fontSize: "12px" }}
+                                                  />
+                                                  {currentStudents.length > 1 && (
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => {
+                                                        const updated = [...batchWinners];
+                                                        const sUpdated = currentStudents.filter((_, i) => i !== sIdx);
+                                                        updated[item.originalIndex].studentName = sUpdated.join(", ");
+                                                        setBatchWinners(updated);
+                                                      }}
+                                                      style={{
+                                                        background: "#fee2e2",
+                                                        color: "#dc2626",
+                                                        border: "none",
+                                                        borderRadius: "4px",
+                                                        padding: "2px 6px",
+                                                        fontSize: "11px",
+                                                        fontWeight: "700",
+                                                        cursor: "pointer"
+                                                      }}
+                                                      title="Remove Student"
+                                                    >
+                                                      ✕
+                                                    </button>
+                                                  )}
+                                                </div>
+                                              ))}
+                                              {currentStudents.length < 5 && (
+                                                <button
+                                                  type="button"
+                                                  onClick={() => {
+                                                    const updated = [...batchWinners];
+                                                    const sUpdated = [...currentStudents, ""];
+                                                    updated[item.originalIndex].studentName = sUpdated.join(", ");
+                                                    setBatchWinners(updated);
+                                                  }}
+                                                  style={{
+                                                    padding: "3px 8px",
+                                                    background: "#eff6ff",
+                                                    color: "#2563eb",
+                                                    border: "1px dashed #93c5fd",
+                                                    borderRadius: "4px",
+                                                    fontSize: "11px",
+                                                    fontWeight: "700",
+                                                    cursor: "pointer",
+                                                    alignSelf: "flex-start",
+                                                    marginTop: "2px"
+                                                  }}
+                                                >
+                                                  ➕ Add Student ({currentStudents.length}/5)
+                                                </button>
+                                              )}
+                                            </div>
+                                          );
+                                        })()}
                                       </div>
                                       <div style={{ width: "90px" }}>
                                         <input
@@ -4971,19 +5090,40 @@ export default function AdminCompetitionManager() {
                                           style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
                                         />
                                       </div>
-                                      <div style={{ width: "90px" }}>
+                                      <div style={{ width: "110px", display: "flex", flexDirection: "column", gap: "2px" }}>
                                         <input
                                           type="text"
                                           className="admin-sc-input"
                                           placeholder="Roll No"
-                                          value={item.rollNumber || ""}
+                                          disabled={Boolean(item.disableRollNumber) || item.rollNumber === "N/A"}
+                                          value={(Boolean(item.disableRollNumber) || item.rollNumber === "N/A") ? "N/A" : (item.rollNumber || "")}
                                           onChange={(e) => {
                                             const updated = [...batchWinners];
                                             updated[item.originalIndex].rollNumber = e.target.value;
                                             setBatchWinners(updated);
                                           }}
-                                          style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
+                                          style={{
+                                            width: "100%",
+                                            padding: "6px 10px",
+                                            fontSize: "12px",
+                                            backgroundColor: (Boolean(item.disableRollNumber) || item.rollNumber === "N/A") ? "#f1f5f9" : "#fff",
+                                            color: (Boolean(item.disableRollNumber) || item.rollNumber === "N/A") ? "#94a3b8" : "#0f172a"
+                                          }}
                                         />
+                                        <label style={{ fontSize: "10px", color: "#64748b", cursor: "pointer", display: "flex", alignItems: "center", gap: "3px" }}>
+                                          <input
+                                            type="checkbox"
+                                            checked={Boolean(item.disableRollNumber) || item.rollNumber === "N/A"}
+                                            onChange={(e) => {
+                                              const isDisabled = e.target.checked;
+                                              const updated = [...batchWinners];
+                                              updated[item.originalIndex].disableRollNumber = isDisabled;
+                                              updated[item.originalIndex].rollNumber = isDisabled ? "N/A" : "";
+                                              setBatchWinners(updated);
+                                            }}
+                                          />
+                                          <span>Disable Roll</span>
+                                        </label>
                                       </div>
                                       <div style={{ flex: 1, minWidth: "180px" }}>
                                         <input
@@ -5002,7 +5142,7 @@ export default function AdminCompetitionManager() {
                                     </div>
 
                                     {/* ROW 2: Prize & Video info */}
-                                    <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+                                    <div style={{ display: "flex", gap: "12px", alignItems: "flex-start", flexWrap: "wrap" }}>
                                       <div style={{ width: "130px" }}>
                                         <input
                                           type="text"
@@ -5280,6 +5420,7 @@ export default function AdminCompetitionManager() {
                                               fontWeight: "800",
                                               fontSize: "13px",
                                               color: "#b45309",
+                                              paddingTop: "6px",
                                               display: "flex",
                                               alignItems: "center",
                                               gap: "6px",
@@ -5288,19 +5429,86 @@ export default function AdminCompetitionManager() {
                                             <span style={{ fontSize: "16px" }}>🎁</span>
                                             <span>{item.label.replace(/^🎁\s*/, "")}</span>
                                           </div>
-                                          <div style={{ flex: 1, minWidth: "150px" }}>
-                                            <input
-                                              type="text"
-                                              className="admin-sc-input"
-                                              placeholder="Student Name"
-                                              value={item.studentName || ""}
-                                              onChange={(e) => {
-                                                const updated = [...batchWinners];
-                                                updated[item.originalIndex].studentName = e.target.value;
-                                                setBatchWinners(updated);
-                                              }}
-                                              style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
-                                            />
+                                          <div style={{ flex: 1, minWidth: "200px" }}>
+                                            {(() => {
+                                              const namesArray = (item.studentName || "").split(",").map(s => s.trimStart());
+                                              const currentStudents = namesArray.length > 0 ? namesArray : [""];
+
+                                              return (
+                                                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                                  {currentStudents.map((sName, sIdx) => (
+                                                    <div key={sIdx} style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                                                      {currentStudents.length > 1 && (
+                                                        <span style={{ fontSize: "10px", color: "#64748b", fontWeight: "700" }}>#{sIdx + 1}</span>
+                                                      )}
+                                                      <input
+                                                        type="text"
+                                                        className="admin-sc-input"
+                                                        placeholder={isKojoCompetition ? `Student ${sIdx + 1} Name` : "Student Name"}
+                                                        value={sName}
+                                                        onChange={(e) => {
+                                                          const updated = [...batchWinners];
+                                                          const sUpdated = [...currentStudents];
+                                                          sUpdated[sIdx] = e.target.value;
+                                                          updated[item.originalIndex].studentName = sUpdated.join(", ");
+                                                          setBatchWinners(updated);
+                                                        }}
+                                                        style={{ flex: 1, padding: "6px 10px", fontSize: "12px" }}
+                                                      />
+                                                      {currentStudents.length > 1 && (
+                                                        <button
+                                                          type="button"
+                                                          onClick={() => {
+                                                            const updated = [...batchWinners];
+                                                            const sUpdated = currentStudents.filter((_, i) => i !== sIdx);
+                                                            updated[item.originalIndex].studentName = sUpdated.join(", ");
+                                                            setBatchWinners(updated);
+                                                          }}
+                                                          style={{
+                                                            background: "#fee2e2",
+                                                            color: "#dc2626",
+                                                            border: "none",
+                                                            borderRadius: "4px",
+                                                            padding: "2px 6px",
+                                                            fontSize: "11px",
+                                                            fontWeight: "700",
+                                                            cursor: "pointer"
+                                                          }}
+                                                          title="Remove Student"
+                                                        >
+                                                          ✕
+                                                        </button>
+                                                      )}
+                                                    </div>
+                                                  ))}
+                                                  {currentStudents.length < 5 && (
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => {
+                                                        const updated = [...batchWinners];
+                                                        const sUpdated = [...currentStudents, ""];
+                                                        updated[item.originalIndex].studentName = sUpdated.join(", ");
+                                                        setBatchWinners(updated);
+                                                      }}
+                                                      style={{
+                                                        padding: "3px 8px",
+                                                        background: "#eff6ff",
+                                                        color: "#2563eb",
+                                                        border: "1px dashed #93c5fd",
+                                                        borderRadius: "4px",
+                                                        fontSize: "11px",
+                                                        fontWeight: "700",
+                                                        cursor: "pointer",
+                                                        alignSelf: "flex-start",
+                                                        marginTop: "2px"
+                                                      }}
+                                                    >
+                                                      ➕ Add Student ({currentStudents.length}/5)
+                                                    </button>
+                                                  )}
+                                                </div>
+                                              );
+                                            })()}
                                           </div>
                                           <div style={{ width: "90px" }}>
                                             <input
@@ -5316,19 +5524,40 @@ export default function AdminCompetitionManager() {
                                               style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
                                             />
                                           </div>
-                                          <div style={{ width: "90px" }}>
+                                          <div style={{ width: "110px", display: "flex", flexDirection: "column", gap: "2px" }}>
                                             <input
                                               type="text"
                                               className="admin-sc-input"
                                               placeholder="Roll No"
-                                              value={item.rollNumber || ""}
+                                              disabled={Boolean(item.disableRollNumber) || item.rollNumber === "N/A"}
+                                              value={(Boolean(item.disableRollNumber) || item.rollNumber === "N/A") ? "N/A" : (item.rollNumber || "")}
                                               onChange={(e) => {
                                                 const updated = [...batchWinners];
                                                 updated[item.originalIndex].rollNumber = e.target.value;
                                                 setBatchWinners(updated);
                                               }}
-                                              style={{ width: "100%", padding: "6px 10px", fontSize: "12px" }}
+                                              style={{
+                                                width: "100%",
+                                                padding: "6px 10px",
+                                                fontSize: "12px",
+                                                backgroundColor: (Boolean(item.disableRollNumber) || item.rollNumber === "N/A") ? "#f1f5f9" : "#fff",
+                                                color: (Boolean(item.disableRollNumber) || item.rollNumber === "N/A") ? "#94a3b8" : "#0f172a"
+                                              }}
                                             />
+                                            <label style={{ fontSize: "10px", color: "#64748b", cursor: "pointer", display: "flex", alignItems: "center", gap: "3px" }}>
+                                              <input
+                                                type="checkbox"
+                                                checked={Boolean(item.disableRollNumber) || item.rollNumber === "N/A"}
+                                                onChange={(e) => {
+                                                  const isDisabled = e.target.checked;
+                                                  const updated = [...batchWinners];
+                                                  updated[item.originalIndex].disableRollNumber = isDisabled;
+                                                  updated[item.originalIndex].rollNumber = isDisabled ? "N/A" : "";
+                                                  setBatchWinners(updated);
+                                                }}
+                                              />
+                                              <span>Disable Roll</span>
+                                            </label>
                                           </div>
                                           <div style={{ flex: 1, minWidth: "180px" }}>
                                             <input
