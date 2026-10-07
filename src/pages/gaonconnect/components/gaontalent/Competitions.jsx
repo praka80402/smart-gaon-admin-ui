@@ -308,6 +308,7 @@ const [showCategoryInput,
 
         const payload = {
           ...form,
+          stateName: form.state,
           startDate:
             toDDMMYYYY(
               form.startDate
@@ -675,7 +676,7 @@ const totalParticipantPages =
 
             <span className="competition-state-chip">
 
-              {c.state || "ALL"}
+              {c.stateName || c.state || "ALL"}
 
             </span>
 
