@@ -317,6 +317,7 @@ useEffect(() => {
     <option value="UTTAR_PRADESH">UP</option>
     <option value="GUJARAT">Gujarat</option>
     <option value="MAHARASHTRA">Maharashtra</option>
+    <option value="MADHYA_PRADESH">Madhya Pradesh</option>
     <option value="JHARKHAND">Jharkhand</option>
   </select>
 <button
@@ -536,6 +537,7 @@ useEffect(() => {
                       <option value="UTTAR_PRADESH">Uttar Pradesh</option>
                       <option value="GUJARAT">Gujarat</option>
                       <option value="MAHARASHTRA">Maharashtra</option>
+                      <option value="MADHYA_PRADESH">Madhya Pradesh</option>
                       <option value="JHARKHAND">Jharkhand</option>
                     </select>
                     
