@@ -1,6 +1,6 @@
 import { api } from "../pages/gaonconnect/services/apiConfig"
-          const BASE = "https://smartgaonadmin.duckdns.org/admin";
-// const BASE = "http://localhost:9090/admin";
+       //   const BASE = "https://smartgaonadmin.duckdns.org/admin";
+ const BASE = "http://localhost:9090/admin";
 
 const LOGIN_URL = `${BASE}/login`;
 const USERS_URL = `${BASE}/users`;
@@ -81,6 +81,26 @@ const res = await api.post(CREATE_ADMIN_URL, adminData, authHeader());
 return res.data;
 };
 
+// -----------------------------------------------------
+// DELETION REQUESTS (sent from the website Delete Account page)
+// -----------------------------------------------------
+// filters = { name, phone, email, state, pincode } — all optional
+export const getDeleteRequests = async (filters = {}) => {
+  const params = {};
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && String(value).trim() !== "") {
+      params[key] = String(value).trim();
+    }
+  });
+  const res = await api.get(`${BASE}/delete-requests`, { ...authHeader(), params });
+  return res.data;
+};
+
+// Mark a request as COMPLETED / APPROVED / REJECTED. body = { status, adminRemark }
+export const updateDeleteRequestStatus = async (id, body) => {
+  const res = await api.put(`${BASE}/delete-requests/${id}/status`, body, authHeader());
+  return res.data;
+};
 // -----------------------------------------------------
 // SEARCH
 // -----------------------------------------------------
