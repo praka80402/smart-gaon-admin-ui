@@ -1,0 +1,113 @@
+/* Language UI for SchemeAdmin — tabs, badges, hints. */
+
+.lang-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  background: #f1f3f5;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.lang-tab {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lang-tab:hover {
+  background: #e4e7eb;
+}
+
+.lang-tab.active {
+  background: #fff;
+  color: #1976d2;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.lang-tab-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #cfd4da;
+}
+
+.lang-tab-dot.filled {
+  background: #2e7d32;
+}
+
+.lang-section {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.lang-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lang-section-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+}
+
+.lang-hint {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  color: #666;
+}
+
+.lang-badges {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.lang-badge {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+  background: #e6f4ea;
+  color: #1e7e34;
+}
+
+.lang-fallback-note {
+  margin-left: 6px;
+  font-size: 11px;
+  color: #b26a00;
+  font-weight: 600;
+}
+
+.lang-missing-banner {
+  background: #fff8e1;
+  color: #8a6100;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  margin: 0 0 10px;
+}
+
+.lang-category-alt {
+  color: #777;
+  font-size: 13px;
+}

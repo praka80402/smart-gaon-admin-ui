@@ -17,9 +17,55 @@ import {
   updateScheme
 } from "./schemeService";
 
+import {
+  DEFAULT_LANGUAGE,
+  LANGUAGES,
+  TRANSLATABLE_FIELDS,
+  emptyContentForAllLanguages,
+  getCategoryName,
+  getLanguage,
+  getSchemeContent,
+  schemeHasLanguage,
+} from "./languages";
+
 import "./SchemeAdmin.css";
+import "./SchemeLanguage.css";
 
 const ITEMS_PER_PAGE = 5;
+
+const emptyCategoryNames = () =>
+  Object.fromEntries(LANGUAGES.map((l) => [l.code, ""]));
+
+const initialFormData = () => ({
+  schemeType: "CENTRAL",
+  categoryId: "",
+  state: "",
+  schemeUrl: "",
+  image: null,
+  // Text per language: { EN: {title, detail, benefits, eligibility}, HI: {...}, MR: {...} }
+  content: emptyContentForAllLanguages(),
+});
+
+// Small tab bar used in the form, the detail popup and the category popup.
+const LanguageTabs = ({ value, onChange, isFilled }) => (
+  <div className="lang-tabs" role="tablist">
+    {LANGUAGES.map((lang) => (
+      <button
+        key={lang.code}
+        type="button"
+        role="tab"
+        aria-selected={value === lang.code}
+        className={`lang-tab ${value === lang.code ? "active" : ""}`}
+        onClick={() => onChange(lang.code)}
+      >
+        {lang.nativeLabel}
+        {isFilled && (
+          <span className={`lang-tab-dot ${isFilled(lang.code) ? "filled" : ""}`} />
+        )}
+      </button>
+    ))}
+  </div>
+);
 
   const SchemeAdmin = ({ onClose }) => {
   const role = localStorage.getItem("adminRole");
@@ -29,6 +75,8 @@ const ITEMS_PER_PAGE = 5;
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterState, setFilterState] = useState("");
+  const [filterMissingLang, setFilterMissingLang] = useState("");
+  const [displayLang, setDisplayLang] = useState(DEFAULT_LANGUAGE);
   const [currentPage, setCurrentPage] = useState(1);
   const [schemes, setSchemes] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -38,19 +86,13 @@ const ITEMS_PER_PAGE = 5;
   const [expandedTitles, setExpandedTitles] = useState({});
   const [editingScheme, setEditingScheme] = useState(null);
   const [selectedScheme, setSelectedScheme] = useState(null);
-  const [newCategory, setNewCategory] = useState("");
+  const [detailLang, setDetailLang] = useState(DEFAULT_LANGUAGE);
+  const [newCategory, setNewCategory] = useState(emptyCategoryNames());
+  const [categoryLang, setCategoryLang] = useState(DEFAULT_LANGUAGE);
   const [editingCategory, setEditingCategory] = useState(null);
-  const [formData, setFormData] = useState({
-    schemeType: "CENTRAL",
-    categoryId: "",
-    state: "",
-    title: "",
-    detail: "",
-    benefits: "",
-    eligibility: "",
-    schemeUrl: "",
-    image: null,
-  });
+  const [formLang, setFormLang] = useState(DEFAULT_LANGUAGE);
+  const [saving, setSaving] = useState(false);
+  const [formData, setFormData] = useState(initialFormData());
 
   useEffect(() => {
     loadSchemes();
@@ -75,7 +117,13 @@ const ITEMS_PER_PAGE = 5;
 
   // 🔍 Filter logic
 const filteredSchemes = schemes.filter((scheme) => {
-  const matchSearch = scheme.title.toLowerCase().includes(searchTerm.toLowerCase());
+  // Search matches the title in ANY language
+  const term = searchTerm.toLowerCase();
+  const matchSearch =
+    !term ||
+    LANGUAGES.some((l) =>
+      getSchemeContent(scheme, l.code).title.toLowerCase().includes(term)
+    );
 
   const matchCategory = filterCategory
     ? scheme.category?.id?.toString() === filterCategory
@@ -85,7 +133,12 @@ const filteredSchemes = schemes.filter((scheme) => {
     ? scheme.state === filterState
     : true;
 
-  return matchSearch && matchCategory && matchState;
+  // "Missing Hindi" etc. — helps admins find schemes still to translate
+  const matchMissing = filterMissingLang
+    ? !schemeHasLanguage(scheme, filterMissingLang)
+    : true;
+
+  return matchSearch && matchCategory && matchState && matchMissing;
 });
 
 // 📄 Pagination logic
@@ -103,6 +156,7 @@ useEffect(() => {
     setExpandedTitles((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  // Shared (non-language) fields: type, category, state, URL, image
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -114,18 +168,24 @@ useEffect(() => {
     setFormData((prev) => ({ ...prev, [name]: files ? files[0] : value }));
   };
 
+  // Language-specific fields: title, detail, benefits, eligibility (for the active tab)
+  const handleContentChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      content: {
+        ...prev.content,
+        [formLang]: { ...prev.content[formLang], [name]: value },
+      },
+    }));
+  };
+
+  const isLangFilled = (code) =>
+    Boolean(formData.content[code]?.title?.trim());
+
   const resetForm = () => {
-    setFormData({
-      schemeType: "CENTRAL",
-      categoryId: "",
-      state: "",
-      title: "",
-      detail: "",
-      benefits: "",
-      eligibility: "",
-      schemeUrl: "",
-      image: null,
-    });
+    setFormData(initialFormData());
+    setFormLang(DEFAULT_LANGUAGE);
   };
 
   const closeSchemeModal = () => {
@@ -136,50 +196,108 @@ useEffect(() => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!canManage) return;
+    if (!canManage || saving) return;
 
     if (formData.schemeType === "STATE" && !formData.state) {
       alert("Please select a state");
       return;
     }
 
-    const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) => value && data.append(key, value));
+    const { content, ...shared } = formData;
+    const en = content[DEFAULT_LANGUAGE];
 
-    if (editingScheme) {
-      await updateScheme(editingScheme.id, data);
-      alert("Scheme Updated");
-    } else {
-      await createScheme(data);
-      alert("Scheme Created");
-
-      await addDoc(collection(db, "notifications"), {
-        title: "New Government Scheme",
-        message: formData.title,
-        type: "scheme",
-        createdAt: serverTimestamp(),
-      });
+    // English is the base language — needed as the fallback on the website
+    if (!en.title.trim()) {
+      setFormLang(DEFAULT_LANGUAGE);
+      alert("Please enter the English title (it is shown when a translation is missing)");
+      return;
     }
 
-    closeSchemeModal();
-    loadSchemes();
+    // Collect other languages that have anything filled in
+    const translations = {};
+    for (const lang of LANGUAGES) {
+      if (lang.code === DEFAULT_LANGUAGE) continue;
+      const c = content[lang.code];
+      const hasAny = TRANSLATABLE_FIELDS.some((f) => c[f]?.trim());
+      if (!hasAny) continue;
+
+      if (!c.title.trim()) {
+        setFormLang(lang.code);
+        alert(`Please enter the ${lang.label} title, or clear the other ${lang.label} fields`);
+        return;
+      }
+      translations[lang.code] = Object.fromEntries(
+        TRANSLATABLE_FIELDS.map((f) => [f, c[f]?.trim() || ""])
+      );
+    }
+
+    const data = new FormData();
+    Object.entries(shared).forEach(([key, value]) => value && data.append(key, value));
+    TRANSLATABLE_FIELDS.forEach((f) => data.append(f, en[f]?.trim() || ""));
+    data.append("translations", JSON.stringify(translations));
+
+    setSaving(true);
+    try {
+      if (editingScheme) {
+        await updateScheme(editingScheme.id, data);
+        alert("Scheme Updated");
+      } else {
+        await createScheme(data);
+        alert("Scheme Created");
+
+        await addDoc(collection(db, "notifications"), {
+          title: "New Government Scheme",
+          message: en.title.trim(),
+          // Title per language so the website can show the notification in the user's language
+          messageTranslations: Object.fromEntries(
+            Object.entries(translations).map(([code, c]) => [code, c.title])
+          ),
+          type: "scheme",
+          createdAt: serverTimestamp(),
+        });
+      }
+
+      closeSchemeModal();
+      loadSchemes();
+    } catch (err) {
+      console.error(err);
+      alert(err?.response?.data?.message || "Could not save the scheme. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleEdit = (scheme) => {
     if (!canManage) return;
+
+    const content = emptyContentForAllLanguages();
+    content[DEFAULT_LANGUAGE] = {
+      title: scheme.title || "",
+      detail: scheme.detail || "",
+      benefits: scheme.benefits || "",
+      eligibility: scheme.eligibility || "",
+    };
+    Object.entries(scheme.translations || {}).forEach(([code, c]) => {
+      if (content[code]) {
+        content[code] = {
+          title: c?.title || "",
+          detail: c?.detail || "",
+          benefits: c?.benefits || "",
+          eligibility: c?.eligibility || "",
+        };
+      }
+    });
 
     setEditingScheme(scheme);
     setFormData({
       schemeType: scheme.schemeType,
       categoryId: scheme.category?.id || "",
       state: scheme.state || "",
-      title: scheme.title,
-      detail: scheme.detail,
-      benefits: scheme.benefits,
-      eligibility: scheme.eligibility,
-      schemeUrl: scheme.schemeUrl,
+      schemeUrl: scheme.schemeUrl || "",
       image: null,
+      content,
     });
+    setFormLang(DEFAULT_LANGUAGE);
     setShowSchemeModal(true);
   };
 
@@ -194,14 +312,53 @@ useEffect(() => {
 
   const handleEditCategory = (cat) => {
     setEditingCategory(cat);
-    setNewCategory(cat.name);
+    const names = emptyCategoryNames();
+    names[DEFAULT_LANGUAGE] = cat.name || "";
+    Object.entries(cat.nameTranslations || {}).forEach(([code, value]) => {
+      if (code in names) names[code] = value || "";
+    });
+    setNewCategory(names);
+    setCategoryLang(DEFAULT_LANGUAGE);
     setShowCategoryModal(true);
   };
 
   const closeCategoryModal = () => {
     setShowCategoryModal(false);
     setEditingCategory(null);
-    setNewCategory("");
+    setNewCategory(emptyCategoryNames());
+    setCategoryLang(DEFAULT_LANGUAGE);
+  };
+
+  const handleSaveCategory = async () => {
+    const englishName = newCategory[DEFAULT_LANGUAGE]?.trim();
+    if (!englishName) {
+      setCategoryLang(DEFAULT_LANGUAGE);
+      alert("Please enter the English category name");
+      return;
+    }
+
+    const translations = {};
+    LANGUAGES.forEach((l) => {
+      const v = newCategory[l.code]?.trim();
+      if (l.code !== DEFAULT_LANGUAGE && v) translations[l.code] = v;
+    });
+
+    try {
+      if (editingCategory) {
+        await updateCategory(editingCategory.id, englishName, translations);
+        alert("Category updated");
+      } else {
+        await createCategory(englishName, translations);
+        alert("Category created");
+      }
+
+      loadCategories();
+      loadSchemes(); // category names inside schemes may have changed
+      closeCategoryModal();
+    } catch (err) {
+      console.error(err);
+      alert("Could not save the category. Please try again.");
+    }
   };
 
   const handleDeleteCategory = async (id) => {
@@ -210,6 +367,10 @@ useEffect(() => {
       loadCategories();
     }
   };
+
+  const activeContent = formData.content[formLang];
+  const activeLang = getLanguage(formLang);
+  const detailContent = selectedScheme ? getSchemeContent(selectedScheme, detailLang) : null;
 
   return (
     <div className="scheme-container">
@@ -299,7 +460,7 @@ useEffect(() => {
     <option value="">All Categories</option>
     {categories.map((cat) => (
       <option key={cat.id} value={cat.id}>
-        {cat.name}
+        {getCategoryName(cat, displayLang)}
       </option>
     ))}
   </select>
@@ -320,11 +481,43 @@ useEffect(() => {
     <option value="MADHYA_PRADESH">Madhya Pradesh</option>
     <option value="JHARKHAND">Jharkhand</option>
   </select>
+
+  <select
+    value={filterMissingLang}
+    onChange={(e) => {
+      setFilterMissingLang(e.target.value);
+      setCurrentPage(1);
+    }}
+    className="scheme-filter-select"
+    title="Show schemes that still need a translation"
+  >
+    <option value="">All Translations</option>
+    {LANGUAGES.filter((l) => l.code !== DEFAULT_LANGUAGE).map((l) => (
+      <option key={l.code} value={l.code}>
+        Missing {l.label}
+      </option>
+    ))}
+  </select>
+
+  <select
+    value={displayLang}
+    onChange={(e) => setDisplayLang(e.target.value)}
+    className="scheme-filter-select"
+    title="Language used to show titles in this table"
+  >
+    {LANGUAGES.map((l) => (
+      <option key={l.code} value={l.code}>
+        View in: {l.nativeLabel}
+      </option>
+    ))}
+  </select>
+
 <button
   onClick={() => {
     setSearchTerm("");
     setFilterCategory("");
     setFilterState("");
+    setFilterMissingLang("");
     setCurrentPage(1);
   }}
   className="scheme-clear-btn"
@@ -346,15 +539,21 @@ useEffect(() => {
 
           <tbody>
             {currentSchemes.length > 0 ? (
-              currentSchemes.map((scheme) => (
+              currentSchemes.map((scheme) => {
+                const title = getSchemeContent(scheme, displayLang).title;
+                const words = title.split(" ");
+                const showingFallback =
+                  displayLang !== DEFAULT_LANGUAGE && !schemeHasLanguage(scheme, displayLang);
+
+                return (
                 <tr key={scheme.id}>
                   <td>
                     {expandedTitles[scheme.id]
-                      ? scheme.title
-                      : scheme.title.split(" ").slice(0, 4).join(" ") +
-                        (scheme.title.split(" ").length > 4 ? "..." : "")}
+                      ? title
+                      : words.slice(0, 4).join(" ") +
+                        (words.length > 4 ? "..." : "")}
 
-                    {scheme.title.split(" ").length > 4 && (
+                    {words.length > 4 && (
                       <span
                         onClick={() => toggleTitle(scheme.id)}
                         style={{
@@ -367,11 +566,26 @@ useEffect(() => {
                         {expandedTitles[scheme.id] ? "View Less" : "View More"}
                       </span>
                     )}
+
+                    {showingFallback && (
+                      <span className="lang-fallback-note" title="Not translated yet — showing English">
+                        (EN)
+                      </span>
+                    )}
+
+                    {/* Only the languages this scheme actually has */}
+                    <div className="lang-badges">
+                      {LANGUAGES.filter((l) => schemeHasLanguage(scheme, l.code)).map((l) => (
+                        <span key={l.code} className="lang-badge" title={l.label}>
+                          {l.code}
+                        </span>
+                      ))}
+                    </div>
                   </td>
 
                   <td>{scheme.schemeType}</td>
                   <td>{scheme.state || "-"}</td>
-                  <td>{scheme.category?.name}</td>
+                  <td>{getCategoryName(scheme.category, displayLang)}</td>
 
                   {canManage && (
                     <td>
@@ -379,6 +593,7 @@ useEffect(() => {
                         <button
                           onClick={() => {
                             setSelectedScheme(scheme);
+                            setDetailLang(displayLang);
                             setShowDetailModal(true);
                           }}
                           style={{
@@ -433,7 +648,8 @@ useEffect(() => {
                     </td>
                   )}
                 </tr>
-              ))
+                );
+              })
             ) : (
               <tr>
                 <td colSpan={canManage ? 5 : 4} className="scheme-empty">
@@ -485,14 +701,27 @@ useEffect(() => {
               <button className="scheme-modal-close" onClick={() => setShowDetailModal(false)}>
                 X
               </button>
-              <h3>{selectedScheme.title}</h3>
-              <div className="details-content">
+
+              <LanguageTabs
+                value={detailLang}
+                onChange={setDetailLang}
+                isFilled={(code) => schemeHasLanguage(selectedScheme, code)}
+              />
+
+              {!schemeHasLanguage(selectedScheme, detailLang) && (
+                <p className="lang-missing-banner">
+                  Not translated to {getLanguage(detailLang).label} yet — the website will show English.
+                </p>
+              )}
+
+              <h3 lang={detailLang.toLowerCase()}>{detailContent.title}</h3>
+              <div className="details-content" lang={detailLang.toLowerCase()}>
                 <p><strong>Type:</strong> {selectedScheme.schemeType}</p>
                 <p><strong>State:</strong> {selectedScheme.state || "N/A"}</p>
-                <p><strong>Category:</strong> {selectedScheme.category?.name}</p>
-                <p><strong>Description:</strong> {selectedScheme.detail}</p>
-                <p><strong>Benefits:</strong> {selectedScheme.benefits}</p>
-                <p><strong>Eligibility:</strong> {selectedScheme.eligibility}</p>
+                <p><strong>Category:</strong> {getCategoryName(selectedScheme.category, detailLang)}</p>
+                <p><strong>Description:</strong> {detailContent.detail}</p>
+                <p><strong>Benefits:</strong> {detailContent.benefits}</p>
+                <p><strong>Eligibility:</strong> {detailContent.eligibility}</p>
               </div>
             </div>
           </div>,
@@ -510,6 +739,7 @@ useEffect(() => {
               <h3>{editingScheme ? "Edit Scheme" : "Create Scheme"}</h3>
 
               <form onSubmit={handleSubmit} className="scheme-form">
+                {/* -------- Shared details (same for every language) -------- */}
                 <div className="form-grid">
                   <select name="schemeType" value={formData.schemeType} onChange={handleChange}>
                     <option value="CENTRAL">Central</option>
@@ -525,7 +755,7 @@ useEffect(() => {
                     <option value="">Select Category</option>
                     {categories.map((category) => (
                       <option key={category.id} value={category.id}>
-                        {category.name}
+                        {getCategoryName(category, formLang)}
                       </option>
                     ))}
                   </select>
@@ -540,34 +770,9 @@ useEffect(() => {
                       <option value="MADHYA_PRADESH">Madhya Pradesh</option>
                       <option value="JHARKHAND">Jharkhand</option>
                     </select>
-                    
+
                   )}
 
-                  <input
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    placeholder="Title"
-                    required
-                  />
-                  <textarea
-                    name="detail"
-                    value={formData.detail}
-                    onChange={handleChange}
-                    placeholder="Description"
-                  />
-                  <textarea
-                    name="benefits"
-                    value={formData.benefits}
-                    onChange={handleChange}
-                    placeholder="Benefits"
-                  />
-                  <textarea
-                    name="eligibility"
-                    value={formData.eligibility}
-                    onChange={handleChange}
-                    placeholder="Eligibility"
-                  />
                   <input
                     name="schemeUrl"
                     value={formData.schemeUrl}
@@ -577,9 +782,50 @@ useEffect(() => {
                   <input type="file" name="image" onChange={handleChange} />
                 </div>
 
+                {/* -------- Text per language -------- */}
+                <div className="lang-section">
+                  <div className="lang-section-head">
+                    <span className="lang-section-label">Scheme content language</span>
+                    <LanguageTabs value={formLang} onChange={setFormLang} isFilled={isLangFilled} />
+                  </div>
+
+                  <p className="lang-hint">
+                    {formLang === DEFAULT_LANGUAGE
+                      ? "English is required. It is shown on the website whenever a translation is missing."
+                      : `Optional. Fill in ${activeLang.label} so visitors using ${activeLang.nativeLabel} see this scheme in their language. Empty fields fall back to English.`}
+                  </p>
+
+                  <div className="form-grid" key={formLang} lang={formLang.toLowerCase()}>
+                    <input
+                      name="title"
+                      value={activeContent.title}
+                      onChange={handleContentChange}
+                      placeholder={`Title (${activeLang.nativeLabel})${formLang === DEFAULT_LANGUAGE ? " *" : ""}`}
+                    />
+                    <textarea
+                      name="detail"
+                      value={activeContent.detail}
+                      onChange={handleContentChange}
+                      placeholder={`Description (${activeLang.nativeLabel})`}
+                    />
+                    <textarea
+                      name="benefits"
+                      value={activeContent.benefits}
+                      onChange={handleContentChange}
+                      placeholder={`Benefits (${activeLang.nativeLabel})`}
+                    />
+                    <textarea
+                      name="eligibility"
+                      value={activeContent.eligibility}
+                      onChange={handleContentChange}
+                      placeholder={`Eligibility (${activeLang.nativeLabel})`}
+                    />
+                  </div>
+                </div>
+
                 <div className="form-footer">
-                  <button type="submit">
-                    {editingScheme ? "Update Scheme" : "Save Scheme"}
+                  <button type="submit" disabled={saving}>
+                    {saving ? "Saving..." : editingScheme ? "Update Scheme" : "Save Scheme"}
                   </button>
                 </div>
               </form>
@@ -599,30 +845,25 @@ useEffect(() => {
               <h3>{editingCategory ? "Edit Category" : "Create Category"}</h3>
 
               <div className="scheme-category-form">
+                <LanguageTabs
+                  value={categoryLang}
+                  onChange={setCategoryLang}
+                  isFilled={(code) => Boolean(newCategory[code]?.trim())}
+                />
                 <input
-                  placeholder="Category name"
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
+                  key={categoryLang}
+                  lang={categoryLang.toLowerCase()}
+                  placeholder={`Category name (${getLanguage(categoryLang).nativeLabel})${
+                    categoryLang === DEFAULT_LANGUAGE ? " *" : ""
+                  }`}
+                  value={newCategory[categoryLang] || ""}
+                  onChange={(e) =>
+                    setNewCategory((prev) => ({ ...prev, [categoryLang]: e.target.value }))
+                  }
                 />
 
                 <div className="form-footer">
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (!newCategory.trim()) return;
-
-                      if (editingCategory) {
-                        await updateCategory(editingCategory.id, newCategory);
-                        alert("Category updated");
-                      } else {
-                        await createCategory(newCategory);
-                        alert("Category created");
-                      }
-
-                      loadCategories();
-                      closeCategoryModal();
-                    }}
-                  >
+                  <button type="button" onClick={handleSaveCategory}>
                     {editingCategory ? "Update Category" : "Add Category"}
                   </button>
                 </div>
@@ -633,7 +874,16 @@ useEffect(() => {
 
                 {categories.map((cat) => (
                   <div key={cat.id} className="scheme-category-row">
-                    <span>{cat.name}</span>
+                    <span>
+                      {cat.name}
+                      {LANGUAGES.filter((l) => l.code !== DEFAULT_LANGUAGE).map((l) =>
+                        cat.nameTranslations?.[l.code] ? (
+                          <span key={l.code} className="lang-category-alt">
+                            {" "}· {cat.nameTranslations[l.code]}
+                          </span>
+                        ) : null
+                      )}
+                    </span>
 
                     <div className="scheme-category-actions">
                       <button onClick={() => handleEditCategory(cat)}>
