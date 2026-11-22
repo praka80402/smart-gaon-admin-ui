@@ -3,23 +3,22 @@ import { api } from "../../pages/gaonconnect/services/apiConfig";
 // baseURL already = https://smartgaonadmin.duckdns.org
 const BASE = "/api/admin/schemes";
 
-const fetchSchemesPage = (page = 0) => {
+const fetchSchemesPage = (page = 0, lang) => {
   return api.get(BASE, {
     params: {
       page,
       size: 1000,
+      ...(lang ? { lang } : {}),
     },
   });
 };
 
-// ---------------- CREATE ----------------
 export const createScheme = (data) => {
   return api.post(BASE, data);
 };
 
-// ---------------- GET ALL ----------------
-export const getAllSchemes = () => {
-  return fetchSchemesPage(0).then(async (firstResponse) => {
+export const getAllSchemes = (lang) => {
+  return fetchSchemesPage(0, lang).then(async (firstResponse) => {
     const firstData = firstResponse.data;
 
     if (Array.isArray(firstData)) {
@@ -37,7 +36,7 @@ export const getAllSchemes = () => {
     }
 
     const remainingResponses = await Promise.all(
-      Array.from({ length: totalPages - 1 }, (_, index) => fetchSchemesPage(index + 1))
+      Array.from({ length: totalPages - 1 }, (_, index) => fetchSchemesPage(index + 1, lang))
     );
 
     const allSchemes = [
@@ -52,6 +51,11 @@ export const getAllSchemes = () => {
       data: allSchemes,
     };
   });
+};
+
+// ---------------- GET ONE (website) ----------------
+export const getSchemeById = (id, lang) => {
+  return api.get(`${BASE}/${id}`, { params: lang ? { lang } : {} });
 };
 
 // ---------------- DELETE ----------------
